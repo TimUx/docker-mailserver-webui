@@ -30,9 +30,10 @@ Modern, secure, production-oriented WebUI for administrating [Docker Mailserver]
 ### IMAPSync Management
 
 - CRUD IMAPSync jobs
+- WebUI stores and manages IMAPSync job definitions only
+- Execution is done by your external IMAPSync container/automation
 - Enable/disable jobs
-- Manual sync trigger
-- Scheduled sync (interval-based with APScheduler)
+- Sync interval is stored as job metadata for your external runner
 - Encrypted credentials at rest (Fernet)
 
 ### Security Stack Integration (rspamd / redis / clamav)
@@ -70,7 +71,6 @@ Key endpoints:
 - `GET /api/dms/domains`
 - `GET|POST /api/imapsync`
 - `PUT|DELETE /api/imapsync/{job_id}`
-- `POST /api/imapsync/{job_id}/run`
 - `GET /api/integrations/status`
 - `POST /api/integrations/{rspamd|redis|clamav}/restart`
 - `GET /api/logs/{mailserver|imapsync|webui}`

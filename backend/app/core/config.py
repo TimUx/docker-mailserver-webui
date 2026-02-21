@@ -15,7 +15,6 @@ class Settings(BaseSettings):
 
     dms_container_name: str = "mail-server"
     dms_setup_path: str = "setup"
-
     rspamd_container_name: str = "mail-rspamd"
     redis_container_name: str = "mail-redis"
     clamav_container_name: str = "mail-clamav"
