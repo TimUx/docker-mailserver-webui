@@ -8,7 +8,6 @@ from app.core.config import get_settings
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
 from app.models.user import User
-from app.services.runtime import get_imapsync_service
 from app.services.security import hash_password
 
 settings = get_settings()
@@ -22,11 +21,9 @@ async def lifespan(_: FastAPI):
         if not db.query(User).filter(User.email == settings.admin_email).first():
             db.add(User(email=settings.admin_email, hashed_password=hash_password(settings.admin_password), is_admin=True))
             db.commit()
-        get_imapsync_service().bootstrap(db)
     finally:
         db.close()
     yield
-    get_imapsync_service().stop()
 
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
