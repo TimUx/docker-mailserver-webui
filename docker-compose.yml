@@ -1,0 +1,49 @@
+version: '3.9'
+services:
+  webui:
+    build:
+      context: .
+      dockerfile: docker/webui.Dockerfile
+    container_name: dms-webui
+    ports:
+      - "8080:80"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-sqlite:///./data/webui.db}
+      SECRET_KEY: ${SECRET_KEY:-change-me}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
+      DMS_CONTAINER_NAME: ${DMS_CONTAINER_NAME:-mail-server}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      RSPAMD_CONTAINER_NAME: ${RSPAMD_CONTAINER_NAME:-mail-rspamd}
+      REDIS_CONTAINER_NAME: ${REDIS_CONTAINER_NAME:-mail-redis}
+      CLAMAV_CONTAINER_NAME: ${CLAMAV_CONTAINER_NAME:-mail-clamav}
+      RSPAMD_CONTROLLER_URL: ${RSPAMD_CONTROLLER_URL:-http://mail-rspamd:11334/stat}
+      RSPAMD_CONTROLLER_PASSWORD: ${RSPAMD_CONTROLLER_PASSWORD:-}
+      STACK_BASE_PATH: ${STACK_BASE_PATH:-/srv/apps/mailserver}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+    volumes:
+      - webui_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./logs:/var/log
+    networks: [dms-net]
+
+  db:
+    image: postgres:16-alpine
+    container_name: dms-webui-db
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_DB: dmswebui
+      POSTGRES_USER: dmswebui
+      POSTGRES_PASSWORD: dmswebui
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [dms-net]
+
+volumes:
+  postgres_data:
+  webui_data:
+
+networks:
+  dms-net:
+    external: true
+    name: ${DMS_NETWORK:-mailserver-network}
