@@ -79,7 +79,7 @@ Key endpoints:
 
 ```bash
 cp .env.example .env
-docker compose up --build -d
+docker compose up -d
 ```
 
 Open: `http://localhost:8080`
@@ -93,7 +93,21 @@ To run Postgres as separate service, set `DATABASE_URL` in `.env` and start the 
 # in .env
 # DATABASE_URL=postgresql+psycopg://dmswebui:dmswebui@db:5432/dmswebui
 
-docker compose --profile postgres up --build -d
+docker compose --profile postgres up -d
+```
+
+
+## Build + Publish Image to GHCR (manual workflow)
+
+A GitHub Actions workflow is available at `.github/workflows/publish-ghcr.yml`.
+
+- Trigger: **Actions → Publish Docker image to GHCR → Run workflow**
+- Output image: `ghcr.io/<owner>/<repo>:latest` and `ghcr.io/<owner>/<repo>:sha-...`
+
+To use the published image in Compose, set this in your `.env`:
+
+```env
+WEBUI_IMAGE=ghcr.io/<owner>/<repo>:latest
 ```
 
 ## Integrating Your Existing Stack (`/srv/apps/mailserver`)
