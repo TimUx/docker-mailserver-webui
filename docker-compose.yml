@@ -1,9 +1,7 @@
 version: '3.9'
 services:
   webui:
-    build:
-      context: .
-      dockerfile: docker/webui.Dockerfile
+    image: ${WEBUI_IMAGE:-ghcr.io/YOUR_GITHUB_ORG_OR_USER/docker-mailserver-webui:latest}
     container_name: dms-webui
     ports:
       - "8080:80"
