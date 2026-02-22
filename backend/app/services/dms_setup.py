@@ -21,6 +21,10 @@ class DMSSetupService:
             return result.stdout.strip()
         except subprocess.CalledProcessError as exc:
             raise DMSSetupError(exc.stderr.strip() or exc.stdout.strip()) from exc
+        except subprocess.TimeoutExpired as exc:
+            raise DMSSetupError(f"Command timed out after {exc.timeout}s: {' '.join(cmd)}") from exc
+        except OSError as exc:
+            raise DMSSetupError(f"Failed to run docker: {exc}") from exc
 
     def list_accounts(self) -> list[str]:
         out = self._exec(["email", "list"])
