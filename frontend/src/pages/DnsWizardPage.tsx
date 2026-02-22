@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type DnsRecord = {
   type: string;
@@ -17,6 +18,8 @@ type WizardResult = {
   records: DnsRecord[];
 };
 
+type Domain = { domain: string; description: string; managed: boolean };
+
 const TYPE_COLORS: Record<string, string> = {
   MX: '#3b82f6',
   A: '#22c55e',
@@ -25,6 +28,8 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export function DnsWizardPage() {
+  const [domains, setDomains] = useState<Domain[]>([]);
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [domain, setDomain] = useState('');
   const [hostname, setHostname] = useState('');
   const [serverIp, setServerIp] = useState('');
@@ -33,21 +38,41 @@ export function DnsWizardPage() {
   const [error, setError] = useState('');
   const _csrf = useAuth((s) => s.csrfToken);
 
-  const generate = async () => {
+  const loadDomains = useCallback(() => {
+    api.get('/dms/domains').then((r) => setDomains(r.data.domains)).catch(() => undefined);
+  }, []);
+
+  useEffect(() => { loadDomains(); }, [loadDomains]);
+  useRefreshListener(loadDomains);
+
+  const generate = useCallback(async (domainName: string, hostnameOverride?: string, ip?: string) => {
     setError('');
-    if (!domain.trim()) { setError('Please enter a domain name'); return; }
+    if (!domainName.trim()) { setError('Please enter a domain name'); return; }
     setLoading(true);
     try {
       const params: Record<string, string> = {};
-      if (hostname) params.hostname = hostname;
-      if (serverIp) params.server_ip = serverIp;
-      const r = await api.get(`/dns-wizard/${domain.trim()}`, { params });
+      if (hostnameOverride) params.hostname = hostnameOverride;
+      if (ip) params.server_ip = ip;
+      const r = await api.get(`/dns-wizard/${domainName.trim()}`, { params });
       setResult(r.data);
     } catch (e: any) {
       setError(e?.response?.data?.detail ?? 'Failed to generate DNS records');
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const handleTabClick = (d: string) => {
+    setActiveTab(d);
+    setDomain(d);
+    setHostname('');
+    setServerIp('');
+    void generate(d);
+  };
+
+  const handleGenerate = () => {
+    setActiveTab(null);
+    void generate(domain, hostname, serverIp);
   };
 
   const copyAll = () => {
@@ -63,11 +88,32 @@ export function DnsWizardPage() {
       <h1>🧭 DNS Setup Wizard</h1>
       <p>Enter your mail domain to generate the DNS records needed for a working mail server.</p>
 
+      {domains.length > 0 && (
+        <div className="domain-tabs">
+          {domains.map((d) => (
+            <button
+              key={d.domain}
+              className={`domain-tab${activeTab === d.domain ? ' active' : ''}`}
+              onClick={() => handleTabClick(d.domain)}
+            >
+              {d.domain}
+            </button>
+          ))}
+          <button
+            className={`domain-tab${activeTab === null && !domain ? ' active' : ''}`}
+            onClick={() => { setActiveTab(null); setDomain(''); setResult(null); }}
+            title="Enter a custom domain"
+          >
+            ＋ Custom
+          </button>
+        </div>
+      )}
+
       <div className="row" style={{ marginBottom: '.5rem', gap: '.5rem' }}>
         <input
           placeholder="Domain (e.g. example.com)"
           value={domain}
-          onChange={(e) => setDomain(e.target.value)}
+          onChange={(e) => { setDomain(e.target.value); setActiveTab(null); }}
           style={{ flex: 2 }}
         />
         <input
@@ -82,7 +128,7 @@ export function DnsWizardPage() {
           onChange={(e) => setServerIp(e.target.value)}
           style={{ flex: 1 }}
         />
-        <button onClick={generate} disabled={loading}>
+        <button onClick={handleGenerate} disabled={loading}>
           {loading ? '…' : '⚡ Generate'}
         </button>
       </div>

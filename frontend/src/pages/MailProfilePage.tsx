@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api/client';
+import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type ClientInfo = {
   name: string;
@@ -21,6 +22,8 @@ type ProfileResult = {
   clients: Record<string, ClientInfo>;
 };
 
+type Domain = { domain: string; description: string; managed: boolean };
+
 const CLIENT_ICONS: Record<string, string> = {
   thunderbird: '🦅',
   outlook: '📧',
@@ -29,26 +32,47 @@ const CLIENT_ICONS: Record<string, string> = {
 };
 
 export function MailProfilePage() {
+  const [domains, setDomains] = useState<Domain[]>([]);
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [domain, setDomain] = useState('');
   const [hostname, setHostname] = useState('');
   const [result, setResult] = useState<ProfileResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const generate = async () => {
+  const loadDomains = useCallback(() => {
+    api.get('/dms/domains').then((r) => setDomains(r.data.domains)).catch(() => undefined);
+  }, []);
+
+  useEffect(() => { loadDomains(); }, [loadDomains]);
+  useRefreshListener(loadDomains);
+
+  const generate = useCallback(async (domainName: string, hostnameOverride?: string) => {
     setError('');
-    if (!domain.trim()) { setError('Please enter a domain name'); return; }
+    if (!domainName.trim()) { setError('Please enter a domain name'); return; }
     setLoading(true);
     try {
       const params: Record<string, string> = {};
-      if (hostname) params.hostname = hostname;
-      const r = await api.get(`/mail-profile/${domain.trim()}`, { params });
+      if (hostnameOverride) params.hostname = hostnameOverride;
+      const r = await api.get(`/mail-profile/${domainName.trim()}`, { params });
       setResult(r.data);
     } catch (e: any) {
       setError(e?.response?.data?.detail ?? 'Failed to generate profile');
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const handleTabClick = (d: string) => {
+    setActiveTab(d);
+    setDomain(d);
+    setHostname('');
+    void generate(d);
+  };
+
+  const handleGenerate = () => {
+    setActiveTab(null);
+    void generate(domain, hostname);
   };
 
   const serverRow = (label: string, data: { host: string; port: number; security: string; username: string }) => (
@@ -66,11 +90,32 @@ export function MailProfilePage() {
       <h1>📱 Mail Profiles</h1>
       <p>Generate email client configuration profiles and settings for your mail domain.</p>
 
+      {domains.length > 0 && (
+        <div className="domain-tabs">
+          {domains.map((d) => (
+            <button
+              key={d.domain}
+              className={`domain-tab${activeTab === d.domain ? ' active' : ''}`}
+              onClick={() => handleTabClick(d.domain)}
+            >
+              {d.domain}
+            </button>
+          ))}
+          <button
+            className={`domain-tab${activeTab === null && !domain ? ' active' : ''}`}
+            onClick={() => { setActiveTab(null); setDomain(''); setResult(null); }}
+            title="Enter a custom domain"
+          >
+            ＋ Custom
+          </button>
+        </div>
+      )}
+
       <div className="row" style={{ marginBottom: '.5rem', gap: '.5rem' }}>
         <input
           placeholder="Domain (e.g. example.com)"
           value={domain}
-          onChange={(e) => setDomain(e.target.value)}
+          onChange={(e) => { setDomain(e.target.value); setActiveTab(null); }}
           style={{ flex: 2 }}
         />
         <input
@@ -79,7 +124,7 @@ export function MailProfilePage() {
           onChange={(e) => setHostname(e.target.value)}
           style={{ flex: 2 }}
         />
-        <button onClick={generate} disabled={loading}>
+        <button onClick={handleGenerate} disabled={loading}>
           {loading ? '…' : '⚡ Generate'}
         </button>
       </div>
