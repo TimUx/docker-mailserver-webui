@@ -117,18 +117,20 @@ export function AccountsPage() {
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Email</th>
+            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Domain</th>
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Quota (used / limit)</th>
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Note</th>
-            <th style={{ padding: '.4rem .5rem' }}>Actions</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Actions</th>
           </tr>
         </thead>
         <tbody>
           {accounts.map((a) => (
             <tr key={a.email} style={{ borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '.4rem .5rem' }}>{a.email}</td>
+              <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{a.email.split('@')[1] ?? ''}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem', fontFamily: 'monospace' }}>{formatQuota(a)}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{notes[a.email] ?? ''}</td>
-              <td style={{ padding: '.4rem .5rem', whiteSpace: 'nowrap' }}>
+              <td style={{ padding: '.4rem .5rem', whiteSpace: 'nowrap', textAlign: 'right' }}>
                 <button onClick={() => startEdit(a.email, 'password')} title="Change password">🔑</button>
                 <button onClick={() => startEdit(a.email, 'quota')} title="Set quota">📦</button>
                 <button onClick={() => startEdit(a.email, 'note')} title="Edit note">📝</button>
@@ -137,7 +139,7 @@ export function AccountsPage() {
             </tr>
           ))}
           {accounts.length === 0 && (
-            <tr><td colSpan={4} style={{ padding: '.75rem .5rem', opacity: .5 }}>No accounts found</td></tr>
+            <tr><td colSpan={5} style={{ padding: '.75rem .5rem', opacity: .5 }}>No accounts found</td></tr>
           )}
         </tbody>
       </table>

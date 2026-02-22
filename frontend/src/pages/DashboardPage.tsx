@@ -52,7 +52,6 @@ export function DashboardPage() {
         <div className="stat-card">👥 Accounts<strong>{stats ? (stats.accounts ?? 0) : '…'}</strong></div>
         <div className="stat-card">🔀 Aliases<strong>{stats ? (stats.aliases ?? 0) : '…'}</strong></div>
         <div className="stat-card">📬 Sync Jobs<strong>{stats ? (stats.active_sync_jobs ?? 0) : '…'}</strong></div>
-        <div className="stat-card">📨 Mail Queue<strong>{stats ? (stats.mail_queue_count ?? 0) : '…'}</strong></div>
 
         {/* Mail-server card – always visible */}
         <div className="stat-card" style={{ textAlign: 'left' }}>

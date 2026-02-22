@@ -7,6 +7,8 @@ type Domain = { domain: string; description: string; managed: boolean };
 
 export function DomainsPage() {
   const [domains, setDomains] = useState<Domain[]>([]);
+  const [accountCounts, setAccountCounts] = useState<Record<string, number>>({});
+  const [aliasCounts, setAliasCounts] = useState<Record<string, number>>({});
   const [domain, setDomain] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
@@ -14,6 +16,23 @@ export function DomainsPage() {
 
   const load = useCallback(() => {
     api.get('/dms/domains').then((r) => setDomains(r.data.domains)).catch(() => undefined);
+    api.get('/dms/accounts').then((r) => {
+      const counts: Record<string, number> = {};
+      for (const acc of (r.data.accounts ?? [])) {
+        const d = acc.email?.split('@')[1];
+        if (d) counts[d] = (counts[d] ?? 0) + 1;
+      }
+      setAccountCounts(counts);
+    }).catch(() => undefined);
+    api.get('/dms/aliases').then((r) => {
+      const counts: Record<string, number> = {};
+      for (const entry of (r.data.aliases ?? [])) {
+        const aliasAddr = (entry as string).split(/\s+/)[0] ?? '';
+        const d = aliasAddr.split('@')[1];
+        if (d) counts[d] = (counts[d] ?? 0) + 1;
+      }
+      setAliasCounts(counts);
+    }).catch(() => undefined);
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -69,7 +88,9 @@ export function DomainsPage() {
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Domain</th>
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Description</th>
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Source</th>
-            <th style={{ padding: '.4rem .5rem' }}>Actions</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Accounts</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Aliases</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -80,7 +101,13 @@ export function DomainsPage() {
               <td style={{ padding: '.4rem .5rem', fontSize: '.8rem', opacity: .7 }}>
                 {d.managed ? '🗃 managed' : '📬 auto-detected'}
               </td>
-              <td style={{ padding: '.4rem .5rem', whiteSpace: 'nowrap' }}>
+              <td style={{ padding: '.4rem .5rem', textAlign: 'right', fontSize: '.85rem' }}>
+                {accountCounts[d.domain] ?? 0}
+              </td>
+              <td style={{ padding: '.4rem .5rem', textAlign: 'right', fontSize: '.85rem' }}>
+                {aliasCounts[d.domain] ?? 0}
+              </td>
+              <td style={{ padding: '.4rem .5rem', whiteSpace: 'nowrap', textAlign: 'right' }}>
                 {d.managed && (
                   <button
                     onClick={() => remove(d.domain)}
@@ -92,7 +119,7 @@ export function DomainsPage() {
             </tr>
           ))}
           {domains.length === 0 && (
-            <tr><td colSpan={4} style={{ padding: '.75rem .5rem', opacity: .5 }}>No domains found</td></tr>
+            <tr><td colSpan={6} style={{ padding: '.75rem .5rem', opacity: .5 }}>No domains found</td></tr>
           )}
         </tbody>
       </table>
