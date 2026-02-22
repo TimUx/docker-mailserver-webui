@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type AliasEntry = { alias: string; destination: string; domain: string; raw: string };
+type SortDir = 'asc' | 'desc';
+type SortKey = 'alias' | 'destination' | 'domain' | 'note';
 
 function parseAlias(raw: string): AliasEntry {
   const parts = raw.trim().split(/\s+/).filter(Boolean);
@@ -16,9 +18,17 @@ function parseAlias(raw: string): AliasEntry {
   return { alias, destination, domain, raw };
 }
 
+function sortIcon(key: SortKey, sortKey: SortKey, dir: SortDir) {
+  if (key !== sortKey) return <span style={{ opacity: .3, fontSize: '.75rem' }}> ↕</span>;
+  return <span style={{ fontSize: '.75rem' }}>{dir === 'asc' ? ' ▲' : ' ▼'}</span>;
+}
+
 export function AliasesPage() {
   const [aliases, setAliases] = useState<AliasEntry[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [filter, setFilter] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('alias');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [alias, setAlias] = useState('');
   const [destination, setDestination] = useState('');
   const [error, setError] = useState('');
@@ -35,6 +45,11 @@ export function AliasesPage() {
 
   useEffect(() => { load(); }, [load]);
   useRefreshListener(load);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    else { setSortKey(key); setSortDir('asc'); }
+  };
 
   const create = async () => {
     setError('');
@@ -81,6 +96,30 @@ export function AliasesPage() {
     }
   };
 
+  const visible = useMemo(() => {
+    const q = filter.toLowerCase();
+    const filtered = q
+      ? aliases.filter((a) =>
+          a.alias.toLowerCase().includes(q) ||
+          a.destination.toLowerCase().includes(q) ||
+          a.domain.toLowerCase().includes(q) ||
+          (notes[a.alias] ?? '').toLowerCase().includes(q),
+        )
+      : aliases;
+    return [...filtered].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === 'alias') cmp = a.alias.localeCompare(b.alias);
+      else if (sortKey === 'destination') cmp = a.destination.localeCompare(b.destination);
+      else if (sortKey === 'domain') cmp = a.domain.localeCompare(b.domain);
+      else if (sortKey === 'note') cmp = (notes[a.alias] ?? '').localeCompare(notes[b.alias] ?? '');
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  }, [aliases, notes, filter, sortKey, sortDir]);
+
+  const thStyle = (key: SortKey, align: 'left' | 'right' = 'left'): React.CSSProperties => ({
+    textAlign: align, padding: '.4rem .5rem', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+  });
+
   return (
     <div className="panel">
       <h1>🔀 Aliases</h1>
@@ -102,18 +141,28 @@ export function AliasesPage() {
         </div>
       )}
 
+      <div className="row" style={{ marginBottom: '.5rem' }}>
+        <input
+          placeholder="🔍 Filter aliases…"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        {filter && <button onClick={() => setFilter('')}>✖ Clear</button>}
+      </div>
+
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Alias</th>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Destination</th>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Domain</th>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Note</th>
+            <th style={thStyle('alias')} onClick={() => toggleSort('alias')}>Alias{sortIcon('alias', sortKey, sortDir)}</th>
+            <th style={thStyle('destination')} onClick={() => toggleSort('destination')}>Destination{sortIcon('destination', sortKey, sortDir)}</th>
+            <th style={thStyle('domain')} onClick={() => toggleSort('domain')}>Domain{sortIcon('domain', sortKey, sortDir)}</th>
+            <th style={thStyle('note')} onClick={() => toggleSort('note')}>Note{sortIcon('note', sortKey, sortDir)}</th>
             <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {aliases.map((a) => (
+          {visible.map((a) => (
             <tr key={a.raw} style={{ borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '.4rem .5rem', fontFamily: 'monospace', fontSize: '.9rem' }}>{a.alias}</td>
               <td style={{ padding: '.4rem .5rem', fontFamily: 'monospace', fontSize: '.9rem' }}>{a.destination}</td>
@@ -125,8 +174,10 @@ export function AliasesPage() {
               </td>
             </tr>
           ))}
-          {aliases.length === 0 && (
-            <tr><td colSpan={5} style={{ padding: '.75rem .5rem', opacity: .5 }}>No aliases found</td></tr>
+          {visible.length === 0 && (
+            <tr><td colSpan={5} style={{ padding: '.75rem .5rem', opacity: .5 }}>
+              {aliases.length === 0 ? 'No aliases found' : 'No aliases match the filter'}
+            </td></tr>
           )}
         </tbody>
       </table>

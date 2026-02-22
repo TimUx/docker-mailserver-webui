@@ -1,15 +1,29 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type Account = { email: string; quota_used: string | null; quota_limit: string | null; quota_pct: number | null };
 type EditMode = 'none' | 'password' | 'note' | 'quota';
+type SortDir = 'asc' | 'desc';
+type SortKey = 'email' | 'domain' | 'quota' | 'aliases' | 'note';
+
+function thStyle(key: SortKey, sortKey: SortKey, align: 'left' | 'right' = 'left'): React.CSSProperties {
+  return { textAlign: align, padding: '.4rem .5rem', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' };
+}
+
+function sortIcon(key: SortKey, sortKey: SortKey, dir: SortDir) {
+  if (key !== sortKey) return <span style={{ opacity: .3, fontSize: '.75rem' }}> ↕</span>;
+  return <span style={{ fontSize: '.75rem' }}>{dir === 'asc' ? ' ▲' : ' ▼'}</span>;
+}
 
 export function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [aliasCounts, setAliasCounts] = useState<Record<string, number>>({});
+  const [filter, setFilter] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('email');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
   const csrf = useAuth((s) => s.csrfToken);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,6 +52,11 @@ export function AccountsPage() {
 
   useEffect(() => { load(); }, [load]);
   useRefreshListener(load);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    else { setSortKey(key); setSortDir('asc'); }
+  };
 
   const create = async () => {
     setError('');
@@ -94,6 +113,26 @@ export function AccountsPage() {
     return `${acc.quota_used} / ${limit} [${acc.quota_pct}%]`;
   };
 
+  const visible = useMemo(() => {
+    const q = filter.toLowerCase();
+    const filtered = q
+      ? accounts.filter((a) =>
+          a.email.toLowerCase().includes(q) ||
+          (a.email.split('@')[1] ?? '').toLowerCase().includes(q) ||
+          (notes[a.email] ?? '').toLowerCase().includes(q),
+        )
+      : accounts;
+    return [...filtered].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === 'email') cmp = a.email.localeCompare(b.email);
+      else if (sortKey === 'domain') cmp = (a.email.split('@')[1] ?? '').localeCompare(b.email.split('@')[1] ?? '');
+      else if (sortKey === 'quota') cmp = (a.quota_pct ?? -1) - (b.quota_pct ?? -1);
+      else if (sortKey === 'aliases') cmp = (aliasCounts[a.email] ?? 0) - (aliasCounts[b.email] ?? 0);
+      else if (sortKey === 'note') cmp = (notes[a.email] ?? '').localeCompare(notes[b.email] ?? '');
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  }, [accounts, notes, aliasCounts, filter, sortKey, sortDir]);
+
   return (
     <div className="panel">
       <h1>👤 Accounts</h1>
@@ -125,19 +164,29 @@ export function AccountsPage() {
         </div>
       )}
 
+      <div className="row" style={{ marginBottom: '.5rem' }}>
+        <input
+          placeholder="🔍 Filter accounts…"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        {filter && <button onClick={() => setFilter('')}>✖ Clear</button>}
+      </div>
+
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Email</th>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Domain</th>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Quota (used / limit)</th>
-            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Aliases</th>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Note</th>
+            <th style={thStyle('email', sortKey)} onClick={() => toggleSort('email')}>Email{sortIcon('email', sortKey, sortDir)}</th>
+            <th style={thStyle('domain', sortKey)} onClick={() => toggleSort('domain')}>Domain{sortIcon('domain', sortKey, sortDir)}</th>
+            <th style={thStyle('quota', sortKey)} onClick={() => toggleSort('quota')}>Quota (used / limit){sortIcon('quota', sortKey, sortDir)}</th>
+            <th style={thStyle('aliases', sortKey, 'right')} onClick={() => toggleSort('aliases')}>Aliases{sortIcon('aliases', sortKey, sortDir)}</th>
+            <th style={thStyle('note', sortKey)} onClick={() => toggleSort('note')}>Note{sortIcon('note', sortKey, sortDir)}</th>
             <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {accounts.map((a) => (
+          {visible.map((a) => (
             <tr key={a.email} style={{ borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '.4rem .5rem' }}>{a.email}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{a.email.split('@')[1] ?? ''}</td>
@@ -152,8 +201,10 @@ export function AccountsPage() {
               </td>
             </tr>
           ))}
-          {accounts.length === 0 && (
-            <tr><td colSpan={6} style={{ padding: '.75rem .5rem', opacity: .5 }}>No accounts found</td></tr>
+          {visible.length === 0 && (
+            <tr><td colSpan={6} style={{ padding: '.75rem .5rem', opacity: .5 }}>
+              {accounts.length === 0 ? 'No accounts found' : 'No accounts match the filter'}
+            </td></tr>
           )}
         </tbody>
       </table>
