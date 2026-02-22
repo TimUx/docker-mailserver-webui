@@ -17,6 +17,10 @@ a.button-link { display: inline-block; padding: .4rem .6rem; border-radius: .25r
 .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin-bottom: 1rem; }
 .stat-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: .5rem; padding: .65rem; }
 .stat-card strong { display: block; margin-top: .25rem; font-size: 1.2rem; }
+.domain-tabs { display: flex; flex-wrap: wrap; gap: .25rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+.domain-tab { padding: .35rem .75rem; border-radius: .35rem .35rem 0 0; border: 1px solid var(--border); background: var(--surface-2); color: inherit; cursor: pointer; font-size: .85rem; transition: background .15s; }
+.domain-tab:hover { background: var(--surface); }
+.domain-tab.active { background: var(--surface); border-bottom-color: var(--surface); font-weight: 600; color: var(--link); }
 
 body[data-theme='dark'] { --surface: #111827; --surface-2: #1f2937; --border: #374151; --link: #93c5fd; }
 body[data-theme='light'] { --surface: #ffffff; --surface-2: #f1f5f9; --border: #cbd5e1; --link: #1d4ed8; }

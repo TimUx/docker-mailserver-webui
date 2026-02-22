@@ -44,6 +44,11 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
         mailserver = {"container": "mail-server", "status": "unknown", "message": str(exc)}
     running = sum(1 for v in integrations.values() if v.get("status") == "running")
     degraded = [k for k, v in integrations.items() if v.get("status") != "running"]
+    try:
+        mailq_data = stack.get_mailq()
+        mail_queue_count = mailq_data.get("count", 0)
+    except Exception:
+        mail_queue_count = 0
     return {
         "domains": len(domains),
         "accounts": len(accounts),
@@ -56,6 +61,7 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
         "security_services_degraded": degraded,
         "security_services": integrations,
         "mailserver": mailserver,
+        "mail_queue_count": mail_queue_count,
     }
 
 
@@ -112,3 +118,21 @@ def logs(
     _=Depends(get_current_user),
 ):
     return {"lines": get_logs(log_type, lines, search)}
+
+
+@router.get("/mailq")
+def mailq(_=Depends(get_current_user)):
+    """Return the mail queue from the docker-mailserver container."""
+    return stack.get_mailq()
+
+
+@router.get("/supervisorctl")
+def supervisorctl_status(_=Depends(get_current_user)):
+    """Return supervisorctl status from the docker-mailserver container."""
+    return stack.get_supervisorctl_status()
+
+
+@router.get("/doveadm/who")
+def doveadm_who(_=Depends(get_current_user)):
+    """Return active IMAP/POP3 sessions via doveadm who."""
+    return stack.get_doveadm_who()

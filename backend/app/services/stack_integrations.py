@@ -1,4 +1,5 @@
 import json
+import re
 import subprocess
 import urllib.error
 import urllib.request
@@ -97,3 +98,75 @@ class StackIntegrationService:
             return {"ok": False, "message": "Unknown service"}
         ok, out = self._run(["docker", "restart", mapping[service]], timeout=60)
         return {"ok": ok, "message": out, "service": service}
+
+    def get_supervisorctl_status(self) -> dict:
+        """Return parsed output of ``supervisorctl status`` from the mail-server container."""
+        ok, out = self._run(["docker", "exec", settings.dms_container_name, "supervisorctl", "status"])
+        processes = []
+        for line in out.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split()
+            if len(parts) < 2:
+                continue
+            name = parts[0]
+            status = parts[1]
+            pid = None
+            uptime = None
+            # parse "pid 123, uptime 0:01:00"
+            if "pid" in line:
+                m = re.search(r"pid\s+(\d+)", line)
+                if m:
+                    pid = int(m.group(1))
+                m2 = re.search(r"uptime\s+([\d:]+)", line)
+                if m2:
+                    uptime = m2.group(1)
+            processes.append({"name": name, "status": status, "pid": pid, "uptime": uptime})
+        return {"ok": ok, "processes": processes, "raw": out if not ok else ""}
+
+    def get_mailq(self) -> dict:
+        """Return mail queue information from the mail-server container."""
+        ok, out = self._run(["docker", "exec", settings.dms_container_name, "mailq"])
+        if not ok:
+            return {"ok": False, "count": 0, "entries": [], "raw": out}
+        lines = out.strip().splitlines()
+        # "Mail queue is empty" means no queued mail
+        if not lines or (len(lines) == 1 and "empty" in lines[0].lower()):
+            return {"ok": True, "count": 0, "entries": [], "raw": out}
+        # Count queue entries: lines starting with a queue-id (hex chars, no whitespace at start)
+        entries = []
+        count = 0
+        for line in lines:
+            # Queue ID line: starts with alphanumeric (not whitespace, not a separator)
+            if line and line[0] not in (' ', '\t', '-', '\\') and not line.startswith("Mail"):
+                m = re.match(r'^(\S+)\s+(\d+)\s+(\S+\s+\S+\s+\S+\s+\S+\s+\S+)\s+(.+)$', line)
+                if m:
+                    count += 1
+                    entries.append({
+                        "queue_id": m.group(1),
+                        "size": int(m.group(2)),
+                        "date": m.group(3).strip(),
+                        "sender": m.group(4).strip(),
+                    })
+        return {"ok": True, "count": count, "entries": entries, "raw": out}
+
+    def get_doveadm_who(self) -> dict:
+        """Return active IMAP/POP3 sessions from doveadm who."""
+        ok, out = self._run(["docker", "exec", settings.dms_container_name, "doveadm", "who"])
+        if not ok:
+            return {"ok": False, "connections": [], "raw": out}
+        connections = []
+        lines = out.strip().splitlines()
+        # Skip header line
+        for line in lines[1:]:
+            parts = line.split()
+            if len(parts) >= 4:
+                connections.append({
+                    "username": parts[0],
+                    "service": parts[1],
+                    "pid": parts[2],
+                    "ip": parts[3],
+                    "secured": len(parts) > 4 and parts[4].lower() == "secured",
+                })
+        return {"ok": True, "connections": connections, "count": len(connections)}
