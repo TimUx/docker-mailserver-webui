@@ -13,7 +13,7 @@ export function StackServicesPage() {
   const csrf = useAuth((s) => s.csrfToken);
 
   const load = () => api.get('/integrations/status').then((r) => setServices(r.data)).catch(() => undefined);
-  useEffect(load, []);
+  useEffect(() => { void load(); }, []);
 
   const restart = async (name: string) => {
     await api.post(`/integrations/${name}/restart`, {}, { headers: csrfHeaders(csrf) });
