@@ -3,7 +3,7 @@ import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
 
 export function AliasesPage() {
-  const [aliases, setAliases] = useState<string[]>(['info@example.com -> team@example.com', 'jobs@example.com -> hr@example.com']);
+  const [aliases, setAliases] = useState<string[]>([]);
   const [alias, setAlias] = useState('');
   const [destination, setDestination] = useState('');
   const csrf = useAuth((s) => s.csrfToken);

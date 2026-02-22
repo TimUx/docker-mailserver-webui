@@ -6,3 +6,6 @@ frontend/dist/
 .env
 logs/
 *.db
+frontend/package-lock.json
+frontend/tsconfig.tsbuildinfo
+frontend/dist/
