@@ -131,10 +131,14 @@ export function ObservabilityPage() {
       <h2 style={{ marginTop: '1.5rem' }}>🔧 Supervisor Process Status</h2>
       {supervisord === null ? (
         <p style={{ opacity: .6 }}>Loading…</p>
-      ) : !supervisord.ok || supervisord.processes.length === 0 ? (
-        <p style={{ opacity: .6 }}>
-          {supervisord.raw ? `supervisorctl unavailable: ${supervisord.raw}` : 'No processes found or supervisord not available.'}
-        </p>
+      ) : supervisord.processes.length === 0 ? (
+        supervisord.raw ? (
+          <pre style={{ fontFamily: 'monospace', fontSize: '.82rem', opacity: .8, overflowX: 'auto', background: 'var(--surface-2)', padding: '.75rem', borderRadius: '.35rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            {supervisord.raw}
+          </pre>
+        ) : (
+          <p style={{ opacity: .6 }}>No processes found or supervisord not available.</p>
+        )
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '.5rem' }}>
           <thead>
