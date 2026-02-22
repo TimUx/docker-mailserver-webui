@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
+import json
+import urllib.error
+import urllib.request
 
 from app.api.deps import get_current_user
+from app.core.config import get_settings
 from app.db.session import get_db
 from app.models.imapsync_job import ImapSyncJob
 from app.services.dms_setup import DMSSetupService
@@ -11,6 +15,7 @@ from app.services.stack_integrations import StackIntegrationService
 router = APIRouter(tags=["monitoring"])
 service = DMSSetupService()
 stack = StackIntegrationService()
+_settings = get_settings()
 
 
 @router.get("/dashboard")
@@ -52,6 +57,39 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
         "security_services": integrations,
         "mailserver": mailserver,
     }
+
+
+@router.get("/observability")
+def observability(_=Depends(get_current_user)):
+    """Return detailed observability data for Rspamd and other services."""
+    rspamd_stats = _fetch_rspamd_stats()
+    services = stack.get_status()
+    mailserver = stack.get_mailserver_status()
+    return {
+        "services": {**services, "mailserver": mailserver},
+        "rspamd": rspamd_stats,
+    }
+
+
+def _fetch_rspamd_stats() -> dict:
+    """Fetch detailed stats from Rspamd controller API."""
+    base_url = _settings.rspamd_controller_url.removesuffix("/stat").rstrip("/")
+    endpoints = {
+        "stat": f"{base_url}/stat",
+        "actions": f"{base_url}/actions",
+        "symbols": f"{base_url}/symbols",
+    }
+    result: dict = {}
+    for key, url in endpoints.items():
+        try:
+            req = urllib.request.Request(url)
+            if _settings.rspamd_controller_password:
+                req.add_header("Password", _settings.rspamd_controller_password)
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                result[key] = json.loads(resp.read().decode())
+        except Exception as exc:
+            result[key] = {"error": str(exc)}
+    return result
 
 
 @router.get("/logs/{log_type}")

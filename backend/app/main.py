@@ -4,11 +4,12 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth, dms, imapsync, integrations, monitoring, settings as settings_router_module
+from app.api import auth, dms, dns_wizard, imapsync, integrations, mail_profile, monitoring, settings as settings_router_module
 from app.core.config import get_settings
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
 from app.models.user import User
+from app.models.managed_domain import ManagedDomain  # noqa: F401 – ensure table is created
 from app.services.security import hash_password
 from app.services.settings import load_settings_from_db, seed_settings
 
@@ -45,8 +46,10 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix=settings.api_v1_prefix)
 app.include_router(dms.router, prefix=settings.api_v1_prefix)
+app.include_router(dns_wizard.router, prefix=settings.api_v1_prefix)
 app.include_router(imapsync.router, prefix=settings.api_v1_prefix)
 app.include_router(integrations.router, prefix=settings.api_v1_prefix)
+app.include_router(mail_profile.router, prefix=settings.api_v1_prefix)
 app.include_router(monitoring.router, prefix=settings.api_v1_prefix)
 app.include_router(settings_router_module.router, prefix=settings.api_v1_prefix)
 
