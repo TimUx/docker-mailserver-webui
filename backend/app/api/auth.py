@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import csrf_protect, get_current_user
 from app.core.config import get_settings
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.auth import AuthResponse, AuthUser, LoginRequest
-from app.services.security import create_access_token, create_csrf_token, verify_password
+from app.schemas.auth import AdminPasswordChange, AuthResponse, AuthUser, LoginRequest
+from app.services.security import create_access_token, create_csrf_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 settings = get_settings()
@@ -34,3 +34,16 @@ def logout(response: Response):
 @router.get("/me", response_model=AuthUser)
 def me(user: User = Depends(get_current_user)):
     return AuthUser(id=user.id, email=user.email, is_admin=user.is_admin)
+
+
+@router.put("/password", dependencies=[Depends(csrf_protect)])
+def change_admin_password(
+    payload: AdminPasswordChange,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    if not verify_password(payload.current_password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    user.hashed_password = hash_password(payload.new_password)
+    db.commit()
+    return {"message": "Password changed successfully"}

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useRefreshListener } from '../hooks/useRefreshListener';
 
 const LABELS: Record<string, string> = {
   dms_container_name: 'Mail Server Container Name',
@@ -26,11 +27,18 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 export function SettingsPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [pwState, setPwState] = useState<SaveState>('idle');
+  const [pwError, setPwError] = useState('');
   const csrf = useAuth((s) => s.csrfToken);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     api.get('/settings/').then((r) => setSettings(r.data)).catch(() => undefined);
   }, []);
+
+  useEffect(() => { load(); }, [load]);
+  useRefreshListener(load);
 
   const save = async () => {
     setSaveState('saving');
@@ -41,6 +49,22 @@ export function SettingsPage() {
     } catch {
       setSaveState('error');
       setTimeout(() => setSaveState('idle'), 4000);
+    }
+  };
+
+  const changePassword = async () => {
+    setPwError('');
+    setPwState('saving');
+    try {
+      await api.put('/auth/password', { current_password: currentPw, new_password: newPw }, { headers: csrfHeaders(csrf) });
+      setPwState('saved');
+      setCurrentPw('');
+      setNewPw('');
+      setTimeout(() => setPwState('idle'), 3000);
+    } catch (e: any) {
+      setPwError(e?.response?.data?.detail ?? 'Failed to change password');
+      setPwState('error');
+      setTimeout(() => setPwState('idle'), 4000);
     }
   };
 
@@ -77,6 +101,32 @@ export function SettingsPage() {
         </button>
         {saveState === 'saved' && <span style={{ color: 'var(--color-ok, #22c55e)' }}>✔ Settings saved</span>}
         {saveState === 'error' && <span style={{ color: 'var(--color-warn, #f59e0b)' }}>✘ Save failed</span>}
+      </div>
+
+      <hr style={{ margin: '1.5rem 0', borderColor: 'var(--border)' }} />
+      <h2>🔐 Change Admin Password</h2>
+      <div className="row" style={{ flexDirection: 'column', gap: '.5rem', maxWidth: '360px' }}>
+        <input
+          type="password"
+          placeholder="Current password"
+          value={currentPw}
+          onChange={(e) => setCurrentPw(e.target.value)}
+          style={{ width: '100%', boxSizing: 'border-box' }}
+        />
+        <input
+          type="password"
+          placeholder="New password (min. 8 chars)"
+          value={newPw}
+          onChange={(e) => setNewPw(e.target.value)}
+          style={{ width: '100%', boxSizing: 'border-box' }}
+        />
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <button onClick={changePassword} disabled={pwState === 'saving' || !currentPw || newPw.length < 8}>
+            {pwState === 'saving' ? '…Saving' : '🔑 Change Password'}
+          </button>
+          {pwState === 'saved' && <span style={{ color: 'var(--color-ok, #22c55e)' }}>✔ Password changed</span>}
+          {pwState === 'error' && <span style={{ color: 'var(--color-warn, #f59e0b)' }}>✘ {pwError}</span>}
+        </div>
       </div>
     </div>
   );

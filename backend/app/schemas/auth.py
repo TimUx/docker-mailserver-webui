@@ -15,3 +15,8 @@ class AuthUser(BaseModel):
 class AuthResponse(BaseModel):
     user: AuthUser
     csrf_token: str
+
+
+class AdminPasswordChange(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)

@@ -15,6 +15,11 @@ class PasswordChange(BaseModel):
     password: str
 
 
+class AccountNoteUpdate(BaseModel):
+    email: EmailStr
+    note: str
+
+
 class AliasCreate(BaseModel):
     alias: EmailStr
     destination: EmailStr

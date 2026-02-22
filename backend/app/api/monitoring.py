@@ -15,13 +15,28 @@ stack = StackIntegrationService()
 
 @router.get("/dashboard")
 def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
-    accounts = service.list_accounts()
-    aliases = service.list_aliases()
+    try:
+        accounts = service.list_accounts()
+    except Exception:
+        accounts = []
+    try:
+        aliases = service.list_aliases()
+    except Exception:
+        aliases = []
     domains = sorted({a.split('@')[1] for a in accounts if '@' in a})
     active_sync = db.query(ImapSyncJob).filter(ImapSyncJob.enabled.is_(True)).count()
     last_sync = db.query(ImapSyncJob).order_by(ImapSyncJob.last_run_at.desc()).first()
-    integrations = stack.get_status()
-    mailserver = stack.get_mailserver_status()
+    try:
+        integrations = stack.get_status()
+    except Exception as exc:
+        integrations = {
+            name: {"container": name, "status": "unknown", "message": str(exc)}
+            for name in ("rspamd", "redis", "clamav")
+        }
+    try:
+        mailserver = stack.get_mailserver_status()
+    except Exception as exc:
+        mailserver = {"container": "mail-server", "status": "unknown", "message": str(exc)}
     running = sum(1 for v in integrations.values() if v.get("status") == "running")
     degraded = [k for k, v in integrations.items() if v.get("status") != "running"]
     return {

@@ -1,4 +1,6 @@
+import { useCallback, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { api } from './api/client';
 import { useAuth } from './contexts/auth';
 import { AppLayout } from './layouts/AppLayout';
 import { AccountsPage } from './pages/AccountsPage';
@@ -10,12 +12,35 @@ import { LoginPage } from './pages/LoginPage';
 import { LogsPage } from './pages/LogsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
+function getCsrfCookie(name: string): string | undefined {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+  return undefined;
+}
+
 function Protected() {
   const user = useAuth((s) => s.user);
   return user ? <AppLayout /> : <Navigate to="/login" />;
 }
 
 export function App() {
+  const user = useAuth((s) => s.user);
+  const setAuth = useAuth((s) => s.setAuth);
+
+  const tryRestoreSession = useCallback(() => {
+    if (!user) {
+      const csrf = getCsrfCookie('dms_csrf');
+      if (csrf) {
+        api.get('/auth/me').then((r) => setAuth(r.data, csrf)).catch(() => undefined);
+      }
+    }
+  }, [user, setAuth]);
+
+  useEffect(() => {
+    tryRestoreSession();
+  }, [tryRestoreSession]);
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
