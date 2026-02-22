@@ -32,3 +32,8 @@ class AliasDelete(BaseModel):
 
 class DomainCreate(BaseModel):
     domain: str
+    description: str = ""
+
+
+class DomainDelete(BaseModel):
+    domain: str

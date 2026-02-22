@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from app.api.deps import csrf_protect, get_current_user
 from app.db.session import get_db
 from app.models.account_note import AccountNote
-from app.schemas.dms import AccountCreate, AccountDelete, AccountNoteUpdate, AliasCreate, AliasDelete, PasswordChange
+from app.models.managed_domain import ManagedDomain
+from app.schemas.dms import AccountCreate, AccountDelete, AccountNoteUpdate, AliasCreate, AliasDelete, DomainCreate, DomainDelete, PasswordChange
 from app.services.dms_setup import DMSSetupError, DMSSetupService
 
 router = APIRouter(prefix="/dms", tags=["dms"])
@@ -85,9 +86,35 @@ def delete_alias(payload: AliasDelete, _=Depends(get_current_user)):
 
 
 @router.get("/domains")
-def list_domains(_=Depends(get_current_user)):
+def list_domains(db: Session = Depends(get_db), _=Depends(get_current_user)):
     try:
-        return {"domains": service.list_domains()}
+        account_domains = service.list_domains()
     except DMSSetupError as exc:
         logger.warning("list_domains failed: %s", exc)
-        return {"domains": []}
+        account_domains = []
+    managed = db.query(ManagedDomain).order_by(ManagedDomain.domain).all()
+    managed_names = {m.domain for m in managed}
+    # Merge: managed domains first, then any account-derived domains not yet managed
+    extra = sorted(d for d in account_domains if d not in managed_names)
+    result = [{"domain": m.domain, "description": m.description, "managed": True} for m in managed]
+    result += [{"domain": d, "description": "", "managed": False} for d in extra]
+    return {"domains": result}
+
+
+@router.post("/domains", dependencies=[Depends(csrf_protect)])
+def create_domain(payload: DomainCreate, db: Session = Depends(get_db), _=Depends(get_current_user)):
+    if db.query(ManagedDomain).filter(ManagedDomain.domain == payload.domain).first():
+        raise HTTPException(status_code=400, detail="Domain already exists")
+    db.add(ManagedDomain(domain=payload.domain, description=payload.description))
+    db.commit()
+    return {"ok": True, "domain": payload.domain}
+
+
+@router.delete("/domains", dependencies=[Depends(csrf_protect)])
+def delete_domain(payload: DomainDelete, db: Session = Depends(get_db), _=Depends(get_current_user)):
+    record = db.query(ManagedDomain).filter(ManagedDomain.domain == payload.domain).first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Domain not found in managed domains")
+    db.delete(record)
+    db.commit()
+    return {"ok": True}

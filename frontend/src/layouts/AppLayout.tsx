@@ -8,6 +8,9 @@ const links = [
   ['/accounts', '👤', 'Accounts'],
   ['/domains', '🌐', 'Domains'],
   ['/aliases', '🔀', 'Aliases'],
+  ['/dns-wizard', '🧭', 'DNS Wizard'],
+  ['/mail-profile', '📱', 'Mail Profiles'],
+  ['/observability', '📈', 'Observability'],
   ['/imapsync', '📬', 'IMAPSync'],
   ['/logs', '🧾', 'Logs'],
   ['/settings', '⚙️', 'Settings']
