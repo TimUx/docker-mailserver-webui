@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +11,7 @@ from app.db.session import SessionLocal, engine
 from app.models.user import User
 from app.services.security import hash_password
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
@@ -23,6 +25,8 @@ async def lifespan(_: FastAPI):
             db.commit()
     finally:
         db.close()
+    if not settings.cookie_secure:
+        logger.warning("COOKIE_SECURE is False – session cookies are not Secure-flagged. Set COOKIE_SECURE=true when serving over HTTPS.")
     yield
 
 

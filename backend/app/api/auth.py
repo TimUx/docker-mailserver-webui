@@ -19,8 +19,8 @@ def login(payload: LoginRequest, response: Response, db: Session = Depends(get_d
         raise HTTPException(status_code=401, detail="Invalid credentials")
     token = create_access_token(user.email)
     csrf_token = create_csrf_token()
-    response.set_cookie(settings.session_cookie_name, token, httponly=True, secure=True, samesite="strict")
-    response.set_cookie(settings.csrf_cookie_name, csrf_token, httponly=False, secure=True, samesite="strict")
+    response.set_cookie(settings.session_cookie_name, token, httponly=True, secure=settings.cookie_secure, samesite="strict")
+    response.set_cookie(settings.csrf_cookie_name, csrf_token, httponly=False, secure=settings.cookie_secure, samesite="strict")
     return AuthResponse(user=AuthUser(id=user.id, email=user.email, is_admin=user.is_admin), csrf_token=csrf_token)
 
 

@@ -3,7 +3,7 @@ import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
 
 export function AccountsPage() {
-  const [accounts, setAccounts] = useState<string[]>(['admin@example.com', 'support@example.com', 'sales@example.com']);
+  const [accounts, setAccounts] = useState<string[]>([]);
   const csrf = useAuth((s) => s.csrfToken);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

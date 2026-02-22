@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     webui_log_path: str = "/var/log/webui"
     mail_log_path: str = "/var/log/mail"
 
+    cookie_secure: bool = False
+
     scheduler_timezone: str = "UTC"
     cors_origins: str = "http://localhost:5173,http://localhost:8080"
     admin_email: str = "admin@example.com"
