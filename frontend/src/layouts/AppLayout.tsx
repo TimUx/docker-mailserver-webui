@@ -7,7 +7,6 @@ const links = [
   ['/domains', '🌐', 'Domains'],
   ['/aliases', '🔀', 'Aliases'],
   ['/imapsync', '📬', 'IMAPSync'],
-  ['/stack-services', '🛡️', 'Security Stack'],
   ['/logs', '🧾', 'Logs'],
   ['/settings', '⚙️', 'Settings']
 ];

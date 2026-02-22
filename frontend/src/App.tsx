@@ -8,7 +8,6 @@ import { DomainsPage } from './pages/DomainsPage';
 import { ImapSyncPage } from './pages/ImapSyncPage';
 import { LoginPage } from './pages/LoginPage';
 import { LogsPage } from './pages/LogsPage';
-import { StackServicesPage } from './pages/StackServicesPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 function Protected() {
@@ -26,7 +25,6 @@ export function App() {
         <Route path="domains" element={<DomainsPage />} />
         <Route path="aliases" element={<AliasesPage />} />
         <Route path="imapsync" element={<ImapSyncPage />} />
-        <Route path="stack-services" element={<StackServicesPage />} />
         <Route path="logs" element={<LogsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
