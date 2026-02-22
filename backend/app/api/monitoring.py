@@ -21,15 +21,18 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
     active_sync = db.query(ImapSyncJob).filter(ImapSyncJob.enabled.is_(True)).count()
     last_sync = db.query(ImapSyncJob).order_by(ImapSyncJob.last_run_at.desc()).first()
     integrations = stack.get_status()
-    unhealthy = [k for k, v in integrations.items() if v.get("status") != "running"]
+    running = sum(1 for v in integrations.values() if v.get("status") == "running")
+    degraded = [k for k, v in integrations.items() if v.get("status") != "running"]
     return {
         "domains": len(domains),
         "accounts": len(accounts),
         "aliases": len(aliases),
         "active_sync_jobs": active_sync,
         "last_sync_status": last_sync.last_status if last_sync else "never",
-        "system_health": "degraded" if unhealthy else "ok",
-        "integrations": integrations,
+        "system_health": "degraded" if degraded else "ok",
+        "security_services_running": running,
+        "security_services_total": len(integrations),
+        "security_services_degraded": degraded,
     }
 
 
