@@ -4,7 +4,7 @@ import { api } from '../api/client';
 export function ImapSyncPage() {
   const [jobs, setJobs] = useState<any[]>([]);
   const load = () => api.get('/imapsync').then((r) => setJobs(r.data)).catch(() => undefined);
-  useEffect(load, []);
+  useEffect(() => { void load(); }, []);
 
   return (
     <div className='panel'>
