@@ -72,13 +72,13 @@ export function ObservabilityPage() {
 
       <h2>Service Status</h2>
       <div className="stats-grid">
-        {data === null
+        {data === null || data === undefined
           ? ['rspamd', 'redis', 'clamav', 'mailserver'].map((k) => (
               <div key={k} className="stat-card">
                 {SERVICE_ICONS[k]} {SERVICE_LABELS[k]}<strong>…</strong>
               </div>
             ))
-          : Object.entries(data.services).map(([name, svc]) => (
+          : Object.entries(data.services ?? {}).map(([name, svc]) => (
               <div key={name} className="stat-card" style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: '1.3rem', marginBottom: '.3rem' }}>
                   {SERVICE_ICONS[name] ?? '🔧'} {SERVICE_LABELS[name] ?? name}
@@ -160,7 +160,7 @@ export function ObservabilityPage() {
           )}
         </>
       ) : (
-        <p style={{ opacity: .6 }}>{data === null ? 'Loading…' : 'No Rspamd statistics available.'}</p>
+        <p style={{ opacity: .6 }}>{data === null || data === undefined ? 'Loading…' : 'No Rspamd statistics available.'}</p>
       )}
     </div>
   );

@@ -73,7 +73,10 @@ def observability(_=Depends(get_current_user)):
 
 def _fetch_rspamd_stats() -> dict:
     """Fetch detailed stats from Rspamd controller API."""
-    base_url = _settings.rspamd_controller_url.removesuffix("/stat").rstrip("/")
+    try:
+        base_url = _settings.rspamd_controller_url.removesuffix("/stat").rstrip("/")
+    except (AttributeError, TypeError) as exc:
+        return {"stat": {"error": str(exc)}, "actions": {}, "symbols": {}}
     endpoints = {
         "stat": f"{base_url}/stat",
         "actions": f"{base_url}/actions",

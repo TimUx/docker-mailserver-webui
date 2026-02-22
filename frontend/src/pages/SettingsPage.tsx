@@ -22,6 +22,8 @@ const LABELS: Record<string, string> = {
   access_token_minutes: 'Session Duration (minutes)',
 };
 
+const PASSWORD_FIELDS = new Set(['rspamd_controller_password']);
+
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 export function SettingsPage() {
@@ -31,6 +33,7 @@ export function SettingsPage() {
   const [newPw, setNewPw] = useState('');
   const [pwState, setPwState] = useState<SaveState>('idle');
   const [pwError, setPwError] = useState('');
+  const [showPwFields, setShowPwFields] = useState<Record<string, boolean>>({});
   const csrf = useAuth((s) => s.csrfToken);
 
   const load = useCallback(() => {
@@ -84,12 +87,25 @@ export function SettingsPage() {
                 <label htmlFor={key}>{label}</label>
               </td>
               <td style={{ padding: '.5rem 0' }}>
-                <input
-                  id={key}
-                  value={settings[key] ?? ''}
-                  onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
-                  style={{ width: '100%', boxSizing: 'border-box' }}
-                />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    id={key}
+                    type={PASSWORD_FIELDS.has(key) && !showPwFields[key] ? 'password' : 'text'}
+                    value={settings[key] ?? ''}
+                    onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
+                    style={{ width: '100%', boxSizing: 'border-box' }}
+                  />
+                  {PASSWORD_FIELDS.has(key) && (
+                    <button
+                      type="button"
+                      title={showPwFields[key] ? 'Hide password' : 'Show password'}
+                      onClick={() => setShowPwFields((prev) => ({ ...prev, [key]: !prev[key] }))}
+                      style={{ flexShrink: 0 }}
+                    >
+                      {showPwFields[key] ? '🙈' : '👁'}
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}
