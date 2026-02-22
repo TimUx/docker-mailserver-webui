@@ -89,7 +89,16 @@ def _fetch_rspamd_stats() -> dict:
             if _settings.rspamd_controller_password:
                 req.add_header("Password", _settings.rspamd_controller_password)
             with urllib.request.urlopen(req, timeout=5) as resp:
-                result[key] = json.loads(resp.read().decode())
+                data = json.loads(resp.read().decode())
+                if key == "actions" and isinstance(data, list):
+                    data = {
+                        item["action"]: item["value"]
+                        for item in data
+                        if isinstance(item, dict)
+                        and isinstance(item.get("action"), str)
+                        and isinstance(item.get("value"), (int, float))
+                    }
+                result[key] = data
         except Exception as exc:
             result[key] = {"error": str(exc)}
     return result
