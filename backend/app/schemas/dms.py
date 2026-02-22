@@ -1,9 +1,15 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class AccountCreate(BaseModel):
     email: EmailStr
     password: str
+    quota: str = Field(default="", description="Optional mailbox quota, e.g. '1G', '500M', '0' to remove limit")
+
+
+class QuotaSet(BaseModel):
+    email: EmailStr
+    quota: str = Field(..., description="Mailbox quota, e.g. '1G', '500M', '0' to remove limit")
 
 
 class AccountDelete(BaseModel):

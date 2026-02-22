@@ -6,7 +6,7 @@ from app.api.deps import csrf_protect, get_current_user
 from app.db.session import get_db
 from app.models.account_note import AccountNote
 from app.models.managed_domain import ManagedDomain
-from app.schemas.dms import AccountCreate, AccountDelete, AccountNoteUpdate, AliasCreate, AliasDelete, DomainCreate, DomainDelete, PasswordChange
+from app.schemas.dms import AccountCreate, AccountDelete, AccountNoteUpdate, AliasCreate, AliasDelete, DomainCreate, DomainDelete, PasswordChange, QuotaSet
 from app.services.dms_setup import DMSSetupError, DMSSetupService
 
 router = APIRouter(prefix="/dms", tags=["dms"])
@@ -28,15 +28,33 @@ def list_accounts(db: Session = Depends(get_db), _=Depends(get_current_user)):
 @router.post("/accounts", dependencies=[Depends(csrf_protect)])
 def create_account(payload: AccountCreate, _=Depends(get_current_user)):
     try:
-        return {"message": service.add_account(payload.email, payload.password)}
+        result = service.add_account(payload.email, payload.password)
     except DMSSetupError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.quota:
+        try:
+            service.set_quota(payload.email, payload.quota)
+        except DMSSetupError as exc:
+            # Account was created but quota could not be set; surface the partial failure.
+            raise HTTPException(
+                status_code=207,
+                detail=f"Account created, but setting quota failed: {exc}",
+            ) from exc
+    return {"message": result}
 
 
 @router.delete("/accounts", dependencies=[Depends(csrf_protect)])
 def delete_account(payload: AccountDelete, _=Depends(get_current_user)):
     try:
         return {"message": service.del_account(payload.email)}
+    except DMSSetupError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.put("/accounts/quota", dependencies=[Depends(csrf_protect)])
+def set_quota(payload: QuotaSet, _=Depends(get_current_user)):
+    try:
+        return {"message": service.set_quota(payload.email, payload.quota)}
     except DMSSetupError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
