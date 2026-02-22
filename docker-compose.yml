@@ -18,12 +18,14 @@ services:
       RSPAMD_CONTROLLER_PASSWORD: ${RSPAMD_CONTROLLER_PASSWORD:-}
       RSPAMD_WEB_HOST: ${RSPAMD_WEB_HOST:-mail-rspamd:11334}
       STACK_BASE_PATH: ${STACK_BASE_PATH:-/srv/apps/mailserver}
+      MAILSERVER_ENV_PATH: ${MAILSERVER_ENV_PATH:-/config/mailserver.env}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
     volumes:
       - webui_data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
       - ./logs:/var/log
+      - ${STACK_BASE_PATH:-/srv/apps/mailserver}/mailserver.env:/config/mailserver.env
     networks: [dms-net]
 
   db:

@@ -23,6 +23,7 @@ EDITABLE_SETTINGS: list[str] = [
     "admin_email",
     "cookie_secure",
     "access_token_minutes",
+    "mailserver_env_path",
 ]
 
 # Settings whose DB value must be cast to bool

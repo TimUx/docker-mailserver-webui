@@ -28,7 +28,7 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
         aliases = service.list_aliases()
     except Exception:
         aliases = []
-    domains = sorted({a.split('@')[1] for a in accounts if '@' in a})
+    domains = sorted({a["email"].split('@')[1] for a in accounts})
     active_sync = db.query(ImapSyncJob).filter(ImapSyncJob.enabled.is_(True)).count()
     last_sync = db.query(ImapSyncJob).order_by(ImapSyncJob.last_run_at.desc()).first()
     try:

@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     dms_config_mount_path: str = "/tmp/docker-mailserver"
     dms_mail_data_path: str = "/var/mail"
     dms_mail_state_path: str = "/var/mail-state"
+    mailserver_env_path: str = "/config/mailserver.env"
 
     imapsync_log_path: str = "/var/log/imapsync"
     webui_log_path: str = "/var/log/webui"
