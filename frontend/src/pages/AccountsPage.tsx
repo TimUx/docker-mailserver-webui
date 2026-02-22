@@ -1,14 +1,127 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useRefreshListener } from '../hooks/useRefreshListener';
+
+type EditMode = 'none' | 'password' | 'note';
 
 export function AccountsPage() {
   const [accounts, setAccounts] = useState<string[]>([]);
+  const [notes, setNotes] = useState<Record<string, string>>({});
   const csrf = useAuth((s) => s.csrfToken);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const load = () => api.get('/dms/accounts').then((r) => setAccounts(r.data.accounts)).catch(() => undefined);
-  useEffect(() => { void load(); }, []);
-  const create = async () => { await api.post('/dms/accounts', { email, password }, { headers: csrfHeaders(csrf) }); setEmail(''); setPassword(''); load(); };
-  return <div className="panel"><h1>👤 Accounts</h1><div className="row"><input placeholder='email' value={email} onChange={(e)=>setEmail(e.target.value)}/><input placeholder='password' value={password} onChange={(e)=>setPassword(e.target.value)}/><button onClick={create}>Add</button></div><ul>{accounts.map((a)=><li key={a}>{a}</li>)}</ul></div>;
+  const [editTarget, setEditTarget] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState<EditMode>('none');
+  const [editValue, setEditValue] = useState('');
+  const [error, setError] = useState('');
+
+  const load = useCallback(() => {
+    api.get('/dms/accounts')
+      .then((r) => { setAccounts(r.data.accounts); setNotes(r.data.notes ?? {}); })
+      .catch(() => undefined);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+  useRefreshListener(load);
+
+  const create = async () => {
+    setError('');
+    try {
+      await api.post('/dms/accounts', { email, password }, { headers: csrfHeaders(csrf) });
+      setEmail('');
+      setPassword('');
+      void load();
+    } catch (e: any) {
+      setError(e?.response?.data?.detail ?? 'Failed to create account');
+    }
+  };
+
+  const remove = async (addr: string) => {
+    if (!confirm(`Delete account ${addr}?`)) return;
+    try {
+      await api.delete('/dms/accounts', { data: { email: addr }, headers: csrfHeaders(csrf) });
+      void load();
+    } catch (e: any) {
+      setError(e?.response?.data?.detail ?? 'Failed to delete account');
+    }
+  };
+
+  const startEdit = (addr: string, mode: EditMode) => {
+    setEditTarget(addr);
+    setEditMode(mode);
+    setEditValue(mode === 'note' ? (notes[addr] ?? '') : '');
+    setError('');
+  };
+
+  const cancelEdit = () => { setEditTarget(null); setEditMode('none'); setEditValue(''); };
+
+  const saveEdit = async () => {
+    if (!editTarget) return;
+    try {
+      if (editMode === 'password') {
+        await api.put('/dms/accounts/password', { email: editTarget, password: editValue }, { headers: csrfHeaders(csrf) });
+      } else if (editMode === 'note') {
+        await api.put('/dms/accounts/notes', { email: editTarget, note: editValue }, { headers: csrfHeaders(csrf) });
+      }
+      cancelEdit();
+      void load();
+    } catch (e: any) {
+      setError(e?.response?.data?.detail ?? 'Failed to save');
+    }
+  };
+
+  return (
+    <div className="panel">
+      <h1>👤 Accounts</h1>
+
+      <div className="row" style={{ marginBottom: '.5rem' }}>
+        <input placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1 }} />
+        <input placeholder="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ flex: 1 }} />
+        <button onClick={create}>➕ Add</button>
+      </div>
+      {error && <p style={{ color: 'var(--color-warn, #f59e0b)' }}>{error}</p>}
+
+      {editTarget && (
+        <div className="panel" style={{ marginBottom: '1rem' }}>
+          <strong>{editMode === 'password' ? '🔑 Change Password' : '📝 Edit Note'} for {editTarget}</strong>
+          <div className="row" style={{ marginTop: '.5rem' }}>
+            {editMode === 'password' ? (
+              <input type="password" placeholder="New password" value={editValue} onChange={(e) => setEditValue(e.target.value)} style={{ flex: 1 }} />
+            ) : (
+              <input placeholder="Note / comment" value={editValue} onChange={(e) => setEditValue(e.target.value)} style={{ flex: 1 }} />
+            )}
+            <button onClick={saveEdit}>💾 Save</button>
+            <button onClick={cancelEdit}>✖ Cancel</button>
+          </div>
+        </div>
+      )}
+
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ borderBottom: '1px solid var(--border)' }}>
+            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Email</th>
+            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Note</th>
+            <th style={{ padding: '.4rem .5rem' }}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {accounts.map((a) => (
+            <tr key={a} style={{ borderBottom: '1px solid var(--border)' }}>
+              <td style={{ padding: '.4rem .5rem' }}>{a}</td>
+              <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{notes[a] ?? ''}</td>
+              <td style={{ padding: '.4rem .5rem', whiteSpace: 'nowrap' }}>
+                <button onClick={() => startEdit(a, 'password')} title="Change password">🔑</button>
+                <button onClick={() => startEdit(a, 'note')} title="Edit note">📝</button>
+                <button onClick={() => remove(a)} title="Delete account" style={{ color: '#ef4444' }}>🗑</button>
+              </td>
+            </tr>
+          ))}
+          {accounts.length === 0 && (
+            <tr><td colSpan={3} style={{ padding: '.75rem .5rem', opacity: .5 }}>No accounts found</td></tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 }

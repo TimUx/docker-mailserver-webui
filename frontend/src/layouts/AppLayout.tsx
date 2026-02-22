@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { api, csrfHeaders } from '../api/client';
+import { useAuth } from '../contexts/auth';
 
 const links = [
   ['/', '📊', 'Dashboard'],
@@ -25,6 +27,8 @@ function toggleTheme(theme: Theme): Theme {
 export function AppLayout() {
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const csrf = useAuth((s) => s.csrfToken);
+  const clear = useAuth((s) => s.clear);
 
   useEffect(() => {
     document.body.dataset.theme = theme;
@@ -32,6 +36,15 @@ export function AppLayout() {
   }, [theme]);
 
   const currentTitle = links.find(([to]) => to === location.pathname)?.[2] ?? 'Dashboard';
+
+  const handleRefresh = () => {
+    window.dispatchEvent(new CustomEvent('dms-refresh'));
+  };
+
+  const handleLogout = async () => {
+    await api.post('/auth/logout', {}, { headers: csrfHeaders(csrf) }).catch(() => undefined);
+    clear();
+  };
 
   return (
     <div className="app">
@@ -45,6 +58,10 @@ export function AppLayout() {
             <span>{icon}</span> {label}
           </Link>
         ))}
+        <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
+          <button onClick={handleRefresh} title="Refresh current page data">🔄 Refresh</button>
+          <button onClick={handleLogout}>🚪 Logout</button>
+        </div>
       </aside>
       <main className="content">
         <header className="content-header">{currentTitle}</header>

@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
 from app.api.deps import csrf_protect, get_current_user
-from app.schemas.dms import AccountCreate, AccountDelete, AliasCreate, AliasDelete, PasswordChange
+from app.db.session import get_db
+from app.models.account_note import AccountNote
+from app.schemas.dms import AccountCreate, AccountDelete, AccountNoteUpdate, AliasCreate, AliasDelete, PasswordChange
 from app.services.dms_setup import DMSSetupError, DMSSetupService
 
 router = APIRouter(prefix="/dms", tags=["dms"])
@@ -9,8 +12,10 @@ service = DMSSetupService()
 
 
 @router.get("/accounts")
-def list_accounts(_=Depends(get_current_user)):
-    return {"accounts": service.list_accounts()}
+def list_accounts(db: Session = Depends(get_db), _=Depends(get_current_user)):
+    accounts = service.list_accounts()
+    notes = {n.email: n.note for n in db.query(AccountNote).all()}
+    return {"accounts": accounts, "notes": notes}
 
 
 @router.post("/accounts", dependencies=[Depends(csrf_protect)])
@@ -35,6 +40,17 @@ def change_password(payload: PasswordChange, _=Depends(get_current_user)):
         return {"message": service.update_password(payload.email, payload.password)}
     except DMSSetupError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.put("/accounts/notes", dependencies=[Depends(csrf_protect)])
+def update_account_note(payload: AccountNoteUpdate, db: Session = Depends(get_db), _=Depends(get_current_user)):
+    note = db.query(AccountNote).filter(AccountNote.email == payload.email).first()
+    if note:
+        note.note = payload.note
+    else:
+        db.add(AccountNote(email=payload.email, note=payload.note))
+    db.commit()
+    return {"ok": True}
 
 
 @router.get("/aliases")
