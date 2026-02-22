@@ -7,7 +7,6 @@ body[data-theme='light'] { color-scheme: light; background: #f8fafc; color: #0f1
 .sidebar a { color: var(--link); text-decoration: none; border-radius: .4rem; padding: .4rem .5rem; }
 .sidebar a.active, .sidebar a:hover { background: var(--surface-2); }
 .content { padding: 1rem; }
-.content-header { margin-bottom: .75rem; font-size: .85rem; opacity: .75; }
 .panel { background: var(--surface); padding: 1rem; border-radius: .5rem; border: 1px solid var(--border); }
 input, select, button { margin: .25rem; padding: .4rem; border-radius: .25rem; border: 1px solid var(--border); background: var(--surface-2); color: inherit; }
 button { cursor: pointer; }

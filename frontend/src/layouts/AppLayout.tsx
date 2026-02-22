@@ -38,8 +38,6 @@ export function AppLayout() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const currentTitle = links.find(([to]) => to === location.pathname)?.[2] ?? 'Dashboard';
-
   const handleRefresh = () => {
     window.dispatchEvent(new CustomEvent('dms-refresh'));
   };
@@ -67,7 +65,6 @@ export function AppLayout() {
         </div>
       </aside>
       <main className="content">
-        <header className="content-header">{currentTitle}</header>
         <Outlet />
       </main>
     </div>
