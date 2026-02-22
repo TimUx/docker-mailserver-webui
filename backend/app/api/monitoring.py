@@ -21,6 +21,7 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
     active_sync = db.query(ImapSyncJob).filter(ImapSyncJob.enabled.is_(True)).count()
     last_sync = db.query(ImapSyncJob).order_by(ImapSyncJob.last_run_at.desc()).first()
     integrations = stack.get_status()
+    mailserver = stack.get_mailserver_status()
     running = sum(1 for v in integrations.values() if v.get("status") == "running")
     degraded = [k for k, v in integrations.items() if v.get("status") != "running"]
     return {
@@ -33,6 +34,8 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
         "security_services_running": running,
         "security_services_total": len(integrations),
         "security_services_degraded": degraded,
+        "security_services": integrations,
+        "mailserver": mailserver,
     }
 
 

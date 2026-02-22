@@ -74,12 +74,18 @@ class StackIntegrationService:
                 "dashboard_url": "/rspamd-ui/",
             }
 
+    def _mailserver_info(self) -> dict:
+        return self._docker_running(settings.dms_container_name)
+
     def get_status(self) -> dict:
         return {
             "rspamd": self._rspamd_info(),
             "redis": self._redis_info(),
             "clamav": self._clamav_info(),
         }
+
+    def get_mailserver_status(self) -> dict:
+        return self._mailserver_info()
 
     def restart(self, service: str) -> dict:
         mapping = {
