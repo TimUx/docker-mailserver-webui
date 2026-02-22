@@ -127,43 +127,6 @@ export function ObservabilityPage() {
             ))}
       </div>
 
-      {/* Supervisor process status */}
-      <h2 style={{ marginTop: '1.5rem' }}>🔧 Supervisor Process Status</h2>
-      {supervisord === null ? (
-        <p style={{ opacity: .6 }}>Loading…</p>
-      ) : supervisord.processes.length === 0 ? (
-        supervisord.raw ? (
-          <pre style={{ fontFamily: 'monospace', fontSize: '.82rem', opacity: .8, overflowX: 'auto', background: 'var(--surface-2)', padding: '.75rem', borderRadius: '.35rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-            {supervisord.raw}
-          </pre>
-        ) : (
-          <p style={{ opacity: .6 }}>No processes found or supervisord not available.</p>
-        )
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '.5rem' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Process</th>
-              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Status</th>
-              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>PID</th>
-              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Uptime</th>
-            </tr>
-          </thead>
-          <tbody>
-            {supervisord.processes.map((proc) => (
-              <tr key={proc.name} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '.35rem .5rem', fontFamily: 'monospace', fontSize: '.85rem', fontWeight: 600 }}>{proc.name}</td>
-                <td style={{ padding: '.35rem .5rem' }}>
-                  <strong style={{ color: supervisorColor(proc.status), fontSize: '.85rem' }}>{proc.status}</strong>
-                </td>
-                <td style={{ padding: '.35rem .5rem', fontFamily: 'monospace', fontSize: '.85rem', opacity: .75 }}>{proc.pid ?? '—'}</td>
-                <td style={{ padding: '.35rem .5rem', fontFamily: 'monospace', fontSize: '.85rem', opacity: .75 }}>{proc.uptime ?? '—'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
       {/* Mail Queue */}
       <h2 style={{ marginTop: '1.5rem' }}>📨 Mail Queue</h2>
       {mailq === null ? (
@@ -299,6 +262,43 @@ export function ObservabilityPage() {
         </>
       ) : (
         <p style={{ opacity: .6 }}>{data === null || data === undefined ? 'Loading…' : 'No Rspamd statistics available.'}</p>
+      )}
+
+      {/* Supervisor process status */}
+      <h2 style={{ marginTop: '1.5rem' }}>🔧 Supervisor Process Status</h2>
+      {supervisord === null ? (
+        <p style={{ opacity: .6 }}>Loading…</p>
+      ) : supervisord.processes.length === 0 ? (
+        supervisord.raw ? (
+          <pre style={{ fontFamily: 'monospace', fontSize: '.82rem', opacity: .8, overflowX: 'auto', background: 'var(--surface-2)', padding: '.75rem', borderRadius: '.35rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            {supervisord.raw}
+          </pre>
+        ) : (
+          <p style={{ opacity: .6 }}>No processes found or supervisord not available.</p>
+        )
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '.5rem' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Process</th>
+              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Status</th>
+              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>PID</th>
+              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Uptime</th>
+            </tr>
+          </thead>
+          <tbody>
+            {supervisord.processes.map((proc) => (
+              <tr key={proc.name} style={{ borderBottom: '1px solid var(--border)' }}>
+                <td style={{ padding: '.35rem .5rem', fontFamily: 'monospace', fontSize: '.85rem', fontWeight: 600 }}>{proc.name}</td>
+                <td style={{ padding: '.35rem .5rem' }}>
+                  <strong style={{ color: supervisorColor(proc.status), fontSize: '.85rem' }}>{proc.status}</strong>
+                </td>
+                <td style={{ padding: '.35rem .5rem', fontFamily: 'monospace', fontSize: '.85rem', opacity: .75 }}>{proc.pid ?? '—'}</td>
+                <td style={{ padding: '.35rem .5rem', fontFamily: 'monospace', fontSize: '.85rem', opacity: .75 }}>{proc.uptime ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

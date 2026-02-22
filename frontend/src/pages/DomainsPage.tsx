@@ -27,7 +27,9 @@ export function DomainsPage() {
     api.get('/dms/aliases').then((r) => {
       const counts: Record<string, number> = {};
       for (const entry of (r.data.aliases ?? [])) {
-        const aliasAddr = (entry as string).split(/\s+/)[0] ?? '';
+        const parts = (entry as string).trim().split(/\s+/).filter(Boolean);
+        const offset = parts[0] === '*' ? 1 : 0;
+        const aliasAddr = parts[offset] ?? '';
         const d = aliasAddr.split('@')[1];
         if (d) counts[d] = (counts[d] ?? 0) + 1;
       }

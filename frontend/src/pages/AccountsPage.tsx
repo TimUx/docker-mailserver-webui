@@ -9,6 +9,7 @@ type EditMode = 'none' | 'password' | 'note' | 'quota';
 export function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [aliasCounts, setAliasCounts] = useState<Record<string, number>>({});
   const csrf = useAuth((s) => s.csrfToken);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,6 +23,17 @@ export function AccountsPage() {
     api.get('/dms/accounts')
       .then((r) => { setAccounts(r.data.accounts); setNotes(r.data.notes ?? {}); })
       .catch(() => undefined);
+    api.get('/dms/aliases').then((r) => {
+      const counts: Record<string, number> = {};
+      for (const entry of (r.data.aliases ?? [])) {
+        const parts = (entry as string).trim().split(/\s+/).filter(Boolean);
+        const offset = parts[0] === '*' ? 1 : 0;
+        const nextIdx = parts[offset + 1] === '->' ? offset + 2 : offset + 1;
+        const dest = parts[nextIdx] ?? '';
+        if (dest) counts[dest] = (counts[dest] ?? 0) + 1;
+      }
+      setAliasCounts(counts);
+    }).catch(() => undefined);
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -119,6 +131,7 @@ export function AccountsPage() {
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Email</th>
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Domain</th>
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Quota (used / limit)</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Aliases</th>
             <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Note</th>
             <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Actions</th>
           </tr>
@@ -129,6 +142,7 @@ export function AccountsPage() {
               <td style={{ padding: '.4rem .5rem' }}>{a.email}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{a.email.split('@')[1] ?? ''}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem', fontFamily: 'monospace' }}>{formatQuota(a)}</td>
+              <td style={{ padding: '.4rem .5rem', textAlign: 'right', fontSize: '.85rem', opacity: .75 }}>{aliasCounts[a.email] ?? 0}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{notes[a.email] ?? ''}</td>
               <td style={{ padding: '.4rem .5rem', whiteSpace: 'nowrap', textAlign: 'right' }}>
                 <button onClick={() => startEdit(a.email, 'password')} title="Change password">🔑</button>
@@ -139,7 +153,7 @@ export function AccountsPage() {
             </tr>
           ))}
           {accounts.length === 0 && (
-            <tr><td colSpan={5} style={{ padding: '.75rem .5rem', opacity: .5 }}>No accounts found</td></tr>
+            <tr><td colSpan={6} style={{ padding: '.75rem .5rem', opacity: .5 }}>No accounts found</td></tr>
           )}
         </tbody>
       </table>
