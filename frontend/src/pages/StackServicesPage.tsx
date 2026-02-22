@@ -2,18 +2,36 @@ import { useEffect, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
 
-type ServiceStatus = Record<string, { status: string; message: string; container: string; dashboard_url?: string }>;
+type ServiceStatus = Record<
+  string,
+  { status: string; message: string; container: string; dashboard_url?: string }
+>;
+
+const serviceIcons: Record<string, string> = {
+  rspamd: '🛡️',
+  redis: '⚡',
+  clamav: '🦠',
+};
+
+const serviceLabels: Record<string, string> = {
+  rspamd: 'Rspamd – Spam Filter',
+  redis: 'Redis – Cache',
+  clamav: 'ClamAV – Virus Scanner',
+};
 
 export function StackServicesPage() {
-  const [services, setServices] = useState<ServiceStatus>({
-    rspamd: { status: 'running', message: 'Spam filter active', container: 'mail_rspamd_1' },
-    redis: { status: 'running', message: 'In-memory cache online', container: 'mail_redis_1' },
-    clamav: { status: 'running', message: 'Virus scanner updated', container: 'mail_clamav_1' }
-  });
+  const [services, setServices] = useState<ServiceStatus>({});
   const csrf = useAuth((s) => s.csrfToken);
 
-  const load = () => api.get('/integrations/status').then((r) => setServices(r.data)).catch(() => undefined);
-  useEffect(() => { void load(); }, []);
+  const load = () =>
+    api
+      .get('/integrations/status')
+      .then((r) => setServices(r.data))
+      .catch(() => undefined);
+
+  useEffect(() => {
+    void load();
+  }, []);
 
   const restart = async (name: string) => {
     await api.post(`/integrations/${name}/restart`, {}, { headers: csrfHeaders(csrf) });
@@ -21,30 +39,47 @@ export function StackServicesPage() {
   };
 
   return (
-    <div className='panel'>
-      <h1>🛡️ RSPAMD / Redis / ClamAV</h1>
-      <p>Container status and basic administration for your extended mail security stack.</p>
-      <ul>
+    <div className="panel">
+      <h1>🛡️ Security Stack</h1>
+      <p>Container status, metrics and administration for your extended mail security stack.</p>
+      <div className="stats-grid">
         {Object.entries(services).map(([name, value]) => (
-          <li key={name} style={{ marginBottom: '1rem' }}>
-            <strong>{name}</strong> ({value.container}) - <em>{value.status}</em>
-            <br />
-            <small>{value.message}</small>
-            <br />
-            <button onClick={() => restart(name)}>Restart</button>
-            {value.dashboard_url && (
-              <a
-                href={value.dashboard_url}
-                target='_blank'
-                rel='noreferrer'
-                style={{ marginLeft: '0.5rem' }}
+          <div key={name} className="stat-card" style={{ textAlign: 'left' }}>
+            <div style={{ fontSize: '1.4rem', marginBottom: '.4rem' }}>
+              {serviceIcons[name] ?? '🔧'} {serviceLabels[name] ?? name}
+            </div>
+            <div style={{ marginBottom: '.25rem' }}>
+              Status:{' '}
+              <strong
+                style={{
+                  color:
+                    value.status === 'running'
+                      ? 'var(--color-ok, #22c55e)'
+                      : 'var(--color-warn, #f59e0b)',
+                }}
               >
-                Open Dashboard ↗
-              </a>
-            )}
-          </li>
+                {value.status}
+              </strong>
+            </div>
+            <small style={{ display: 'block', opacity: 0.8, marginBottom: '.5rem' }}>
+              {value.message}
+            </small>
+            <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginTop: '.5rem' }}>
+              <button onClick={() => restart(name)}>↺ Restart</button>
+              {value.dashboard_url && (
+                <a
+                  href={value.dashboard_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="button-link"
+                >
+                  📊 Open Dashboard ↗
+                </a>
+              )}
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

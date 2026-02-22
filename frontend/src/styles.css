@@ -11,6 +11,7 @@ body[data-theme='light'] { color-scheme: light; background: #f8fafc; color: #0f1
 .panel { background: var(--surface); padding: 1rem; border-radius: .5rem; border: 1px solid var(--border); }
 input, select, button { margin: .25rem; padding: .4rem; border-radius: .25rem; border: 1px solid var(--border); background: var(--surface-2); color: inherit; }
 button { cursor: pointer; }
+a.button-link { display: inline-block; padding: .4rem .6rem; border-radius: .25rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--link); text-decoration: none; cursor: pointer; margin: .25rem; }
 .row { display: flex; flex-wrap: wrap; }
 .theme-toggle { margin-bottom: .75rem; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .75rem; margin-bottom: 1rem; }
