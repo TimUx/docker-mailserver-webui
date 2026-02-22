@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
 
-type ServiceStatus = Record<string, { status: string; message: string; container: string }>;
+type ServiceStatus = Record<string, { status: string; message: string; container: string; dashboard_url?: string }>;
 
 export function StackServicesPage() {
   const [services, setServices] = useState<ServiceStatus>({
@@ -32,6 +32,16 @@ export function StackServicesPage() {
             <small>{value.message}</small>
             <br />
             <button onClick={() => restart(name)}>Restart</button>
+            {value.dashboard_url && (
+              <a
+                href={value.dashboard_url}
+                target='_blank'
+                rel='noreferrer'
+                style={{ marginLeft: '0.5rem' }}
+              >
+                Open Dashboard ↗
+              </a>
+            )}
           </li>
         ))}
       </ul>

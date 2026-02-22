@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     clamav_container_name: str = "mail-clamav"
     rspamd_controller_url: str = "http://mail-rspamd:11334/stat"
     rspamd_controller_password: str = ""
+    rspamd_web_host: str = "mail-rspamd:11334"
 
     stack_base_path: str = "/srv/apps/mailserver"
     dms_config_mount_path: str = "/tmp/docker-mailserver"

@@ -64,12 +64,14 @@ class StackIntegrationService:
                 **state,
                 "status": "running",
                 "message": f"rspamd controller reachable, scanned={scanned}",
+                "dashboard_url": "/rspamd-ui/",
             }
         except (urllib.error.URLError, json.JSONDecodeError, TimeoutError) as exc:
             return {
                 **state,
                 "status": "degraded",
                 "message": f"controller unavailable: {exc}",
+                "dashboard_url": "/rspamd-ui/",
             }
 
     def get_status(self) -> dict:
