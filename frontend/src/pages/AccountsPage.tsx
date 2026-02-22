@@ -8,19 +8,25 @@ type EditMode = 'none' | 'password' | 'note' | 'quota';
 type SortDir = 'asc' | 'desc';
 type SortKey = 'email' | 'domain' | 'quota' | 'aliases' | 'note';
 
-function thStyle(key: SortKey, sortKey: SortKey, align: 'left' | 'right' = 'left'): React.CSSProperties {
-  return { textAlign: align, padding: '.4rem .5rem', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' };
-}
-
 function sortIcon(key: SortKey, sortKey: SortKey, dir: SortDir) {
   if (key !== sortKey) return <span style={{ opacity: .3, fontSize: '.75rem' }}> ↕</span>;
   return <span style={{ fontSize: '.75rem' }}>{dir === 'asc' ? ' ▲' : ' ▼'}</span>;
+}
+
+function tabStyle(active: boolean): React.CSSProperties {
+  return {
+    padding: '.3rem .8rem', borderRadius: '.35rem', border: '1px solid var(--border)',
+    background: active ? 'var(--accent, #6366f1)' : 'transparent',
+    color: active ? '#fff' : 'inherit', cursor: 'pointer',
+    fontSize: '.85rem', fontWeight: active ? 600 : 400,
+  };
 }
 
 export function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [aliasCounts, setAliasCounts] = useState<Record<string, number>>({});
+  const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('email');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
@@ -53,6 +59,19 @@ export function AccountsPage() {
   useEffect(() => { load(); }, [load]);
   useRefreshListener(load);
 
+  const domains = useMemo(
+    () => [...new Set(accounts.map((a) => a.email.split('@')[1] ?? '').filter(Boolean))].sort(),
+    [accounts],
+  );
+
+  const domainCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const a of accounts) { const d = a.email.split('@')[1] ?? ''; if (d) c[d] = (c[d] ?? 0) + 1; }
+    return c;
+  }, [accounts]);
+
+  const selectDomain = (d: string | null) => { setSelectedDomain(d); setFilter(''); };
+
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     else { setSortKey(key); setSortDir('asc'); }
@@ -62,13 +81,9 @@ export function AccountsPage() {
     setError('');
     try {
       await api.post('/dms/accounts', { email, password, quota }, { headers: csrfHeaders(csrf) });
-      setEmail('');
-      setPassword('');
-      setQuota('');
+      setEmail(''); setPassword(''); setQuota('');
       void load();
-    } catch (e: any) {
-      setError(e?.response?.data?.detail ?? 'Failed to create account');
-    }
+    } catch (e: any) { setError(e?.response?.data?.detail ?? 'Failed to create account'); }
   };
 
   const remove = async (addr: string) => {
@@ -76,14 +91,11 @@ export function AccountsPage() {
     try {
       await api.delete('/dms/accounts', { data: { email: addr }, headers: csrfHeaders(csrf) });
       void load();
-    } catch (e: any) {
-      setError(e?.response?.data?.detail ?? 'Failed to delete account');
-    }
+    } catch (e: any) { setError(e?.response?.data?.detail ?? 'Failed to delete account'); }
   };
 
   const startEdit = (addr: string, mode: EditMode) => {
-    setEditTarget(addr);
-    setEditMode(mode);
+    setEditTarget(addr); setEditMode(mode);
     setEditValue(mode === 'note' ? (notes[addr] ?? '') : '');
     setError('');
   };
@@ -93,18 +105,14 @@ export function AccountsPage() {
   const saveEdit = async () => {
     if (!editTarget) return;
     try {
-      if (editMode === 'password') {
+      if (editMode === 'password')
         await api.put('/dms/accounts/password', { email: editTarget, password: editValue }, { headers: csrfHeaders(csrf) });
-      } else if (editMode === 'note') {
+      else if (editMode === 'note')
         await api.put('/dms/accounts/notes', { email: editTarget, note: editValue }, { headers: csrfHeaders(csrf) });
-      } else if (editMode === 'quota') {
+      else if (editMode === 'quota')
         await api.put('/dms/accounts/quota', { email: editTarget, quota: editValue }, { headers: csrfHeaders(csrf) });
-      }
-      cancelEdit();
-      void load();
-    } catch (e: any) {
-      setError(e?.response?.data?.detail ?? 'Failed to save');
-    }
+      cancelEdit(); void load();
+    } catch (e: any) { setError(e?.response?.data?.detail ?? 'Failed to save'); }
   };
 
   const formatQuota = (acc: Account): string => {
@@ -114,24 +122,33 @@ export function AccountsPage() {
   };
 
   const visible = useMemo(() => {
+    const domainFiltered = selectedDomain
+      ? accounts.filter((a) => a.email.split('@')[1] === selectedDomain)
+      : accounts;
     const q = filter.toLowerCase();
     const filtered = q
-      ? accounts.filter((a) =>
+      ? domainFiltered.filter((a) =>
           a.email.toLowerCase().includes(q) ||
           (a.email.split('@')[1] ?? '').toLowerCase().includes(q) ||
-          (notes[a.email] ?? '').toLowerCase().includes(q),
-        )
-      : accounts;
+          (notes[a.email] ?? '').toLowerCase().includes(q))
+      : domainFiltered;
+    const effectiveSortKey: SortKey = sortKey === 'domain' && selectedDomain ? 'email' : sortKey;
     return [...filtered].sort((a, b) => {
       let cmp = 0;
-      if (sortKey === 'email') cmp = a.email.localeCompare(b.email);
-      else if (sortKey === 'domain') cmp = (a.email.split('@')[1] ?? '').localeCompare(b.email.split('@')[1] ?? '');
-      else if (sortKey === 'quota') cmp = (a.quota_pct ?? -1) - (b.quota_pct ?? -1);
-      else if (sortKey === 'aliases') cmp = (aliasCounts[a.email] ?? 0) - (aliasCounts[b.email] ?? 0);
-      else if (sortKey === 'note') cmp = (notes[a.email] ?? '').localeCompare(notes[b.email] ?? '');
+      if (effectiveSortKey === 'email') cmp = a.email.localeCompare(b.email);
+      else if (effectiveSortKey === 'domain') cmp = (a.email.split('@')[1] ?? '').localeCompare(b.email.split('@')[1] ?? '');
+      else if (effectiveSortKey === 'quota') cmp = (a.quota_pct ?? -1) - (b.quota_pct ?? -1);
+      else if (effectiveSortKey === 'aliases') cmp = (aliasCounts[a.email] ?? 0) - (aliasCounts[b.email] ?? 0);
+      else if (effectiveSortKey === 'note') cmp = (notes[a.email] ?? '').localeCompare(notes[b.email] ?? '');
       return sortDir === 'asc' ? cmp : -cmp;
     });
-  }, [accounts, notes, aliasCounts, filter, sortKey, sortDir]);
+  }, [accounts, notes, aliasCounts, selectedDomain, filter, sortKey, sortDir]);
+
+  const thStyle = (key: SortKey, align: 'left' | 'right' = 'left'): React.CSSProperties => ({
+    textAlign: align, padding: '.4rem .5rem', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+  });
+
+  const showDomainCol = selectedDomain === null;
 
   return (
     <div className="panel">
@@ -164,6 +181,18 @@ export function AccountsPage() {
         </div>
       )}
 
+      {/* Domain tabs */}
+      <div style={{ display: 'flex', gap: '.35rem', flexWrap: 'wrap', marginBottom: '.75rem', borderBottom: '1px solid var(--border)', paddingBottom: '.5rem' }}>
+        <button style={tabStyle(selectedDomain === null)} onClick={() => selectDomain(null)}>
+          🌐 All <span style={{ opacity: .65, fontSize: '.8rem' }}>({accounts.length})</span>
+        </button>
+        {domains.map((d) => (
+          <button key={d} style={tabStyle(selectedDomain === d)} onClick={() => selectDomain(d)}>
+            {d} <span style={{ opacity: .65, fontSize: '.8rem' }}>({domainCounts[d] ?? 0})</span>
+          </button>
+        ))}
+      </div>
+
       <div className="row" style={{ marginBottom: '.5rem' }}>
         <input
           placeholder="🔍 Filter accounts…"
@@ -177,11 +206,11 @@ export function AccountsPage() {
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            <th style={thStyle('email', sortKey)} onClick={() => toggleSort('email')}>Email{sortIcon('email', sortKey, sortDir)}</th>
-            <th style={thStyle('domain', sortKey)} onClick={() => toggleSort('domain')}>Domain{sortIcon('domain', sortKey, sortDir)}</th>
-            <th style={thStyle('quota', sortKey)} onClick={() => toggleSort('quota')}>Quota (used / limit){sortIcon('quota', sortKey, sortDir)}</th>
-            <th style={thStyle('aliases', sortKey, 'right')} onClick={() => toggleSort('aliases')}>Aliases{sortIcon('aliases', sortKey, sortDir)}</th>
-            <th style={thStyle('note', sortKey)} onClick={() => toggleSort('note')}>Note{sortIcon('note', sortKey, sortDir)}</th>
+            <th style={thStyle('email')} onClick={() => toggleSort('email')}>Email{sortIcon('email', sortKey, sortDir)}</th>
+            {showDomainCol && <th style={thStyle('domain')} onClick={() => toggleSort('domain')}>Domain{sortIcon('domain', sortKey, sortDir)}</th>}
+            <th style={thStyle('quota')} onClick={() => toggleSort('quota')}>Quota (used / limit){sortIcon('quota', sortKey, sortDir)}</th>
+            <th style={thStyle('aliases', 'right')} onClick={() => toggleSort('aliases')}>Aliases{sortIcon('aliases', sortKey, sortDir)}</th>
+            <th style={thStyle('note')} onClick={() => toggleSort('note')}>Note{sortIcon('note', sortKey, sortDir)}</th>
             <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Actions</th>
           </tr>
         </thead>
@@ -189,7 +218,7 @@ export function AccountsPage() {
           {visible.map((a) => (
             <tr key={a.email} style={{ borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '.4rem .5rem' }}>{a.email}</td>
-              <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{a.email.split('@')[1] ?? ''}</td>
+              {showDomainCol && <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{a.email.split('@')[1] ?? ''}</td>}
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem', fontFamily: 'monospace' }}>{formatQuota(a)}</td>
               <td style={{ padding: '.4rem .5rem', textAlign: 'right', fontSize: '.85rem', opacity: .75 }}>{aliasCounts[a.email] ?? 0}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{notes[a.email] ?? ''}</td>
@@ -202,7 +231,7 @@ export function AccountsPage() {
             </tr>
           ))}
           {visible.length === 0 && (
-            <tr><td colSpan={6} style={{ padding: '.75rem .5rem', opacity: .5 }}>
+            <tr><td colSpan={showDomainCol ? 6 : 5} style={{ padding: '.75rem .5rem', opacity: .5 }}>
               {accounts.length === 0 ? 'No accounts found' : 'No accounts match the filter'}
             </td></tr>
           )}
@@ -211,3 +240,4 @@ export function AccountsPage() {
     </div>
   );
 }
+
