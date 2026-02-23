@@ -46,6 +46,7 @@ export function ImapSyncPage() {
   const [destAccount, setDestAccount] = useState<string>(CUSTOM);
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const csrf = useAuth((s) => s.csrfToken);
   const { t } = useTranslation();
 
@@ -82,6 +83,7 @@ export function ImapSyncPage() {
     setForm(emptyForm);
     setDestAccount(CUSTOM);
     setEditId(null);
+    setSaveError(null);
     setShowForm(true);
   };
 
@@ -103,6 +105,7 @@ export function ImapSyncPage() {
     const match = localAccounts.find((a) => a.email === job.destination_user);
     setDestAccount(match ? match.email : CUSTOM);
     setEditId(job.id);
+    setSaveError(null);
     setShowForm(true);
   };
 
@@ -113,19 +116,24 @@ export function ImapSyncPage() {
   };
 
   const save = async () => {
-    if (editId !== null) {
-      const payload: Record<string, unknown> = Object.fromEntries(
-        Object.entries(form).filter(([k, v]) => {
-          if ((k === 'source_password' || k === 'destination_password') && !v) return false;
-          return true;
-        })
-      );
-      await api.put(`/imapsync/${editId}`, payload, { headers: csrfHeaders(csrf) });
-    } else {
-      await api.post('/imapsync', form, { headers: csrfHeaders(csrf) });
+    setSaveError(null);
+    try {
+      if (editId !== null) {
+        const payload: Record<string, unknown> = Object.fromEntries(
+          Object.entries(form).filter(([k, v]) => {
+            if ((k === 'source_password' || k === 'destination_password') && !v) return false;
+            return true;
+          })
+        );
+        await api.put(`/imapsync/${editId}`, payload, { headers: csrfHeaders(csrf) });
+      } else {
+        await api.post('/imapsync', form, { headers: csrfHeaders(csrf) });
+      }
+      setShowForm(false);
+      load();
+    } catch (e: any) {
+      setSaveError(e?.response?.data?.detail ?? t.common.save_failed);
     }
-    setShowForm(false);
-    load();
   };
 
   const field = (key: keyof typeof form, label: string, type = 'text', readonly = false) => (
@@ -215,6 +223,7 @@ export function ImapSyncPage() {
           </label>
           <button onClick={save}>{t.common.save}</button>
           <button onClick={() => setShowForm(false)} style={{ marginLeft: '.5rem' }}>{t.common.cancel}</button>
+          {saveError && <p style={{ color: 'var(--error, #ef4444)', marginTop: '.5rem' }}>{saveError}</p>}
         </div>
       )}
 
