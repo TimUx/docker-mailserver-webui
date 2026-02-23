@@ -9,6 +9,41 @@ type EditMode = 'none' | 'password' | 'note' | 'quota';
 type SortDir = 'asc' | 'desc';
 type SortKey = 'email' | 'domain' | 'quota' | 'aliases' | 'note';
 
+function quotaColor(pct: number): string {
+  if (pct >= 90) return '#ef4444';
+  if (pct >= 70) return '#f59e0b';
+  return '#22c55e';
+}
+
+const QUOTA_NONE_STYLE: React.CSSProperties = { opacity: .35, fontSize: '.8rem' };
+
+function QuotaBar({ acc }: { acc: Account }) {
+  if (acc.quota_limit === null) return <span style={QUOTA_NONE_STYLE}>—</span>;
+  const unlimited = acc.quota_limit === '~';
+  const pct = acc.quota_pct ?? 0;
+
+  return (
+    <div className="quota-bar-cell">
+      {!unlimited && (
+        <div className="quota-bar-track">
+          <div
+            className="quota-bar-fill"
+            style={{ width: `${Math.min(pct, 100)}%`, background: quotaColor(pct) }}
+          />
+        </div>
+      )}
+      <div className="quota-bar-label">
+        <span>{acc.quota_used}</span>
+        <span className="quota-bar-sep">/</span>
+        <span>{unlimited ? '∞' : acc.quota_limit}</span>
+        {!unlimited && (
+          <span className="quota-bar-pct" style={{ color: quotaColor(pct) }}>{pct}%</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function sortIcon(key: SortKey, sortKey: SortKey, dir: SortDir) {
   if (key !== sortKey) return <span style={{ opacity: .3, fontSize: '.75rem' }}> ↕</span>;
   return <span style={{ fontSize: '.75rem' }}>{dir === 'asc' ? ' ▲' : ' ▼'}</span>;
@@ -117,12 +152,6 @@ export function AccountsPage() {
     } catch (e: any) { setError(e?.response?.data?.detail ?? t.accounts.failed_save); }
   };
 
-  const formatQuota = (acc: Account): string => {
-    if (acc.quota_limit === null) return '';
-    const limit = acc.quota_limit === '~' ? '∞' : acc.quota_limit;
-    return `${acc.quota_used} / ${limit} [${acc.quota_pct}%]`;
-  };
-
   const visible = useMemo(() => {
     const domainFiltered = selectedDomain
       ? accounts.filter((a) => a.email.split('@')[1] === selectedDomain)
@@ -223,7 +252,7 @@ export function AccountsPage() {
             <tr key={a.email} style={{ borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '.4rem .5rem' }}>{a.email}</td>
               {showDomainCol && <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{a.email.split('@')[1] ?? ''}</td>}
-              <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem', fontFamily: 'monospace' }}>{formatQuota(a)}</td>
+              <td style={{ padding: '.4rem .5rem' }}><QuotaBar acc={a} /></td>
               <td style={{ padding: '.4rem .5rem', textAlign: 'right', fontSize: '.85rem', opacity: .75 }}>{aliasCounts[a.email] ?? 0}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{notes[a.email] ?? ''}</td>
               <td style={{ padding: '.4rem .5rem', whiteSpace: 'nowrap', textAlign: 'right' }}>

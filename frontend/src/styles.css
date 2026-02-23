@@ -38,6 +38,14 @@ a.button-link { display: inline-block; padding: .4rem .6rem; border-radius: .25r
 .login-btn:hover { opacity: .88; }
 .login-error { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.35); color: #ef4444; border-radius: .35rem; padding: .6rem .75rem; font-size: .9rem; }
 
+/* Quota progress bar */
+.quota-bar-cell { min-width: 110px; }
+.quota-bar-track { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; margin-bottom: .25rem; }
+.quota-bar-fill { height: 100%; border-radius: 3px; transition: width .35s ease; }
+.quota-bar-label { display: flex; gap: .3rem; align-items: baseline; font-size: .75rem; opacity: .85; font-family: monospace; white-space: nowrap; }
+.quota-bar-sep { opacity: .45; }
+.quota-bar-pct { margin-left: .2rem; font-weight: 600; }
+
 body[data-theme='dark'] { --surface: #111827; --surface-2: #1f2937; --border: #374151; --link: #6366f1; }
 body[data-theme='light'] { --surface: #ffffff; --surface-2: #f1f5f9; --border: #cbd5e1; --link: #4f46e5; }
 /* Keep the sidebar link colour legible on both themes */
