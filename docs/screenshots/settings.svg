@@ -1,0 +1,76 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='880'>
+<rect width='1600' height='880' fill='#0b1220'/>
+<!-- Sidebar -->
+<rect x='0' y='0' width='220' height='880' fill='#111827'/>
+<text x='16' y='44' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>✉️ DMS WebUI</text>
+<rect x='6' y='54' width='208' height='30' rx='5' fill='#1e293b'/>
+<text x='16' y='74' fill='#94a3b8' font-size='14' font-family='Arial'>🌙 Dark</text>
+<text x='16' y='112' fill='#94a3b8' font-size='15' font-family='Arial'>📊 Dashboard</text>
+<text x='16' y='140' fill='#94a3b8' font-size='15' font-family='Arial'>👤 Accounts</text>
+<text x='16' y='168' fill='#94a3b8' font-size='15' font-family='Arial'>🌐 Domains</text>
+<text x='16' y='196' fill='#94a3b8' font-size='15' font-family='Arial'>🔀 Aliases</text>
+<text x='16' y='224' fill='#94a3b8' font-size='15' font-family='Arial'>🧭 DNS Wizard</text>
+<text x='16' y='252' fill='#94a3b8' font-size='15' font-family='Arial'>📱 Mail Profiles</text>
+<text x='16' y='280' fill='#94a3b8' font-size='15' font-family='Arial'>📈 Observability</text>
+<text x='16' y='308' fill='#94a3b8' font-size='15' font-family='Arial'>📬 IMAPSync</text>
+<text x='16' y='336' fill='#94a3b8' font-size='15' font-family='Arial'>🧾 Logs</text>
+<rect x='6' y='344' width='208' height='28' rx='5' fill='#1e3a5f'/>
+<text x='16' y='363' fill='#60a5fa' font-size='15' font-family='Arial' font-weight='bold'>⚙️ Settings</text>
+<!-- Main content -->
+<rect x='230' y='10' width='1355' height='860' rx='10' fill='#1f2937'/>
+<text x='254' y='52' fill='#e5e7eb' font-size='28' font-family='Arial' font-weight='bold'>⚙️ Settings</text>
+<!-- Tabs -->
+<rect x='254' y='66' width='260' height='36' rx='6' fill='#6366f1'/>
+<text x='280' y='89' fill='white' font-size='14' font-family='Arial' font-weight='bold'>⚙️ Application Settings</text>
+<rect x='526' y='66' width='220' height='36' rx='6' fill='#1e293b' stroke='#374151' stroke-width='1'/>
+<text x='548' y='89' fill='#9ca3af' font-size='14' font-family='Arial'>📧 Email Settings</text>
+<rect x='758' y='66' width='200' height='36' rx='6' fill='#1e293b' stroke='#374151' stroke-width='1'/>
+<text x='778' y='89' fill='#9ca3af' font-size='14' font-family='Arial'>🔐 Change Password</text>
+<!-- Info text -->
+<text x='254' y='122' fill='#9ca3af' font-size='13' font-family='Arial'>On first start values are seeded from env vars. Changes are persisted in the database and take effect immediately.</text>
+<!-- Settings table -->
+<line x1='254' y1='136' x2='1565' y2='136' stroke='#374151' stroke-width='1'/>
+<!-- Row 1 -->
+<text x='260' y='158' fill='#9ca3af' font-size='13' font-family='Arial'>Mail Server Container Name</text>
+<rect x='720' y='142' width='820' height='30' rx='4' fill='#111827'/>
+<text x='732' y='162' fill='#e5e7eb' font-size='13' font-family='monospace'>mail-server</text>
+<line x1='254' y1='174' x2='1565' y2='174' stroke='#374151' stroke-width='1'/>
+<!-- Row 2 -->
+<text x='260' y='196' fill='#9ca3af' font-size='13' font-family='Arial'>DMS Setup Command Path</text>
+<rect x='720' y='180' width='820' height='30' rx='4' fill='#111827'/>
+<text x='732' y='200' fill='#e5e7eb' font-size='13' font-family='monospace'>setup</text>
+<line x1='254' y1='212' x2='1565' y2='212' stroke='#374151' stroke-width='1'/>
+<!-- Row 3 -->
+<text x='260' y='234' fill='#9ca3af' font-size='13' font-family='Arial'>Rspamd Container Name</text>
+<rect x='720' y='218' width='820' height='30' rx='4' fill='#111827'/>
+<text x='732' y='238' fill='#e5e7eb' font-size='13' font-family='monospace'>mail-rspamd</text>
+<line x1='254' y1='250' x2='1565' y2='250' stroke='#374151' stroke-width='1'/>
+<!-- Row 4 -->
+<text x='260' y='272' fill='#9ca3af' font-size='13' font-family='Arial'>Redis Container Name</text>
+<rect x='720' y='256' width='820' height='30' rx='4' fill='#111827'/>
+<text x='732' y='276' fill='#e5e7eb' font-size='13' font-family='monospace'>mail-redis</text>
+<line x1='254' y1='288' x2='1565' y2='288' stroke='#374151' stroke-width='1'/>
+<!-- Row 5 -->
+<text x='260' y='310' fill='#9ca3af' font-size='13' font-family='Arial'>ClamAV Container Name</text>
+<rect x='720' y='294' width='820' height='30' rx='4' fill='#111827'/>
+<text x='732' y='314' fill='#e5e7eb' font-size='13' font-family='monospace'>mail-clamav</text>
+<line x1='254' y1='326' x2='1565' y2='326' stroke='#374151' stroke-width='1'/>
+<!-- Row 6 -->
+<text x='260' y='348' fill='#9ca3af' font-size='13' font-family='Arial'>Rspamd Controller URL</text>
+<rect x='720' y='332' width='820' height='30' rx='4' fill='#111827'/>
+<text x='732' y='352' fill='#e5e7eb' font-size='13' font-family='monospace'>http://mail-rspamd:11334/stat</text>
+<line x1='254' y1='364' x2='1565' y2='364' stroke='#374151' stroke-width='1'/>
+<!-- Row 7 -->
+<text x='260' y='386' fill='#9ca3af' font-size='13' font-family='Arial'>Admin E-Mail</text>
+<rect x='720' y='370' width='820' height='30' rx='4' fill='#111827'/>
+<text x='732' y='390' fill='#e5e7eb' font-size='13' font-family='monospace'>admin@example.com</text>
+<line x1='254' y1='402' x2='1565' y2='402' stroke='#374151' stroke-width='1'/>
+<!-- Row 8 -->
+<text x='260' y='424' fill='#9ca3af' font-size='13' font-family='Arial'>Session Duration (minutes)</text>
+<rect x='720' y='408' width='820' height='30' rx='4' fill='#111827'/>
+<text x='732' y='428' fill='#e5e7eb' font-size='13' font-family='monospace'>60</text>
+<line x1='254' y1='440' x2='1565' y2='440' stroke='#374151' stroke-width='1'/>
+<!-- Save button -->
+<rect x='254' y='454' width='200' height='36' rx='6' fill='#2563eb'/>
+<text x='276' y='477' fill='white' font-size='14' font-family='Arial'>💾 Save Settings</text>
+</svg>

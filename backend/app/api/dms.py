@@ -5,8 +5,9 @@ from sqlalchemy.orm import Session
 from app.api.deps import csrf_protect, get_current_user
 from app.db.session import get_db
 from app.models.account_note import AccountNote
+from app.models.alias_note import AliasNote
 from app.models.managed_domain import ManagedDomain
-from app.schemas.dms import AccountCreate, AccountDelete, AccountNoteUpdate, AliasCreate, AliasDelete, DomainCreate, DomainDelete, PasswordChange, QuotaSet
+from app.schemas.dms import AccountCreate, AccountDelete, AccountNoteUpdate, AliasCreate, AliasDelete, AliasNoteUpdate, DomainCreate, DomainDelete, PasswordChange, QuotaSet
 from app.services.dms_setup import DMSSetupError, DMSSetupService
 
 router = APIRouter(prefix="/dms", tags=["dms"])
@@ -79,12 +80,14 @@ def update_account_note(payload: AccountNoteUpdate, db: Session = Depends(get_db
 
 
 @router.get("/aliases")
-def list_aliases(_=Depends(get_current_user)):
+def list_aliases(db: Session = Depends(get_db), _=Depends(get_current_user)):
     try:
-        return {"aliases": service.list_aliases()}
+        aliases = service.list_aliases()
     except DMSSetupError as exc:
         logger.warning("list_aliases failed: %s", exc)
-        return {"aliases": []}
+        aliases = []
+    notes = {n.alias: n.note for n in db.query(AliasNote).all()}
+    return {"aliases": aliases, "notes": notes}
 
 
 @router.post("/aliases", dependencies=[Depends(csrf_protect)])
@@ -101,6 +104,17 @@ def delete_alias(payload: AliasDelete, _=Depends(get_current_user)):
         return {"message": service.del_alias(payload.alias, payload.destination)}
     except DMSSetupError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.put("/aliases/notes", dependencies=[Depends(csrf_protect)])
+def update_alias_note(payload: AliasNoteUpdate, db: Session = Depends(get_db), _=Depends(get_current_user)):
+    note = db.query(AliasNote).filter(AliasNote.alias == payload.alias).first()
+    if note:
+        note.note = payload.note
+    else:
+        db.add(AliasNote(alias=payload.alias, note=payload.note))
+    db.commit()
+    return {"ok": True}
 
 
 @router.get("/domains")

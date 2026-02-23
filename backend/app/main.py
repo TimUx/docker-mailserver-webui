@@ -9,6 +9,7 @@ from app.core.config import get_settings
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
 from app.models.user import User
+from app.models.alias_note import AliasNote  # noqa: F401 – ensure table is created
 from app.models.managed_domain import ManagedDomain  # noqa: F401 – ensure table is created
 from app.services.security import hash_password
 from app.services.settings import load_settings_from_db, seed_settings

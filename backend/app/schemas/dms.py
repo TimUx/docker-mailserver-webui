@@ -26,6 +26,11 @@ class AccountNoteUpdate(BaseModel):
     note: str
 
 
+class AliasNoteUpdate(BaseModel):
+    alias: EmailStr
+    note: str
+
+
 class AliasCreate(BaseModel):
     alias: EmailStr
     destination: EmailStr

@@ -1,0 +1,84 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='820'>
+<rect width='1600' height='820' fill='#0b1220'/>
+<!-- Sidebar -->
+<rect x='0' y='0' width='220' height='820' fill='#111827'/>
+<text x='16' y='44' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>✉️ DMS WebUI</text>
+<rect x='6' y='54' width='208' height='30' rx='5' fill='#1e293b'/>
+<text x='16' y='74' fill='#94a3b8' font-size='14' font-family='Arial'>🌙 Dark</text>
+<text x='16' y='112' fill='#94a3b8' font-size='15' font-family='Arial'>📊 Dashboard</text>
+<text x='16' y='140' fill='#94a3b8' font-size='15' font-family='Arial'>👤 Accounts</text>
+<text x='16' y='168' fill='#94a3b8' font-size='15' font-family='Arial'>🌐 Domains</text>
+<text x='16' y='196' fill='#94a3b8' font-size='15' font-family='Arial'>🔀 Aliases</text>
+<rect x='6' y='204' width='208' height='28' rx='5' fill='#1e3a5f'/>
+<text x='16' y='223' fill='#60a5fa' font-size='15' font-family='Arial' font-weight='bold'>🧭 DNS Wizard</text>
+<text x='16' y='251' fill='#94a3b8' font-size='15' font-family='Arial'>📱 Mail Profiles</text>
+<text x='16' y='279' fill='#94a3b8' font-size='15' font-family='Arial'>📈 Observability</text>
+<text x='16' y='307' fill='#94a3b8' font-size='15' font-family='Arial'>📬 IMAPSync</text>
+<text x='16' y='335' fill='#94a3b8' font-size='15' font-family='Arial'>🧾 Logs</text>
+<text x='16' y='363' fill='#94a3b8' font-size='15' font-family='Arial'>⚙️ Settings</text>
+<!-- Main content -->
+<rect x='230' y='10' width='1355' height='800' rx='10' fill='#1f2937'/>
+<text x='254' y='52' fill='#e5e7eb' font-size='28' font-family='Arial' font-weight='bold'>🧭 DNS Wizard</text>
+<text x='254' y='74' fill='#9ca3af' font-size='14' font-family='Arial'>Generate the required DNS records for your mail domain.</text>
+<!-- Form -->
+<text x='254' y='106' fill='#9ca3af' font-size='13' font-family='Arial'>Domain</text>
+<rect x='254' y='112' width='400' height='36' rx='6' fill='#111827'/>
+<text x='266' y='135' fill='#e5e7eb' font-size='14' font-family='Arial'>example.com</text>
+<text x='674' y='106' fill='#9ca3af' font-size='13' font-family='Arial'>Hostname (mail subdomain)</text>
+<rect x='674' y='112' width='400' height='36' rx='6' fill='#111827'/>
+<text x='686' y='135' fill='#e5e7eb' font-size='14' font-family='Arial'>mail.example.com</text>
+<text x='1094' y='106' fill='#9ca3af' font-size='13' font-family='Arial'>Server IP</text>
+<rect x='1094' y='112' width='300' height='36' rx='6' fill='#111827'/>
+<text x='1106' y='135' fill='#e5e7eb' font-size='14' font-family='Arial'>203.0.113.10</text>
+<rect x='1406' y='112' width='144' height='36' rx='6' fill='#2563eb'/>
+<text x='1434' y='135' fill='white' font-size='14' font-family='Arial'>Generate</text>
+<!-- DNS Records table -->
+<text x='254' y='178' fill='#e5e7eb' font-size='18' font-family='Arial' font-weight='bold'>Recommended DNS Records</text>
+<line x1='254' y1='192' x2='1565' y2='192' stroke='#374151' stroke-width='1'/>
+<text x='260' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Type</text>
+<text x='340' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Name</text>
+<text x='540' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Value</text>
+<text x='1060' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>TTL</text>
+<text x='1160' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Description</text>
+<line x1='254' y1='218' x2='1565' y2='218' stroke='#374151' stroke-width='1'/>
+<!-- Row MX -->
+<rect x='260' y='224' width='56' height='22' rx='4' fill='#3b82f6'/>
+<text x='269' y='240' fill='white' font-size='12' font-family='Arial' font-weight='bold'>MX</text>
+<text x='340' y='242' fill='#e5e7eb' font-size='13' font-family='monospace'>@</text>
+<text x='540' y='242' fill='#e5e7eb' font-size='13' font-family='monospace'>10 mail.example.com.</text>
+<text x='1060' y='242' fill='#9ca3af' font-size='13' font-family='Arial'>3600</text>
+<text x='1160' y='242' fill='#9ca3af' font-size='13' font-family='Arial'>Mail exchanger record</text>
+<line x1='254' y1='256' x2='1565' y2='256' stroke='#374151' stroke-width='1'/>
+<!-- Row A -->
+<rect x='260' y='262' width='40' height='22' rx='4' fill='#22c55e'/>
+<text x='270' y='278' fill='white' font-size='12' font-family='Arial' font-weight='bold'>A</text>
+<text x='340' y='280' fill='#e5e7eb' font-size='13' font-family='monospace'>mail</text>
+<text x='540' y='280' fill='#e5e7eb' font-size='13' font-family='monospace'>203.0.113.10</text>
+<text x='1060' y='280' fill='#9ca3af' font-size='13' font-family='Arial'>3600</text>
+<text x='1160' y='280' fill='#9ca3af' font-size='13' font-family='Arial'>IP address of mail host</text>
+<line x1='254' y1='294' x2='1565' y2='294' stroke='#374151' stroke-width='1'/>
+<!-- Row TXT SPF -->
+<rect x='260' y='300' width='44' height='22' rx='4' fill='#f59e0b'/>
+<text x='267' y='316' fill='white' font-size='12' font-family='Arial' font-weight='bold'>TXT</text>
+<text x='340' y='318' fill='#e5e7eb' font-size='13' font-family='monospace'>@</text>
+<text x='540' y='318' fill='#e5e7eb' font-size='13' font-family='monospace'>v=spf1 mx -all</text>
+<text x='1060' y='318' fill='#9ca3af' font-size='13' font-family='Arial'>3600</text>
+<text x='1160' y='318' fill='#9ca3af' font-size='13' font-family='Arial'>SPF record</text>
+<line x1='254' y1='332' x2='1565' y2='332' stroke='#374151' stroke-width='1'/>
+<!-- Row TXT DMARC -->
+<rect x='260' y='338' width='44' height='22' rx='4' fill='#f59e0b'/>
+<text x='267' y='354' fill='white' font-size='12' font-family='Arial' font-weight='bold'>TXT</text>
+<text x='340' y='356' fill='#e5e7eb' font-size='13' font-family='monospace'>_dmarc</text>
+<text x='540' y='356' fill='#e5e7eb' font-size='13' font-family='monospace'>v=DMARC1; p=quarantine; rua=mailto:postmaster@example.com</text>
+<text x='1060' y='356' fill='#9ca3af' font-size='13' font-family='Arial'>3600</text>
+<text x='1160' y='356' fill='#9ca3af' font-size='13' font-family='Arial'>DMARC policy</text>
+<line x1='254' y1='370' x2='1565' y2='370' stroke='#374151' stroke-width='1'/>
+<!-- Row TXT DKIM -->
+<rect x='260' y='376' width='44' height='22' rx='4' fill='#f59e0b'/>
+<text x='267' y='392' fill='white' font-size='12' font-family='Arial' font-weight='bold'>TXT</text>
+<text x='340' y='394' fill='#e5e7eb' font-size='13' font-family='monospace'>mail._domainkey</text>
+<text x='540' y='394' fill='#e5e7eb' font-size='13' font-family='monospace'>v=DKIM1; k=rsa; p=MIIBIjANBgkq…</text>
+<text x='1060' y='394' fill='#9ca3af' font-size='13' font-family='Arial'>3600</text>
+<text x='1160' y='394' fill='#9ca3af' font-size='13' font-family='Arial'>DKIM public key</text>
+<line x1='254' y1='408' x2='1565' y2='408' stroke='#374151' stroke-width='1'/>
+</svg>

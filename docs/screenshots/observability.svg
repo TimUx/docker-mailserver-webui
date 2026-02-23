@@ -1,0 +1,127 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1100'>
+<rect width='1600' height='1100' fill='#0b1220'/>
+<!-- Sidebar -->
+<rect x='0' y='0' width='220' height='1100' fill='#111827'/>
+<text x='16' y='44' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>✉️ DMS WebUI</text>
+<rect x='6' y='54' width='208' height='30' rx='5' fill='#1e293b'/>
+<text x='16' y='74' fill='#94a3b8' font-size='14' font-family='Arial'>🌙 Dark</text>
+<text x='16' y='112' fill='#94a3b8' font-size='15' font-family='Arial'>📊 Dashboard</text>
+<text x='16' y='140' fill='#94a3b8' font-size='15' font-family='Arial'>👤 Accounts</text>
+<text x='16' y='168' fill='#94a3b8' font-size='15' font-family='Arial'>🌐 Domains</text>
+<text x='16' y='196' fill='#94a3b8' font-size='15' font-family='Arial'>🔀 Aliases</text>
+<text x='16' y='224' fill='#94a3b8' font-size='15' font-family='Arial'>🧭 DNS Wizard</text>
+<text x='16' y='252' fill='#94a3b8' font-size='15' font-family='Arial'>📱 Mail Profiles</text>
+<rect x='6' y='260' width='208' height='28' rx='5' fill='#1e3a5f'/>
+<text x='16' y='279' fill='#60a5fa' font-size='15' font-family='Arial' font-weight='bold'>📈 Observability</text>
+<text x='16' y='307' fill='#94a3b8' font-size='15' font-family='Arial'>📬 IMAPSync</text>
+<text x='16' y='335' fill='#94a3b8' font-size='15' font-family='Arial'>🧾 Logs</text>
+<text x='16' y='363' fill='#94a3b8' font-size='15' font-family='Arial'>⚙️ Settings</text>
+<!-- Main content -->
+<rect x='230' y='10' width='1355' height='1080' rx='10' fill='#1f2937'/>
+<text x='254' y='52' fill='#e5e7eb' font-size='28' font-family='Arial' font-weight='bold'>📈 Observability</text>
+<text x='254' y='74' fill='#9ca3af' font-size='14' font-family='Arial'>Monitoring and statistics for your mail stack services.</text>
+<!-- Service Status section -->
+<text x='254' y='106' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>Service Status</text>
+<!-- Service cards row -->
+<rect x='254' y='116' width='296' height='110' rx='8' fill='#111827'/>
+<text x='270' y='140' fill='#e5e7eb' font-size='16' font-family='Arial'>📮 docker-mailserver</text>
+<text x='270' y='162' fill='#9ca3af' font-size='13' font-family='Arial'>Status: <tspan fill='#22c55e' font-weight='bold'>running</tspan></text>
+<text x='270' y='180' fill='#6b7280' font-size='12' font-family='Arial'>Container: mail-server</text>
+
+<rect x='562' y='116' width='296' height='110' rx='8' fill='#111827'/>
+<text x='578' y='140' fill='#e5e7eb' font-size='16' font-family='Arial'>🛡️ Rspamd – Spam Filter</text>
+<text x='578' y='162' fill='#9ca3af' font-size='13' font-family='Arial'>Status: <tspan fill='#22c55e' font-weight='bold'>running</tspan></text>
+<rect x='578' y='172' width='80' height='24' rx='4' fill='#1e293b'/>
+<text x='586' y='188' fill='#9ca3af' font-size='12' font-family='Arial'>↺ Restart</text>
+<rect x='668' y='172' width='130' height='24' rx='4' fill='#1e293b'/>
+<text x='676' y='188' fill='#60a5fa' font-size='12' font-family='Arial'>📊 Dashboard ↗</text>
+
+<rect x='870' y='116' width='296' height='110' rx='8' fill='#111827'/>
+<text x='886' y='140' fill='#e5e7eb' font-size='16' font-family='Arial'>⚡ Redis – Cache</text>
+<text x='886' y='162' fill='#9ca3af' font-size='13' font-family='Arial'>Status: <tspan fill='#22c55e' font-weight='bold'>running</tspan></text>
+<rect x='886' y='172' width='80' height='24' rx='4' fill='#1e293b'/>
+<text x='894' y='188' fill='#9ca3af' font-size='12' font-family='Arial'>↺ Restart</text>
+
+<rect x='1178' y='116' width='296' height='110' rx='8' fill='#111827'/>
+<text x='1194' y='140' fill='#e5e7eb' font-size='16' font-family='Arial'>🦠 ClamAV – Virus Scanner</text>
+<text x='1194' y='162' fill='#9ca3af' font-size='13' font-family='Arial'>Status: <tspan fill='#f59e0b' font-weight='bold'>stopped</tspan></text>
+<rect x='1194' y='172' width='80' height='24' rx='4' fill='#1e293b'/>
+<text x='1202' y='188' fill='#9ca3af' font-size='12' font-family='Arial'>↺ Restart</text>
+
+<!-- Mail Queue section -->
+<text x='254' y='258' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>📨 Mail Queue</text>
+<text x='254' y='280' fill='#9ca3af' font-size='14' font-family='Arial'>✅ Mail queue is empty.</text>
+
+<!-- Active Connections section -->
+<text x='254' y='318' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>🔌 Active Mail Connections</text>
+<text x='254' y='340' fill='#9ca3af' font-size='14' font-family='Arial'>2 active connections</text>
+<line x1='254' y1='354' x2='1565' y2='354' stroke='#374151' stroke-width='1'/>
+<text x='260' y='371' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Username</text>
+<text x='530' y='371' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Service</text>
+<text x='720' y='371' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>PID</text>
+<text x='880' y='371' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>IP</text>
+<text x='1060' y='371' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Secured</text>
+<line x1='254' y1='378' x2='1565' y2='378' stroke='#374151' stroke-width='1'/>
+<text x='260' y='400' fill='#e5e7eb' font-size='13' font-family='monospace'>alice@example.com</text>
+<text x='530' y='400' fill='#9ca3af' font-size='13' font-family='Arial'>imap</text>
+<text x='720' y='400' fill='#9ca3af' font-size='13' font-family='monospace'>14832</text>
+<text x='880' y='400' fill='#9ca3af' font-size='13' font-family='monospace'>192.168.1.42</text>
+<text x='1060' y='400' fill='#22c55e' font-size='13' font-family='Arial'>🔒</text>
+<line x1='254' y1='413' x2='1565' y2='413' stroke='#374151' stroke-width='1'/>
+<text x='260' y='435' fill='#e5e7eb' font-size='13' font-family='monospace'>bob@example.com</text>
+<text x='530' y='435' fill='#9ca3af' font-size='13' font-family='Arial'>imap</text>
+<text x='720' y='435' fill='#9ca3af' font-size='13' font-family='monospace'>14901</text>
+<text x='880' y='435' fill='#9ca3af' font-size='13' font-family='monospace'>10.0.0.8</text>
+<text x='1060' y='435' fill='#22c55e' font-size='13' font-family='Arial'>🔒</text>
+<line x1='254' y1='448' x2='1565' y2='448' stroke='#374151' stroke-width='1'/>
+
+<!-- Rspamd Stats section -->
+<text x='254' y='482' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>🛡️ Rspamd Statistics</text>
+<rect x='254' y='494' width='180' height='74' rx='8' fill='#111827'/>
+<text x='264' y='516' fill='#9ca3af' font-size='13' font-family='Arial'>📨 Scanned</text>
+<text x='264' y='548' fill='#e5e7eb' font-size='24' font-family='Arial' font-weight='bold'>4281</text>
+<rect x='448' y='494' width='180' height='74' rx='8' fill='#111827'/>
+<text x='458' y='516' fill='#9ca3af' font-size='13' font-family='Arial'>🚫 Spam</text>
+<text x='458' y='548' fill='#e5e7eb' font-size='24' font-family='Arial' font-weight='bold'>312</text>
+<rect x='642' y='494' width='180' height='74' rx='8' fill='#111827'/>
+<text x='652' y='516' fill='#9ca3af' font-size='13' font-family='Arial'>✅ Ham</text>
+<text x='652' y='548' fill='#e5e7eb' font-size='24' font-family='Arial' font-weight='bold'>3969</text>
+<rect x='836' y='494' width='180' height='74' rx='8' fill='#111827'/>
+<text x='846' y='516' fill='#9ca3af' font-size='13' font-family='Arial'>🔗 Connections</text>
+<text x='846' y='548' fill='#e5e7eb' font-size='24' font-family='Arial' font-weight='bold'>24</text>
+<rect x='1030' y='494' width='180' height='74' rx='8' fill='#111827'/>
+<text x='1040' y='516' fill='#9ca3af' font-size='13' font-family='Arial'>⏱ Uptime</text>
+<text x='1040' y='548' fill='#e5e7eb' font-size='24' font-family='Arial' font-weight='bold'>72h</text>
+<rect x='1224' y='494' width='180' height='74' rx='8' fill='#111827'/>
+<text x='1234' y='516' fill='#9ca3af' font-size='13' font-family='Arial'>🔖 Version</text>
+<text x='1234' y='548' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>3.8.4</text>
+
+<!-- Supervisor Process Status section (at end) -->
+<text x='254' y='608' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>🔧 Supervisor Process Status</text>
+<line x1='254' y1='622' x2='1565' y2='622' stroke='#374151' stroke-width='1'/>
+<text x='260' y='639' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Process</text>
+<text x='500' y='639' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Status</text>
+<text x='700' y='639' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>PID</text>
+<text x='900' y='639' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Uptime</text>
+<line x1='254' y1='646' x2='1565' y2='646' stroke='#374151' stroke-width='1'/>
+<text x='260' y='667' fill='#e5e7eb' font-size='13' font-family='monospace' font-weight='bold'>dovecot</text>
+<text x='500' y='667' fill='#22c55e' font-size='13' font-family='Arial' font-weight='bold'>RUNNING</text>
+<text x='700' y='667' fill='#9ca3af' font-size='13' font-family='monospace'>1042</text>
+<text x='900' y='667' fill='#9ca3af' font-size='13' font-family='monospace'>3d 4h 12m</text>
+<line x1='254' y1='680' x2='1565' y2='680' stroke='#374151' stroke-width='1'/>
+<text x='260' y='701' fill='#e5e7eb' font-size='13' font-family='monospace' font-weight='bold'>postfix</text>
+<text x='500' y='701' fill='#22c55e' font-size='13' font-family='Arial' font-weight='bold'>RUNNING</text>
+<text x='700' y='701' fill='#9ca3af' font-size='13' font-family='monospace'>1088</text>
+<text x='900' y='701' fill='#9ca3af' font-size='13' font-family='monospace'>3d 4h 12m</text>
+<line x1='254' y1='714' x2='1565' y2='714' stroke='#374151' stroke-width='1'/>
+<text x='260' y='735' fill='#e5e7eb' font-size='13' font-family='monospace' font-weight='bold'>rspamd</text>
+<text x='500' y='735' fill='#22c55e' font-size='13' font-family='Arial' font-weight='bold'>RUNNING</text>
+<text x='700' y='735' fill='#9ca3af' font-size='13' font-family='monospace'>1204</text>
+<text x='900' y='735' fill='#9ca3af' font-size='13' font-family='monospace'>3d 4h 11m</text>
+<line x1='254' y1='748' x2='1565' y2='748' stroke='#374151' stroke-width='1'/>
+<text x='260' y='769' fill='#e5e7eb' font-size='13' font-family='monospace' font-weight='bold'>clamav</text>
+<text x='500' y='769' fill='#f59e0b' font-size='13' font-family='Arial' font-weight='bold'>STOPPED</text>
+<text x='700' y='769' fill='#9ca3af' font-size='13' font-family='monospace'>—</text>
+<text x='900' y='769' fill='#9ca3af' font-size='13' font-family='monospace'>—</text>
+<line x1='254' y1='782' x2='1565' y2='782' stroke='#374151' stroke-width='1'/>
+</svg>
