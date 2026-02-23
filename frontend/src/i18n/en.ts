@@ -153,7 +153,12 @@ export const en: Translations = {
     source_col: 'Source',
     dest_col: 'Destination',
     status_col: 'Status',
+    last_run_col: 'Last Run',
+    transferred_col: 'Transferred',
     actions_col: 'Actions',
+    run_now: '▶ Run now',
+    running: '⏳ Running…',
+    never: 'never',
   },
   dns_wizard: {
     title: '🧭 DNS Setup Wizard',

@@ -35,3 +35,16 @@ def delete_job(job_id: int, db: Session = Depends(get_db), _=Depends(get_current
         raise HTTPException(status_code=404, detail="Job not found")
     get_imapsync_service().delete_job(db, job)
     return {"message": "Deleted"}
+
+
+@router.post("/{job_id}/run", response_model=ImapSyncJobRead, dependencies=[Depends(csrf_protect)])
+def run_job(job_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+    """Trigger an immediate (manual) sync for the given job."""
+    job = db.query(ImapSyncJob).filter(ImapSyncJob.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    get_imapsync_service().run_job_background(job_id)
+    # Return a refreshed view of the job (status will be "running")
+    db.refresh(job)
+    return job
+

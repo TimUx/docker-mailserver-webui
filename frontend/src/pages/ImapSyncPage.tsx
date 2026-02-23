@@ -39,6 +39,15 @@ const emptyForm = {
   enabled: true,
 };
 
+function formatDate(iso: string | null, never: string): string {
+  if (!iso) return never;
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return iso;
+  }
+}
+
 export function ImapSyncPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [localAccounts, setLocalAccounts] = useState<LocalAccount[]>([]);
@@ -47,6 +56,7 @@ export function ImapSyncPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [runningIds, setRunningIds] = useState<Set<number>>(new Set());
   const csrf = useAuth((s) => s.csrfToken);
   const { t } = useTranslation();
 
@@ -62,6 +72,14 @@ export function ImapSyncPage() {
 
   useEffect(() => { load(); loadAccounts(); }, [load, loadAccounts]);
   useRefreshListener(load);
+
+  // Poll every 5 s while any job is in "running" state so status updates automatically
+  useEffect(() => {
+    const hasRunning = jobs.some((j) => j.last_status === 'running') || runningIds.size > 0;
+    if (!hasRunning) return;
+    const id = setInterval(load, 5000);
+    return () => clearInterval(id);
+  }, [jobs, runningIds, load]);
 
   const isLocalDest = destAccount !== CUSTOM;
 
@@ -113,6 +131,18 @@ export function ImapSyncPage() {
     if (!confirm(t.imapsync.delete_confirm)) return;
     await api.delete(`/imapsync/${id}`, { headers: csrfHeaders(csrf) }).catch(() => undefined);
     load();
+  };
+
+  const runNow = async (id: number) => {
+    setRunningIds((s) => new Set(s).add(id));
+    try {
+      const r = await api.post(`/imapsync/${id}/run`, {}, { headers: csrfHeaders(csrf) });
+      setJobs((prev) => prev.map((j) => (j.id === id ? (r.data as Job) : j)));
+    } catch {
+      // ignore; status will be visible on next poll
+    }
+    // Keep in runningIds until the poll detects it's no longer running
+    setRunningIds((s) => { const ns = new Set(s); ns.delete(id); return ns; });
   };
 
   const save = async () => {
@@ -238,23 +268,38 @@ export function ImapSyncPage() {
               <th style={{ padding: '.4rem' }}>{t.imapsync.dest_col}</th>
               <th style={{ padding: '.4rem' }}>{t.imapsync.interval_col}</th>
               <th style={{ padding: '.4rem' }}>{t.imapsync.status_col}</th>
+              <th style={{ padding: '.4rem' }}>{t.imapsync.last_run_col}</th>
+              <th style={{ padding: '.4rem' }}>{t.imapsync.transferred_col}</th>
               <th style={{ padding: '.4rem' }}>{t.imapsync.actions_col}</th>
             </tr>
           </thead>
           <tbody>
-            {jobs.map((j) => (
-              <tr key={j.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '.4rem' }}>{j.name} {j.enabled ? '' : `(${t.imapsync.disabled})`}</td>
-                <td style={{ padding: '.4rem' }}>{j.source_user}@{j.source_host}</td>
-                <td style={{ padding: '.4rem' }}>{j.destination_user}@{j.destination_host}</td>
-                <td style={{ padding: '.4rem' }}>{j.interval_minutes} {t.imapsync.min}</td>
-                <td style={{ padding: '.4rem' }}>{j.last_status ?? '-'}</td>
-                <td style={{ padding: '.4rem' }}>
-                  <button onClick={() => openEdit(j)}>✏️</button>
-                  <button onClick={() => remove(j.id)} style={{ marginLeft: '.25rem' }}>🗑️</button>
-                </td>
-              </tr>
-            ))}
+            {jobs.map((j) => {
+              const isRunning = j.last_status === 'running' || runningIds.has(j.id);
+              return (
+                <tr key={j.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <td style={{ padding: '.4rem' }}>{j.name} {j.enabled ? '' : `(${t.imapsync.disabled})`}</td>
+                  <td style={{ padding: '.4rem' }}>{j.source_user}@{j.source_host}</td>
+                  <td style={{ padding: '.4rem' }}>{j.destination_user}@{j.destination_host}</td>
+                  <td style={{ padding: '.4rem' }}>{j.interval_minutes} {t.imapsync.min}</td>
+                  <td style={{ padding: '.4rem' }}>{isRunning ? t.imapsync.running : (j.last_status ?? '-')}</td>
+                  <td style={{ padding: '.4rem' }}>{formatDate(j.last_run_at, t.imapsync.never)}</td>
+                  <td style={{ padding: '.4rem', maxWidth: '16rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={j.last_message ?? undefined}>
+                    {j.last_message ?? '-'}
+                  </td>
+                  <td style={{ padding: '.4rem' }}>
+                    <button onClick={() => openEdit(j)}>✏️</button>
+                    <button
+                      onClick={() => runNow(j.id)}
+                      disabled={isRunning}
+                      style={{ marginLeft: '.25rem' }}
+                      title={t.imapsync.run_now}
+                    >▶</button>
+                    <button onClick={() => remove(j.id)} style={{ marginLeft: '.25rem' }}>🗑️</button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}

@@ -151,7 +151,12 @@ export type Translations = {
     source_col: string;
     dest_col: string;
     status_col: string;
+    last_run_col: string;
+    transferred_col: string;
     actions_col: string;
+    run_now: string;
+    running: string;
+    never: string;
   };
   dns_wizard: {
     title: string;
