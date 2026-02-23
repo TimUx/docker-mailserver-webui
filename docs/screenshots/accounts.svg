@@ -1,13 +1,13 @@
-<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='960'>
-<rect width='1600' height='960' fill='#0b1220'/>
+<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1020'>
+<rect width='1600' height='1020' fill='#0b1220'/>
 <!-- Sidebar -->
-<rect x='0' y='0' width='220' height='960' fill='#111827'/>
+<rect x='0' y='0' width='220' height='1020' fill='#111827'/>
 <text x='16' y='44' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>✉️ DMS WebUI</text>
 <rect x='6' y='54' width='208' height='30' rx='5' fill='#1e293b'/>
 <text x='16' y='74' fill='#94a3b8' font-size='14' font-family='Arial'>🌙 Dark</text>
 <text x='16' y='112' fill='#94a3b8' font-size='15' font-family='Arial'>📊 Dashboard</text>
 <rect x='6' y='120' width='208' height='28' rx='5' fill='#1e3a5f'/>
-<text x='16' y='139' fill='#60a5fa' font-size='15' font-family='Arial' font-weight='bold'>👤 Accounts</text>
+<text x='16' y='139' fill='#93c5fd' font-size='15' font-family='Arial' font-weight='bold'>👤 Accounts</text>
 <text x='16' y='168' fill='#94a3b8' font-size='15' font-family='Arial'>🌐 Domains</text>
 <text x='16' y='196' fill='#94a3b8' font-size='15' font-family='Arial'>🔀 Aliases</text>
 <text x='16' y='224' fill='#94a3b8' font-size='15' font-family='Arial'>🧭 DNS Wizard</text>
@@ -16,88 +16,135 @@
 <text x='16' y='308' fill='#94a3b8' font-size='15' font-family='Arial'>📬 IMAPSync</text>
 <text x='16' y='336' fill='#94a3b8' font-size='15' font-family='Arial'>🧾 Logs</text>
 <text x='16' y='364' fill='#94a3b8' font-size='15' font-family='Arial'>⚙️ Settings</text>
-<rect x='6' y='900' width='208' height='30' rx='5' fill='#1e293b'/>
-<text x='16' y='920' fill='#94a3b8' font-size='14' font-family='Arial'>🔄 Refresh</text>
-<rect x='6' y='934' width='208' height='24' rx='5' fill='#1e293b'/>
-<text x='16' y='951' fill='#94a3b8' font-size='14' font-family='Arial'>🚪 Logout</text>
+<rect x='6' y='960' width='208' height='30' rx='5' fill='#1e293b'/>
+<text x='16' y='980' fill='#94a3b8' font-size='14' font-family='Arial'>🔄 Refresh</text>
+<rect x='6' y='994' width='208' height='24' rx='5' fill='#1e293b'/>
+<text x='16' y='1011' fill='#94a3b8' font-size='14' font-family='Arial'>🚪 Logout</text>
 <!-- Main content -->
-<rect x='230' y='10' width='1355' height='940' rx='10' fill='#1f2937'/>
+<rect x='230' y='10' width='1355' height='1000' rx='10' fill='#1f2937'/>
 <text x='254' y='52' fill='#e5e7eb' font-size='28' font-family='Arial' font-weight='bold'>👤 Accounts</text>
 <!-- Add row -->
-<rect x='254' y='66' width='440' height='36' rx='6' fill='#111827'/>
-<text x='266' y='89' fill='#6b7280' font-size='14' font-family='Arial'>email</text>
-<rect x='706' y='66' width='300' height='36' rx='6' fill='#111827'/>
-<text x='718' y='89' fill='#6b7280' font-size='14' font-family='Arial'>password</text>
-<rect x='1016' y='66' width='340' height='36' rx='6' fill='#111827'/>
-<text x='1028' y='89' fill='#6b7280' font-size='14' font-family='Arial'>quota (e.g. 1G, 500M, 0=unlimited)</text>
-<rect x='1366' y='66' width='200' height='36' rx='6' fill='#2563eb'/>
-<text x='1424' y='89' fill='white' font-size='15' font-family='Arial'>➕ Add</text>
+<rect x='254' y='64' width='390' height='34' rx='5' fill='#111827' stroke='#374151' stroke-width='1'/>
+<text x='266' y='85' fill='#6b7280' font-size='14' font-family='Arial'>email</text>
+<rect x='654' y='64' width='240' height='34' rx='5' fill='#111827' stroke='#374151' stroke-width='1'/>
+<text x='666' y='85' fill='#6b7280' font-size='14' font-family='Arial'>password</text>
+<rect x='904' y='64' width='350' height='34' rx='5' fill='#111827' stroke='#374151' stroke-width='1'/>
+<text x='916' y='85' fill='#6b7280' font-size='14' font-family='Arial'>quota (e.g. 1G, 500M, 0=unlimited)</text>
+<rect x='1264' y='64' width='120' height='34' rx='5' fill='#2563eb'/>
+<text x='1302' y='86' fill='white' font-size='14' font-family='Arial' font-weight='bold'>➕ Add</text>
 <!-- Domain tabs -->
-<rect x='254' y='112' width='108' height='28' rx='5' fill='#6366f1'/>
-<text x='270' y='131' fill='white' font-size='13' font-family='Arial' font-weight='bold'>🌐 All (12)</text>
-<rect x='370' y='112' width='148' height='28' rx='5' fill='#1e293b' stroke='#374151' stroke-width='1'/>
-<text x='382' y='131' fill='#d1d5db' font-size='13' font-family='Arial'>example.com (8)</text>
-<rect x='526' y='112' width='142' height='28' rx='5' fill='#1e293b' stroke='#374151' stroke-width='1'/>
-<text x='538' y='131' fill='#d1d5db' font-size='13' font-family='Arial'>company.org (4)</text>
-<!-- Filter -->
-<rect x='254' y='150' width='1060' height='34' rx='6' fill='#111827'/>
-<text x='266' y='172' fill='#6b7280' font-size='14' font-family='Arial'>🔍 Filter accounts…</text>
+<rect x='254' y='110' width='108' height='28' rx='5' fill='#6366f1'/>
+<text x='268' y='129' fill='white' font-size='13' font-family='Arial' font-weight='bold'>🌐 All (12)</text>
+<rect x='370' y='110' width='152' height='28' rx='5' fill='transparent' stroke='#374151' stroke-width='1'/>
+<text x='382' y='129' fill='#d1d5db' font-size='13' font-family='Arial'>example.com (8)</text>
+<rect x='530' y='110' width='148' height='28' rx='5' fill='transparent' stroke='#374151' stroke-width='1'/>
+<text x='542' y='129' fill='#d1d5db' font-size='13' font-family='Arial'>company.org (4)</text>
+<!-- Filter row -->
+<rect x='254' y='148' width='900' height='32' rx='5' fill='#111827' stroke='#374151' stroke-width='1'/>
+<text x='266' y='169' fill='#6b7280' font-size='14' font-family='Arial'>🔍 Filter accounts…</text>
 <!-- Table header -->
-<line x1='254' y1='196' x2='1565' y2='196' stroke='#374151' stroke-width='1'/>
-<text x='260' y='213' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Email ↕</text>
-<text x='600' y='213' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Domain ↕</text>
-<text x='780' y='213' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Quota (used / limit) ↕</text>
-<text x='1080' y='213' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Aliases ▲</text>
-<text x='1170' y='213' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Note ↕</text>
-<text x='1480' y='213' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Actions</text>
-<line x1='254' y1='220' x2='1565' y2='220' stroke='#374151' stroke-width='1'/>
+<line x1='254' y1='192' x2='1565' y2='192' stroke='#374151' stroke-width='1'/>
+<text x='260' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Email ↕</text>
+<text x='560' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Domain ↕</text>
+<text x='740' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Quota (used / limit) ↕</text>
+<text x='1040' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Aliases ▲</text>
+<text x='1130' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Note ↕</text>
+<text x='1490' y='210' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Actions</text>
+<line x1='254' y1='218' x2='1565' y2='218' stroke='#374151' stroke-width='1'/>
 <!-- Row 1 -->
-<rect x='254' y='221' width='1311' height='38' rx='0' fill='transparent'/>
-<text x='260' y='245' fill='#e5e7eb' font-size='14' font-family='Arial'>alice@example.com</text>
-<text x='600' y='245' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
-<text x='780' y='245' fill='#9ca3af' font-size='13' font-family='monospace'>245M / 1G [24%]</text>
-<text x='1090' y='245' fill='#9ca3af' font-size='13' font-family='Arial'>3</text>
-<text x='1170' y='245' fill='#9ca3af' font-size='13' font-family='Arial'>Main inbox</text>
-<text x='1450' y='245' fill='#e5e7eb' font-size='15' font-family='Arial'>🔑 📦 📝 🗑</text>
-<line x1='254' y1='259' x2='1565' y2='259' stroke='#374151' stroke-width='1'/>
+<text x='260' y='242' fill='#e5e7eb' font-size='14' font-family='Arial'>alice@example.com</text>
+<text x='560' y='242' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
+<text x='740' y='242' fill='#9ca3af' font-size='13' font-family='monospace'>245M / 1G [24%]</text>
+<text x='1050' y='242' fill='#9ca3af' font-size='13' font-family='Arial'>3</text>
+<text x='1130' y='242' fill='#9ca3af' font-size='13' font-family='Arial'>Main inbox</text>
+<text x='1460' y='242' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='256' x2='1565' y2='256' stroke='#374151' stroke-width='1'/>
 <!-- Row 2 -->
-<text x='260' y='283' fill='#e5e7eb' font-size='14' font-family='Arial'>bob@example.com</text>
-<text x='600' y='283' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
-<text x='780' y='283' fill='#9ca3af' font-size='13' font-family='monospace'>512M / 2G [25%]</text>
-<text x='1090' y='283' fill='#9ca3af' font-size='13' font-family='Arial'>1</text>
-<text x='1170' y='283' fill='#9ca3af' font-size='13' font-family='Arial'>Sales team</text>
-<text x='1450' y='283' fill='#e5e7eb' font-size='15' font-family='Arial'>🔑 📦 📝 🗑</text>
-<line x1='254' y1='297' x2='1565' y2='297' stroke='#374151' stroke-width='1'/>
+<text x='260' y='280' fill='#e5e7eb' font-size='14' font-family='Arial'>bob@example.com</text>
+<text x='560' y='280' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
+<text x='740' y='280' fill='#9ca3af' font-size='13' font-family='monospace'>512M / 2G [25%]</text>
+<text x='1050' y='280' fill='#9ca3af' font-size='13' font-family='Arial'>1</text>
+<text x='1130' y='280' fill='#9ca3af' font-size='13' font-family='Arial'>Sales team</text>
+<text x='1460' y='280' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='294' x2='1565' y2='294' stroke='#374151' stroke-width='1'/>
 <!-- Row 3 -->
-<text x='260' y='321' fill='#e5e7eb' font-size='14' font-family='Arial'>carol@example.com</text>
-<text x='600' y='321' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
-<text x='780' y='321' fill='#9ca3af' font-size='13' font-family='monospace'>88M / 1G [8%]</text>
-<text x='1090' y='321' fill='#9ca3af' font-size='13' font-family='Arial'>2</text>
-<text x='1170' y='321' fill='#9ca3af' font-size='13' font-family='Arial'/>
-<text x='1450' y='321' fill='#e5e7eb' font-size='15' font-family='Arial'>🔑 📦 📝 🗑</text>
-<line x1='254' y1='335' x2='1565' y2='335' stroke='#374151' stroke-width='1'/>
+<text x='260' y='318' fill='#e5e7eb' font-size='14' font-family='Arial'>carol@example.com</text>
+<text x='560' y='318' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
+<text x='740' y='318' fill='#9ca3af' font-size='13' font-family='monospace'>88M / 1G [8%]</text>
+<text x='1050' y='318' fill='#9ca3af' font-size='13' font-family='Arial'>2</text>
+<text x='1130' y='318' fill='#9ca3af' font-size='13' font-family='Arial'/>
+<text x='1460' y='318' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='332' x2='1565' y2='332' stroke='#374151' stroke-width='1'/>
 <!-- Row 4 -->
-<text x='260' y='359' fill='#e5e7eb' font-size='14' font-family='Arial'>dave@example.com</text>
-<text x='600' y='359' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
-<text x='780' y='359' fill='#9ca3af' font-size='13' font-family='monospace'>1.1G / 2G [55%]</text>
-<text x='1090' y='359' fill='#9ca3af' font-size='13' font-family='Arial'>0</text>
-<text x='1170' y='359' fill='#9ca3af' font-size='13' font-family='Arial'>Developer</text>
-<text x='1450' y='359' fill='#e5e7eb' font-size='15' font-family='Arial'>🔑 📦 📝 🗑</text>
-<line x1='254' y1='373' x2='1565' y2='373' stroke='#374151' stroke-width='1'/>
+<text x='260' y='356' fill='#e5e7eb' font-size='14' font-family='Arial'>dave@example.com</text>
+<text x='560' y='356' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
+<text x='740' y='356' fill='#9ca3af' font-size='13' font-family='monospace'>1.1G / 2G [55%]</text>
+<text x='1050' y='356' fill='#9ca3af' font-size='13' font-family='Arial'>0</text>
+<text x='1130' y='356' fill='#9ca3af' font-size='13' font-family='Arial'>Developer</text>
+<text x='1460' y='356' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='370' x2='1565' y2='370' stroke='#374151' stroke-width='1'/>
 <!-- Row 5 -->
-<text x='260' y='397' fill='#e5e7eb' font-size='14' font-family='Arial'>eve@example.com</text>
-<text x='600' y='397' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
-<text x='780' y='397' fill='#9ca3af' font-size='13' font-family='monospace'/>
-<text x='1090' y='397' fill='#9ca3af' font-size='13' font-family='Arial'>1</text>
-<text x='1170' y='397' fill='#9ca3af' font-size='13' font-family='Arial'>Finance</text>
-<text x='1450' y='397' fill='#e5e7eb' font-size='15' font-family='Arial'>🔑 📦 📝 🗑</text>
-<line x1='254' y1='411' x2='1565' y2='411' stroke='#374151' stroke-width='1'/>
+<text x='260' y='394' fill='#e5e7eb' font-size='14' font-family='Arial'>eve@example.com</text>
+<text x='560' y='394' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
+<text x='740' y='394' fill='#9ca3af' font-size='13' font-family='monospace'>340M / 500M [68%]</text>
+<text x='1050' y='394' fill='#9ca3af' font-size='13' font-family='Arial'>1</text>
+<text x='1130' y='394' fill='#9ca3af' font-size='13' font-family='Arial'>Finance</text>
+<text x='1460' y='394' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='408' x2='1565' y2='408' stroke='#374151' stroke-width='1'/>
 <!-- Row 6 -->
-<text x='260' y='435' fill='#e5e7eb' font-size='14' font-family='Arial'>frank@company.org</text>
-<text x='600' y='435' fill='#9ca3af' font-size='13' font-family='Arial'>company.org</text>
-<text x='780' y='435' fill='#9ca3af' font-size='13' font-family='monospace'>320M / 1G [31%]</text>
-<text x='1090' y='435' fill='#9ca3af' font-size='13' font-family='Arial'>4</text>
-<text x='1170' y='435' fill='#9ca3af' font-size='13' font-family='Arial'>CEO</text>
-<text x='1450' y='435' fill='#e5e7eb' font-size='15' font-family='Arial'>🔑 📦 📝 🗑</text>
-<line x1='254' y1='449' x2='1565' y2='449' stroke='#374151' stroke-width='1'/>
+<text x='260' y='432' fill='#e5e7eb' font-size='14' font-family='Arial'>grace@example.com</text>
+<text x='560' y='432' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
+<text x='740' y='432' fill='#9ca3af' font-size='13' font-family='monospace'>0B / ∞</text>
+<text x='1050' y='432' fill='#9ca3af' font-size='13' font-family='Arial'>0</text>
+<text x='1130' y='432' fill='#9ca3af' font-size='13' font-family='Arial'>HR</text>
+<text x='1460' y='432' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='446' x2='1565' y2='446' stroke='#374151' stroke-width='1'/>
+<!-- Row 7 -->
+<text x='260' y='470' fill='#e5e7eb' font-size='14' font-family='Arial'>henry@example.com</text>
+<text x='560' y='470' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
+<text x='740' y='470' fill='#9ca3af' font-size='13' font-family='monospace'>720M / 1G [72%]</text>
+<text x='1050' y='470' fill='#9ca3af' font-size='13' font-family='Arial'>5</text>
+<text x='1130' y='470' fill='#9ca3af' font-size='13' font-family='Arial'>CTO</text>
+<text x='1460' y='470' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='484' x2='1565' y2='484' stroke='#374151' stroke-width='1'/>
+<!-- Row 8 -->
+<text x='260' y='508' fill='#e5e7eb' font-size='14' font-family='Arial'>info@example.com</text>
+<text x='560' y='508' fill='#9ca3af' font-size='13' font-family='Arial'>example.com</text>
+<text x='740' y='508' fill='#9ca3af' font-size='13' font-family='monospace'>12M / 500M [2%]</text>
+<text x='1050' y='508' fill='#9ca3af' font-size='13' font-family='Arial'>8</text>
+<text x='1130' y='508' fill='#9ca3af' font-size='13' font-family='Arial'>Shared mailbox</text>
+<text x='1460' y='508' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='522' x2='1565' y2='522' stroke='#374151' stroke-width='1'/>
+<!-- Row 9 -->
+<text x='260' y='546' fill='#e5e7eb' font-size='14' font-family='Arial'>frank@company.org</text>
+<text x='560' y='546' fill='#9ca3af' font-size='13' font-family='Arial'>company.org</text>
+<text x='740' y='546' fill='#9ca3af' font-size='13' font-family='monospace'>320M / 1G [31%]</text>
+<text x='1050' y='546' fill='#9ca3af' font-size='13' font-family='Arial'>4</text>
+<text x='1130' y='546' fill='#9ca3af' font-size='13' font-family='Arial'>CEO</text>
+<text x='1460' y='546' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='560' x2='1565' y2='560' stroke='#374151' stroke-width='1'/>
+<!-- Row 10 -->
+<text x='260' y='584' fill='#e5e7eb' font-size='14' font-family='Arial'>gina@company.org</text>
+<text x='560' y='584' fill='#9ca3af' font-size='13' font-family='Arial'>company.org</text>
+<text x='740' y='584' fill='#9ca3af' font-size='13' font-family='monospace'>150M / 2G [7%]</text>
+<text x='1050' y='584' fill='#9ca3af' font-size='13' font-family='Arial'>2</text>
+<text x='1130' y='584' fill='#9ca3af' font-size='13' font-family='Arial'>COO</text>
+<text x='1460' y='584' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='598' x2='1565' y2='598' stroke='#374151' stroke-width='1'/>
+<!-- Row 11 -->
+<text x='260' y='622' fill='#e5e7eb' font-size='14' font-family='Arial'>hans@company.org</text>
+<text x='560' y='622' fill='#9ca3af' font-size='13' font-family='Arial'>company.org</text>
+<text x='740' y='622' fill='#9ca3af' font-size='13' font-family='monospace'>890M / 2G [44%]</text>
+<text x='1050' y='622' fill='#9ca3af' font-size='13' font-family='Arial'>1</text>
+<text x='1130' y='622' fill='#9ca3af' font-size='13' font-family='Arial'>Engineering</text>
+<text x='1460' y='622' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='636' x2='1565' y2='636' stroke='#374151' stroke-width='1'/>
+<!-- Row 12 -->
+<text x='260' y='660' fill='#e5e7eb' font-size='14' font-family='Arial'>support@company.org</text>
+<text x='560' y='660' fill='#9ca3af' font-size='13' font-family='Arial'>company.org</text>
+<text x='740' y='660' fill='#9ca3af' font-size='13' font-family='monospace'>60M / 500M [12%]</text>
+<text x='1050' y='660' fill='#9ca3af' font-size='13' font-family='Arial'>6</text>
+<text x='1130' y='660' fill='#9ca3af' font-size='13' font-family='Arial'>Shared support</text>
+<text x='1460' y='660' fill='#e5e7eb' font-size='14' font-family='Arial'>🔑 📦 📝 🗑</text>
+<line x1='254' y1='674' x2='1565' y2='674' stroke='#374151' stroke-width='1'/>
 </svg>

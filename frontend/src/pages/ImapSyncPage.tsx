@@ -99,52 +99,52 @@ export function ImapSyncPage() {
   return (
     <div className="panel">
       <h1>📬 IMAPSync</h1>
-      <p>Job-Definitionen für deinen IMAPSync-Container verwalten.</p>
-      <button onClick={openCreate}>+ Neuer Job</button>
+      <p>Manage IMAP sync job definitions for your IMAPSync container.</p>
+      <button onClick={openCreate}>+ New Job</button>
 
       {showForm && (
         <div style={{ border: '1px solid var(--border)', borderRadius: '.5rem', padding: '1rem', margin: '1rem 0' }}>
-          <h3>{editId !== null ? 'Job bearbeiten' : 'Neuer Job'}</h3>
+          <h3>{editId !== null ? 'Edit Job' : 'New Job'}</h3>
           {field('name', 'Name')}
-          {field('source_host', 'Quell-Host')}
-          {field('source_user', 'Quell-Benutzer')}
-          {field('source_password', editId !== null ? 'Quell-Passwort (leer = unverändert)' : 'Quell-Passwort', 'password')}
-          {field('destination_host', 'Ziel-Host')}
-          {field('destination_user', 'Ziel-Benutzer')}
-          {field('destination_password', editId !== null ? 'Ziel-Passwort (leer = unverändert)' : 'Ziel-Passwort', 'password')}
+          {field('source_host', 'Source Host')}
+          {field('source_user', 'Source User')}
+          {field('source_password', editId !== null ? 'Source Password (leave blank to keep unchanged)' : 'Source Password', 'password')}
+          {field('destination_host', 'Destination Host')}
+          {field('destination_user', 'Destination User')}
+          {field('destination_password', editId !== null ? 'Destination Password (leave blank to keep unchanged)' : 'Destination Password', 'password')}
           {field('port', 'Port', 'number')}
-          {field('interval_minutes', 'Intervall (Minuten)', 'number')}
+          {field('interval_minutes', 'Interval (minutes)', 'number')}
           <label style={{ display: 'block', marginBottom: '.5rem' }}>
             <input type="checkbox" checked={form.ssl_enabled} onChange={(e) => setForm((f) => ({ ...f, ssl_enabled: e.target.checked }))} />
-            {' '}SSL aktiviert
+            {' '}SSL enabled
           </label>
           <label style={{ display: 'block', marginBottom: '.5rem' }}>
             <input type="checkbox" checked={form.enabled} onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))} />
-            {' '}Job aktiviert
+            {' '}Job enabled
           </label>
-          <button onClick={save}>💾 Speichern</button>
-          <button onClick={() => setShowForm(false)} style={{ marginLeft: '.5rem' }}>Abbrechen</button>
+          <button onClick={save}>💾 Save</button>
+          <button onClick={() => setShowForm(false)} style={{ marginLeft: '.5rem' }}>Cancel</button>
         </div>
       )}
 
       {jobs.length === 0 ? (
-        <p>Keine Sync-Jobs vorhanden.</p>
+        <p>No sync jobs defined.</p>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
           <thead>
             <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
               <th style={{ padding: '.4rem' }}>Name</th>
-              <th style={{ padding: '.4rem' }}>Quelle</th>
-              <th style={{ padding: '.4rem' }}>Ziel</th>
-              <th style={{ padding: '.4rem' }}>Intervall</th>
+              <th style={{ padding: '.4rem' }}>Source</th>
+              <th style={{ padding: '.4rem' }}>Destination</th>
+              <th style={{ padding: '.4rem' }}>Interval</th>
               <th style={{ padding: '.4rem' }}>Status</th>
-              <th style={{ padding: '.4rem' }}>Aktionen</th>
+              <th style={{ padding: '.4rem' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {jobs.map((j) => (
               <tr key={j.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '.4rem' }}>{j.name} {j.enabled ? '' : '(deaktiviert)'}</td>
+                <td style={{ padding: '.4rem' }}>{j.name} {j.enabled ? '' : '(disabled)'}</td>
                 <td style={{ padding: '.4rem' }}>{j.source_user}@{j.source_host}</td>
                 <td style={{ padding: '.4rem' }}>{j.destination_user}@{j.destination_host}</td>
                 <td style={{ padding: '.4rem' }}>{j.interval_minutes} min</td>
