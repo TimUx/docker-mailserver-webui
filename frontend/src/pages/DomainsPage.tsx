@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useTranslation } from '../i18n';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type Domain = { domain: string; description: string; managed: boolean };
@@ -13,6 +14,7 @@ export function DomainsPage() {
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const csrf = useAuth((s) => s.csrfToken);
+  const { t } = useTranslation();
 
   const load = useCallback(() => {
     api.get('/dms/domains').then((r) => setDomains(r.data.domains)).catch(() => undefined);
@@ -42,57 +44,57 @@ export function DomainsPage() {
 
   const create = async () => {
     setError('');
-    if (!domain.trim()) { setError('Domain name is required'); return; }
+    if (!domain.trim()) { setError(t.domains.domain_required); return; }
     try {
       await api.post('/dms/domains', { domain: domain.trim(), description }, { headers: csrfHeaders(csrf) });
       setDomain('');
       setDescription('');
       void load();
     } catch (e: any) {
-      setError(e?.response?.data?.detail ?? 'Failed to add domain');
+      setError(e?.response?.data?.detail ?? t.domains.failed_add);
     }
   };
 
   const remove = async (d: string) => {
-    if (!confirm(`Remove managed domain "${d}"?`)) return;
+    if (!confirm(t.domains.delete_confirm(d))) return;
     try {
       await api.delete('/dms/domains', { data: { domain: d }, headers: csrfHeaders(csrf) });
       void load();
     } catch (e: any) {
-      setError(e?.response?.data?.detail ?? 'Failed to remove domain');
+      setError(e?.response?.data?.detail ?? t.domains.failed_remove);
     }
   };
 
   return (
     <div className="panel">
-      <h1>🌐 Domains</h1>
+      <h1>{t.domains.title}</h1>
 
       <div className="row" style={{ marginBottom: '.5rem' }}>
         <input
-          placeholder="domain (e.g. example.com)"
+          placeholder={t.domains.domain_ph}
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           style={{ flex: 1 }}
         />
         <input
-          placeholder="description (optional)"
+          placeholder={t.domains.desc_ph}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           style={{ flex: 1 }}
         />
-        <button onClick={create}>➕ Add</button>
+        <button onClick={create}>{t.common.add}</button>
       </div>
       {error && <p style={{ color: 'var(--color-warn, #f59e0b)' }}>{error}</p>}
 
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Domain</th>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Description</th>
-            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Source</th>
-            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Accounts</th>
-            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Aliases</th>
-            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Actions</th>
+            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>{t.common.domain}</th>
+            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>{t.domains.description_col}</th>
+            <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>{t.domains.source_col}</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>{t.domains.accounts_col}</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>{t.domains.aliases_col}</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>{t.common.actions}</th>
           </tr>
         </thead>
         <tbody>
@@ -101,7 +103,7 @@ export function DomainsPage() {
               <td style={{ padding: '.4rem .5rem', fontWeight: 500 }}>{d.domain}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{d.description}</td>
               <td style={{ padding: '.4rem .5rem', fontSize: '.8rem', opacity: .7 }}>
-                {d.managed ? '🗃 managed' : '📬 auto-detected'}
+                {d.managed ? t.domains.managed : t.domains.auto_detected}
               </td>
               <td style={{ padding: '.4rem .5rem', textAlign: 'right', fontSize: '.85rem' }}>
                 {accountCounts[d.domain] ?? 0}
@@ -113,7 +115,7 @@ export function DomainsPage() {
                 {d.managed && (
                   <button
                     onClick={() => remove(d.domain)}
-                    title="Remove domain"
+                    title={t.common.delete}
                     style={{ color: '#ef4444' }}
                   >🗑</button>
                 )}
@@ -121,7 +123,7 @@ export function DomainsPage() {
             </tr>
           ))}
           {domains.length === 0 && (
-            <tr><td colSpan={6} style={{ padding: '.75rem .5rem', opacity: .5 }}>No domains found</td></tr>
+            <tr><td colSpan={6} style={{ padding: '.75rem .5rem', opacity: .5 }}>{t.domains.no_domains}</td></tr>
           )}
         </tbody>
       </table>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useTranslation } from '../i18n';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type ServiceInfo = { status: string; message: string; container: string; dashboard_url?: string };
@@ -67,6 +68,7 @@ export function ObservabilityPage() {
   const [mailq, setMailq] = useState<MailQueueData | null>(null);
   const [doveadm, setDoveadm] = useState<DoveadmData | null>(null);
   const csrf = useAuth((s) => s.csrfToken);
+  const { t } = useTranslation();
 
   const load = useCallback(() => {
     api.get('/observability').then((r) => setData(r.data)).catch(() => undefined);
@@ -88,10 +90,10 @@ export function ObservabilityPage() {
 
   return (
     <div className="panel">
-      <h1>📈 Observability</h1>
-      <p>Monitoring and statistics for your mail stack services.</p>
+      <h1>{t.observability.title}</h1>
+      <p>{t.observability.desc}</p>
 
-      <h2>Service Status</h2>
+      <h2>{t.observability.service_status}</h2>
       <div className="stats-grid">
         {data === null || data === undefined
           ? ['rspamd', 'redis', 'clamav', 'mailserver'].map((k) => (
@@ -105,7 +107,7 @@ export function ObservabilityPage() {
                   {SERVICE_ICONS[name] ?? '🔧'} {SERVICE_LABELS[name] ?? name}
                 </div>
                 <div style={{ marginBottom: '.25rem' }}>
-                  Status:{' '}
+                  {t.common.status}:{' '}
                   <strong style={{ color: statusColor(svc.status) }}>{svc.status}</strong>
                 </div>
                 {svc.message && (
@@ -114,12 +116,10 @@ export function ObservabilityPage() {
                   </small>
                 )}
                 <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginTop: '.4rem' }}>
-                  {name !== 'mailserver' && (
-                    <button onClick={() => restart(name)}>↺ Restart</button>
-                  )}
+                  <button onClick={() => restart(name)}>{t.observability.restart}</button>
                   {svc.dashboard_url && (
                     <a href={svc.dashboard_url} target="_blank" rel="noreferrer" className="button-link">
-                      📊 Dashboard ↗
+                      {t.observability.open_dashboard}
                     </a>
                   )}
                 </div>
@@ -128,26 +128,26 @@ export function ObservabilityPage() {
       </div>
 
       {/* Mail Queue */}
-      <h2 style={{ marginTop: '1.5rem' }}>📨 Mail Queue</h2>
+      <h2 style={{ marginTop: '1.5rem' }}>{t.observability.mail_queue}</h2>
       {mailq === null ? (
-        <p style={{ opacity: .6 }}>Loading…</p>
+        <p style={{ opacity: .6 }}>{t.common.loading}</p>
       ) : !mailq.ok ? (
-        <p style={{ opacity: .6 }}>Mail queue unavailable: {mailq.raw}</p>
+        <p style={{ opacity: .6 }}>{t.observability.mail_queue_unavailable(mailq.raw)}</p>
       ) : mailq.count === 0 ? (
-        <p style={{ opacity: .75 }}>✅ Mail queue is empty.</p>
+        <p style={{ opacity: .75 }}>{t.observability.mail_queue_empty}</p>
       ) : (
         <>
           <p style={{ opacity: .75, marginBottom: '.5rem' }}>
-            <strong>{mailq.count}</strong> message{mailq.count !== 1 ? 's' : ''} in queue
+            <strong>{mailq.count}</strong> {t.observability.mail_queue_messages(mailq.count).replace(String(mailq.count), '').trim()}
           </p>
           {mailq.entries.length > 0 ? (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Queue ID</th>
-                  <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Size</th>
-                  <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Date</th>
-                  <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Sender</th>
+                  <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.queue_id_col}</th>
+                  <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.size_col}</th>
+                  <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.date_col}</th>
+                  <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.sender_col}</th>
                 </tr>
               </thead>
               <tbody>
@@ -170,26 +170,26 @@ export function ObservabilityPage() {
       )}
 
       {/* Active IMAP/POP3 Connections */}
-      <h2 style={{ marginTop: '1.5rem' }}>🔌 Active Mail Connections</h2>
+      <h2 style={{ marginTop: '1.5rem' }}>{t.observability.active_connections}</h2>
       {doveadm === null ? (
-        <p style={{ opacity: .6 }}>Loading…</p>
+        <p style={{ opacity: .6 }}>{t.common.loading}</p>
       ) : !doveadm.ok ? (
-        <p style={{ opacity: .6 }}>doveadm unavailable: {doveadm.raw}</p>
+        <p style={{ opacity: .6 }}>{t.observability.doveadm_unavailable(doveadm.raw)}</p>
       ) : doveadm.count === 0 ? (
-        <p style={{ opacity: .75 }}>No active IMAP/POP3 connections.</p>
+        <p style={{ opacity: .75 }}>{t.observability.no_connections}</p>
       ) : (
         <>
           <p style={{ opacity: .75, marginBottom: '.5rem' }}>
-            <strong>{doveadm.count}</strong> active connection{doveadm.count !== 1 ? 's' : ''}
+            <strong>{doveadm.count}</strong> {t.observability.active_connections_count(doveadm.count).replace(String(doveadm.count), '').trim()}
           </p>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Username</th>
-                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Service</th>
-                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>PID</th>
-                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>IP</th>
-                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Secured</th>
+                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.username_col}</th>
+                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.service_col}</th>
+                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.pid_col}</th>
+                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.ip_col}</th>
+                <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.secured_col}</th>
               </tr>
             </thead>
             <tbody>
@@ -208,44 +208,44 @@ export function ObservabilityPage() {
       )}
 
       {/* Rspamd Stats */}
-      <h2 style={{ marginTop: '1.5rem' }}>🛡️ Rspamd Statistics</h2>
+      <h2 style={{ marginTop: '1.5rem' }}>{t.observability.rspamd_stats}</h2>
       {data?.rspamd?.stat?.error ? (
-        <p style={{ opacity: .7 }}>Rspamd controller unavailable: {data.rspamd.stat.error}</p>
+        <p style={{ opacity: .7 }}>{t.observability.rspamd_unavailable(data.rspamd.stat.error)}</p>
       ) : stat ? (
         <>
           <div className="stats-grid" style={{ marginTop: '.5rem' }}>
             <div className="stat-card">
-              📨 Scanned<strong>{stat.scanned ?? '—'}</strong>
+              {t.observability.scanned}<strong>{stat.scanned ?? '—'}</strong>
             </div>
             <div className="stat-card">
-              🚫 Spam<strong>{stat.spam_count ?? '—'}</strong>
+              {t.observability.spam}<strong>{stat.spam_count ?? '—'}</strong>
             </div>
             <div className="stat-card">
-              ✅ Ham<strong>{stat.ham_count ?? '—'}</strong>
+              {t.observability.ham}<strong>{stat.ham_count ?? '—'}</strong>
             </div>
             <div className="stat-card">
-              🔗 Connections<strong>{stat.connections ?? '—'}</strong>
+              {t.observability.connections}<strong>{stat.connections ?? '—'}</strong>
             </div>
             {stat.uptime !== undefined && (
               <div className="stat-card">
-                ⏱ Uptime<strong>{Math.round(stat.uptime / 3600)}h</strong>
+                {t.observability.uptime}<strong>{Math.round(stat.uptime / 3600)}h</strong>
               </div>
             )}
             {stat.version !== undefined && (
               <div className="stat-card">
-                🔖 Version<strong>{stat.version}</strong>
+                {t.observability.version}<strong>{stat.version}</strong>
               </div>
             )}
           </div>
 
           {actions && Object.keys(actions).length > 0 && (
             <>
-              <h3 style={{ marginTop: '1rem' }}>Actions breakdown</h3>
+              <h3 style={{ marginTop: '1rem' }}>{t.observability.actions_breakdown}</h3>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Action</th>
-                    <th style={{ textAlign: 'right', padding: '.35rem .5rem' }}>Count</th>
+                    <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.action_col}</th>
+                    <th style={{ textAlign: 'right', padding: '.35rem .5rem' }}>{t.observability.count_col}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -261,29 +261,29 @@ export function ObservabilityPage() {
           )}
         </>
       ) : (
-        <p style={{ opacity: .6 }}>{data === null || data === undefined ? 'Loading…' : 'No Rspamd statistics available.'}</p>
+        <p style={{ opacity: .6 }}>{data === null || data === undefined ? t.common.loading : t.observability.no_rspamd}</p>
       )}
 
       {/* Supervisor process status */}
-      <h2 style={{ marginTop: '1.5rem' }}>🔧 Supervisor Process Status</h2>
+      <h2 style={{ marginTop: '1.5rem' }}>{t.observability.supervisor_status}</h2>
       {supervisord === null ? (
-        <p style={{ opacity: .6 }}>Loading…</p>
+        <p style={{ opacity: .6 }}>{t.common.loading}</p>
       ) : supervisord.processes.length === 0 ? (
         supervisord.raw ? (
           <pre style={{ fontFamily: 'monospace', fontSize: '.82rem', opacity: .8, overflowX: 'auto', background: 'var(--surface-2)', padding: '.75rem', borderRadius: '.35rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
             {supervisord.raw}
           </pre>
         ) : (
-          <p style={{ opacity: .6 }}>No processes found or supervisord not available.</p>
+          <p style={{ opacity: .6 }}>{t.observability.no_processes}</p>
         )
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '.5rem' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Process</th>
-              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Status</th>
-              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>PID</th>
-              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>Uptime</th>
+              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.process_col}</th>
+              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.common.status}</th>
+              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.pid_col}</th>
+              <th style={{ textAlign: 'left', padding: '.35rem .5rem' }}>{t.observability.uptime_col}</th>
             </tr>
           </thead>
           <tbody>

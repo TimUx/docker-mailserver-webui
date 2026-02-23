@@ -1,12 +1,48 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useTranslation } from '../i18n';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type Account = { email: string; quota_used: string | null; quota_limit: string | null; quota_pct: number | null };
 type EditMode = 'none' | 'password' | 'note' | 'quota';
 type SortDir = 'asc' | 'desc';
 type SortKey = 'email' | 'domain' | 'quota' | 'aliases' | 'note';
+
+function quotaColor(pct: number): string {
+  if (pct >= 90) return '#ef4444';
+  if (pct >= 70) return '#f59e0b';
+  return '#22c55e';
+}
+
+const QUOTA_NONE_STYLE: React.CSSProperties = { opacity: .35, fontSize: '.8rem' };
+
+function QuotaBar({ acc }: { acc: Account }) {
+  if (acc.quota_limit === null) return <span style={QUOTA_NONE_STYLE}>—</span>;
+  const unlimited = acc.quota_limit === '~';
+  const pct = acc.quota_pct ?? 0;
+
+  return (
+    <div className="quota-bar-cell">
+      {!unlimited && (
+        <div className="quota-bar-track">
+          <div
+            className="quota-bar-fill"
+            style={{ width: `${Math.min(pct, 100)}%`, background: quotaColor(pct) }}
+          />
+        </div>
+      )}
+      <div className="quota-bar-label">
+        <span>{acc.quota_used}</span>
+        <span className="quota-bar-sep">/</span>
+        <span>{unlimited ? '∞' : acc.quota_limit}</span>
+        {!unlimited && (
+          <span className="quota-bar-pct" style={{ color: quotaColor(pct) }}>{pct}%</span>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function sortIcon(key: SortKey, sortKey: SortKey, dir: SortDir) {
   if (key !== sortKey) return <span style={{ opacity: .3, fontSize: '.75rem' }}> ↕</span>;
@@ -38,6 +74,7 @@ export function AccountsPage() {
   const [editMode, setEditMode] = useState<EditMode>('none');
   const [editValue, setEditValue] = useState('');
   const [error, setError] = useState('');
+  const { t } = useTranslation();
 
   const load = useCallback(() => {
     api.get('/dms/accounts')
@@ -83,15 +120,15 @@ export function AccountsPage() {
       await api.post('/dms/accounts', { email, password, quota }, { headers: csrfHeaders(csrf) });
       setEmail(''); setPassword(''); setQuota('');
       void load();
-    } catch (e: any) { setError(e?.response?.data?.detail ?? 'Failed to create account'); }
+    } catch (e: any) { setError(e?.response?.data?.detail ?? t.accounts.failed_create); }
   };
 
   const remove = async (addr: string) => {
-    if (!confirm(`Delete account ${addr}?`)) return;
+    if (!confirm(t.accounts.delete_confirm(addr))) return;
     try {
       await api.delete('/dms/accounts', { data: { email: addr }, headers: csrfHeaders(csrf) });
       void load();
-    } catch (e: any) { setError(e?.response?.data?.detail ?? 'Failed to delete account'); }
+    } catch (e: any) { setError(e?.response?.data?.detail ?? t.accounts.failed_delete); }
   };
 
   const startEdit = (addr: string, mode: EditMode) => {
@@ -112,13 +149,7 @@ export function AccountsPage() {
       else if (editMode === 'quota')
         await api.put('/dms/accounts/quota', { email: editTarget, quota: editValue }, { headers: csrfHeaders(csrf) });
       cancelEdit(); void load();
-    } catch (e: any) { setError(e?.response?.data?.detail ?? 'Failed to save'); }
-  };
-
-  const formatQuota = (acc: Account): string => {
-    if (acc.quota_limit === null) return '';
-    const limit = acc.quota_limit === '~' ? '∞' : acc.quota_limit;
-    return `${acc.quota_used} / ${limit} [${acc.quota_pct}%]`;
+    } catch (e: any) { setError(e?.response?.data?.detail ?? t.accounts.failed_save); }
   };
 
   const visible = useMemo(() => {
@@ -152,31 +183,33 @@ export function AccountsPage() {
 
   return (
     <div className="panel">
-      <h1>👤 Accounts</h1>
+      <h1>{t.accounts.title}</h1>
 
       <div className="row" style={{ marginBottom: '.5rem' }}>
-        <input placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 2 }} />
-        <input placeholder="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ flex: 2 }} />
-        <input placeholder="quota (e.g. 1G, 500M, 0=unlimited)" value={quota} onChange={(e) => setQuota(e.target.value)} style={{ flex: 2 }} />
-        <button onClick={create}>➕ Add</button>
+        <input placeholder={t.accounts.email_ph} value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 2 }} />
+        <input placeholder={t.accounts.password_ph} type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ flex: 2 }} />
+        <input placeholder={t.accounts.quota_ph} value={quota} onChange={(e) => setQuota(e.target.value)} style={{ flex: 2 }} />
+        <button onClick={create}>{t.common.add}</button>
       </div>
       {error && <p style={{ color: 'var(--color-warn, #f59e0b)' }}>{error}</p>}
 
       {editTarget && (
         <div className="panel" style={{ marginBottom: '1rem' }}>
           <strong>
-            {editMode === 'password' ? '🔑 Change Password' : editMode === 'quota' ? '📦 Set Quota' : '📝 Edit Note'} for {editTarget}
+            {editMode === 'password' ? t.accounts.change_password_for(editTarget)
+              : editMode === 'quota' ? t.accounts.set_quota_for(editTarget)
+              : t.accounts.edit_note_for(editTarget)}
           </strong>
           <div className="row" style={{ marginTop: '.5rem' }}>
             {editMode === 'password' ? (
-              <input type="password" placeholder="New password" value={editValue} onChange={(e) => setEditValue(e.target.value)} style={{ flex: 1 }} />
+              <input type="password" placeholder={t.common.new_password_ph} value={editValue} onChange={(e) => setEditValue(e.target.value)} style={{ flex: 1 }} />
             ) : editMode === 'quota' ? (
-              <input placeholder="Quota (e.g. 1G, 500M, 0=unlimited)" value={editValue} onChange={(e) => setEditValue(e.target.value)} style={{ flex: 1 }} />
+              <input placeholder={t.accounts.quota_ph2} value={editValue} onChange={(e) => setEditValue(e.target.value)} style={{ flex: 1 }} />
             ) : (
-              <input placeholder="Note / comment" value={editValue} onChange={(e) => setEditValue(e.target.value)} style={{ flex: 1 }} />
+              <input placeholder={t.common.note_ph} value={editValue} onChange={(e) => setEditValue(e.target.value)} style={{ flex: 1 }} />
             )}
-            <button onClick={saveEdit}>💾 Save</button>
-            <button onClick={cancelEdit}>✖ Cancel</button>
+            <button onClick={saveEdit}>{t.common.save}</button>
+            <button onClick={cancelEdit}>{t.common.cancel}</button>
           </div>
         </div>
       )}
@@ -184,7 +217,7 @@ export function AccountsPage() {
       {/* Domain tabs */}
       <div style={{ display: 'flex', gap: '.35rem', flexWrap: 'wrap', marginBottom: '.75rem', borderBottom: '1px solid var(--border)', paddingBottom: '.5rem' }}>
         <button style={tabStyle(selectedDomain === null)} onClick={() => selectDomain(null)}>
-          🌐 All <span style={{ opacity: .65, fontSize: '.8rem' }}>({accounts.length})</span>
+          {t.common.all} <span style={{ opacity: .65, fontSize: '.8rem' }}>({accounts.length})</span>
         </button>
         {domains.map((d) => (
           <button key={d} style={tabStyle(selectedDomain === d)} onClick={() => selectDomain(d)}>
@@ -195,23 +228,23 @@ export function AccountsPage() {
 
       <div className="row" style={{ marginBottom: '.5rem' }}>
         <input
-          placeholder="🔍 Filter accounts…"
+          placeholder={t.accounts.filter_ph}
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           style={{ flex: 1 }}
         />
-        {filter && <button onClick={() => setFilter('')}>✖ Clear</button>}
+        {filter && <button onClick={() => setFilter('')}>{t.common.clear}</button>}
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            <th style={thStyle('email')} onClick={() => toggleSort('email')}>Email{sortIcon('email', sortKey, sortDir)}</th>
-            {showDomainCol && <th style={thStyle('domain')} onClick={() => toggleSort('domain')}>Domain{sortIcon('domain', sortKey, sortDir)}</th>}
-            <th style={thStyle('quota')} onClick={() => toggleSort('quota')}>Quota (used / limit){sortIcon('quota', sortKey, sortDir)}</th>
-            <th style={thStyle('aliases', 'right')} onClick={() => toggleSort('aliases')}>Aliases{sortIcon('aliases', sortKey, sortDir)}</th>
-            <th style={thStyle('note')} onClick={() => toggleSort('note')}>Note{sortIcon('note', sortKey, sortDir)}</th>
-            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Actions</th>
+            <th style={thStyle('email')} onClick={() => toggleSort('email')}>{t.accounts.email_col}{sortIcon('email', sortKey, sortDir)}</th>
+            {showDomainCol && <th style={thStyle('domain')} onClick={() => toggleSort('domain')}>{t.accounts.domain_col}{sortIcon('domain', sortKey, sortDir)}</th>}
+            <th style={thStyle('quota')} onClick={() => toggleSort('quota')}>{t.accounts.quota_col}{sortIcon('quota', sortKey, sortDir)}</th>
+            <th style={thStyle('aliases', 'right')} onClick={() => toggleSort('aliases')}>{t.accounts.aliases_col}{sortIcon('aliases', sortKey, sortDir)}</th>
+            <th style={thStyle('note')} onClick={() => toggleSort('note')}>{t.accounts.note_col}{sortIcon('note', sortKey, sortDir)}</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>{t.common.actions}</th>
           </tr>
         </thead>
         <tbody>
@@ -219,20 +252,20 @@ export function AccountsPage() {
             <tr key={a.email} style={{ borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '.4rem .5rem' }}>{a.email}</td>
               {showDomainCol && <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{a.email.split('@')[1] ?? ''}</td>}
-              <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem', fontFamily: 'monospace' }}>{formatQuota(a)}</td>
+              <td style={{ padding: '.4rem .5rem' }}><QuotaBar acc={a} /></td>
               <td style={{ padding: '.4rem .5rem', textAlign: 'right', fontSize: '.85rem', opacity: .75 }}>{aliasCounts[a.email] ?? 0}</td>
               <td style={{ padding: '.4rem .5rem', opacity: .75, fontSize: '.85rem' }}>{notes[a.email] ?? ''}</td>
               <td style={{ padding: '.4rem .5rem', whiteSpace: 'nowrap', textAlign: 'right' }}>
-                <button onClick={() => startEdit(a.email, 'password')} title="Change password">🔑</button>
-                <button onClick={() => startEdit(a.email, 'quota')} title="Set quota">📦</button>
-                <button onClick={() => startEdit(a.email, 'note')} title="Edit note">📝</button>
-                <button onClick={() => remove(a.email)} title="Delete account" style={{ color: '#ef4444' }}>🗑</button>
+                <button onClick={() => startEdit(a.email, 'password')} title={t.accounts.change_password}>🔑</button>
+                <button onClick={() => startEdit(a.email, 'quota')} title={t.accounts.set_quota}>📦</button>
+                <button onClick={() => startEdit(a.email, 'note')} title={t.accounts.edit_note}>📝</button>
+                <button onClick={() => remove(a.email)} title={t.common.delete} style={{ color: '#ef4444' }}>🗑</button>
               </td>
             </tr>
           ))}
           {visible.length === 0 && (
             <tr><td colSpan={showDomainCol ? 6 : 5} style={{ padding: '.75rem .5rem', opacity: .5 }}>
-              {accounts.length === 0 ? 'No accounts found' : 'No accounts match the filter'}
+              {accounts.length === 0 ? t.accounts.no_accounts : t.accounts.no_match}
             </td></tr>
           )}
         </tbody>

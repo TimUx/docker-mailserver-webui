@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api/client';
+import { useTranslation } from '../i18n';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type ClientInfo = {
@@ -39,6 +40,7 @@ export function MailProfilePage() {
   const [result, setResult] = useState<ProfileResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { t } = useTranslation();
 
   const loadDomains = useCallback(() => {
     api.get('/dms/domains').then((r) => setDomains(r.data.domains)).catch(() => undefined);
@@ -49,7 +51,7 @@ export function MailProfilePage() {
 
   const generate = useCallback(async (domainName: string, hostnameOverride?: string) => {
     setError('');
-    if (!domainName.trim()) { setError('Please enter a domain name'); return; }
+    if (!domainName.trim()) { setError(t.mail_profiles.enter_domain); return; }
     setLoading(true);
     try {
       const params: Record<string, string> = {};
@@ -57,11 +59,11 @@ export function MailProfilePage() {
       const r = await api.get(`/mail-profile/${domainName.trim()}`, { params });
       setResult(r.data);
     } catch (e: any) {
-      setError(e?.response?.data?.detail ?? 'Failed to generate profile');
+      setError(e?.response?.data?.detail ?? t.mail_profiles.failed_generate);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const handleTabClick = (d: string) => {
     setActiveTab(d);
@@ -87,8 +89,8 @@ export function MailProfilePage() {
 
   return (
     <div className="panel">
-      <h1>📱 Mail Profiles</h1>
-      <p>Generate email client configuration profiles and settings for your mail domain.</p>
+      <h1>{t.mail_profiles.title}</h1>
+      <p>{t.mail_profiles.desc}</p>
 
       {domains.length > 0 && (
         <div className="domain-tabs">
@@ -104,51 +106,51 @@ export function MailProfilePage() {
           <button
             className={`domain-tab${activeTab === null && !domain ? ' active' : ''}`}
             onClick={() => { setActiveTab(null); setDomain(''); setResult(null); }}
-            title="Enter a custom domain"
+            title={t.mail_profiles.custom}
           >
-            ＋ Custom
+            {t.mail_profiles.custom}
           </button>
         </div>
       )}
 
       <div className="row" style={{ marginBottom: '.5rem', gap: '.5rem' }}>
         <input
-          placeholder="Domain (e.g. example.com)"
+          placeholder={t.dns_wizard.domain_ph}
           value={domain}
           onChange={(e) => { setDomain(e.target.value); setActiveTab(null); }}
           style={{ flex: 2 }}
         />
         <input
-          placeholder="Mail hostname (default: mail.<domain>)"
+          placeholder={t.dns_wizard.hostname_ph}
           value={hostname}
           onChange={(e) => setHostname(e.target.value)}
           style={{ flex: 2 }}
         />
         <button onClick={handleGenerate} disabled={loading}>
-          {loading ? '…' : '⚡ Generate'}
+          {loading ? '…' : t.dns_wizard.generate}
         </button>
       </div>
       {error && <p style={{ color: 'var(--color-warn, #f59e0b)' }}>{error}</p>}
 
       {result && (
         <>
-          <h2 style={{ marginTop: '1rem' }}>Server Settings for <code>{result.domain}</code></h2>
+          <h2 style={{ marginTop: '1rem' }}>{t.mail_profiles.server_settings_for} <code>{result.domain}</code></h2>
           <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1.25rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Protocol</th>
-                <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Server &amp; Port</th>
-                <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>Username</th>
+                <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>{t.mail_profiles.protocol_col}</th>
+                <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>{t.mail_profiles.server_port_col}</th>
+                <th style={{ textAlign: 'left', padding: '.4rem .5rem' }}>{t.mail_profiles.username_col}</th>
               </tr>
             </thead>
             <tbody>
-              {serverRow('IMAP (receive)', result.imap)}
-              {serverRow('POP3 (receive)', result.pop3)}
-              {serverRow('SMTP (send)', result.smtp)}
+              {serverRow(t.mail_profiles.imap_receive, result.imap)}
+              {serverRow(t.mail_profiles.pop3_receive, result.pop3)}
+              {serverRow(t.mail_profiles.smtp_send, result.smtp)}
             </tbody>
           </table>
 
-          <h2>Client Profiles</h2>
+          <h2>{t.mail_profiles.client_profiles}</h2>
           <div className="stats-grid" style={{ marginTop: '.5rem' }}>
             {Object.entries(result.clients).map(([key, client]) => (
               <div key={key} className="stat-card" style={{ textAlign: 'left' }}>
@@ -156,16 +158,16 @@ export function MailProfilePage() {
                   {CLIENT_ICONS[key] ?? '📬'} {client.name}
                 </div>
                 {client.protocol && (
-                  <div style={{ fontSize: '.8rem', opacity: .7, marginBottom: '.25rem' }}>Protocol: {client.protocol}</div>
+                  <div style={{ fontSize: '.8rem', opacity: .7, marginBottom: '.25rem' }}>{t.mail_profiles.protocol}: {client.protocol}</div>
                 )}
                 {client.incoming && (
                   <div style={{ fontSize: '.8rem', marginBottom: '.15rem' }}>
-                    <span style={{ opacity: .6 }}>Incoming: </span>{client.incoming}
+                    <span style={{ opacity: .6 }}>{t.mail_profiles.incoming}: </span>{client.incoming}
                   </div>
                 )}
                 {client.outgoing && (
                   <div style={{ fontSize: '.8rem', marginBottom: '.15rem' }}>
-                    <span style={{ opacity: .6 }}>Outgoing: </span>{client.outgoing}
+                    <span style={{ opacity: .6 }}>{t.mail_profiles.outgoing}: </span>{client.outgoing}
                   </div>
                 )}
                 {client.note && (

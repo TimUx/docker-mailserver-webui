@@ -1,0 +1,23 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1280' height='720'>
+<rect width='1280' height='720' fill='#0b1220'/>
+<!-- Centered login card -->
+<rect x='440' y='100' width='400' height='520' rx='12' fill='#1f2937' stroke='#374151' stroke-width='1'/>
+<!-- Card header -->
+<text x='640' y='168' fill='#e5e7eb' font-size='48' font-family='Arial' text-anchor='middle'>✉️</text>
+<text x='640' y='218' fill='#e5e7eb' font-size='30' font-family='Arial' font-weight='bold' text-anchor='middle'>DMS WebUI</text>
+<text x='640' y='244' fill='#9ca3af' font-size='14' font-family='Arial' text-anchor='middle'>docker-mailserver Web Interface</text>
+<line x1='460' y1='260' x2='820' y2='260' stroke='#374151' stroke-width='1'/>
+<!-- Email field -->
+<text x='460' y='288' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='500'>Email address</text>
+<rect x='456' y='296' width='368' height='40' rx='6' fill='#111827' stroke='#374151' stroke-width='1'/>
+<text x='470' y='321' fill='#4b5563' font-size='14' font-family='Arial'>admin@example.com</text>
+<!-- Password field -->
+<text x='460' y='360' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='500'>Password</text>
+<rect x='456' y='368' width='368' height='40' rx='6' fill='#111827' stroke='#374151' stroke-width='1'/>
+<text x='470' y='393' fill='#4b5563' font-size='16' font-family='Arial' letter-spacing='4'>••••••••</text>
+<!-- Sign in button -->
+<rect x='456' y='432' width='368' height='44' rx='6' fill='#6366f1'/>
+<text x='640' y='459' fill='white' font-size='16' font-family='Arial' font-weight='bold' text-anchor='middle'>Sign in</text>
+<!-- Version hint -->
+<text x='640' y='528' fill='#4b5563' font-size='12' font-family='Arial' text-anchor='middle'>DMS WebUI · docker-mailserver administration</text>
+</svg>

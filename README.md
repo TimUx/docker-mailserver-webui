@@ -14,11 +14,22 @@ Modern, secure, production-oriented WebUI for administrating [Docker Mailserver]
 
 ## Features
 
+### Multi-Language Interface (EN / DE)
+
+- Browser language auto-detected on first load; persisted per user in `localStorage`
+- Language selector (🌐) in the sidebar — currently English and German
+- All pages, labels, and messages fully translated
+
+### Login Screen
+
+- Centered card layout with ✉️ logo, title, subtitle, and styled inputs
+- Indigo primary Sign-in button; inline error feedback
+
 ### Dashboard
 
 - Summary cards: total domains, accounts, aliases, active sync jobs
 - System health indicator (aggregates mailserver + security stack status)
-- Per-service status cards: docker-mailserver, Rspamd, Redis, ClamAV with restart buttons
+- Per-service status cards: docker-mailserver, Rspamd, Redis, ClamAV — **all with ↺ Restart buttons**
 - Last IMAPSync status
 
 ### Account Management
@@ -26,6 +37,7 @@ Modern, secure, production-oriented WebUI for administrating [Docker Mailserver]
 - Create, delete, and list mail accounts (`setup email add/del/list`)
 - Change account password (`setup email update`)
 - Set or update per-account quota (`setup email setquota`)
+- **Visual quota bar** – colour-coded progress bar (green < 70 %, amber 70–89 %, red ≥ 90 %) with used/limit/percentage label per account
 - **Alias count per account** – each row shows how many aliases point to that account
 - **Notes** – free-text note/comment per account (stored in WebUI database)
 - **Domain tabs** – one tab per domain plus "All"; selecting a domain filters the table and hides the redundant Domain column
@@ -62,7 +74,7 @@ Modern, secure, production-oriented WebUI for administrating [Docker Mailserver]
 
 ### Observability
 
-- **Service status**: real-time status + restart buttons for docker-mailserver, Rspamd, Redis, ClamAV
+- **Service status**: real-time status + restart buttons for **all** services (docker-mailserver, Rspamd, Redis, ClamAV)
 - **Mail queue**: live Postfix queue (queue ID, size, date, sender)
 - **Active mail connections**: Dovecot sessions via `doveadm who` (user, service, PID, IP, TLS)
 - **Rspamd statistics**: scanned, spam/ham counts, connections, uptime, version, actions breakdown
@@ -71,6 +83,7 @@ Modern, secure, production-oriented WebUI for administrating [Docker Mailserver]
 ### IMAPSync Management
 
 - CRUD IMAPSync job definitions (source/destination host, user, port, SSL, interval)
+- **Local account selector** – destination fields auto-filled when a local mailbox is selected; `mail.<domain>` host pre-populated (editable); "Custom" mode for fully manual destination entry
 - Enable/disable jobs; last status and run time tracked per job
 - Encrypted credentials at rest (Fernet)
 - Execution delegated to an external IMAPSync container/automation
@@ -269,6 +282,9 @@ WEBUI_IMAGE=ghcr.io/<owner>/<repo>:latest
 ---
 
 ## Screenshots
+
+### Login
+![Login](docs/screenshots/login.svg)
 
 ### Dashboard
 ![Dashboard](docs/screenshots/dashboard.svg)

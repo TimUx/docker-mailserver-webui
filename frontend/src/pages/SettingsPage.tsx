@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useTranslation } from '../i18n';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
 const LABELS: Record<string, string> = {
@@ -48,6 +49,7 @@ export function SettingsPage() {
   const [pwError, setPwError] = useState('');
   const [showPwFields, setShowPwFields] = useState<Record<string, boolean>>({});
   const csrf = useAuth((s) => s.csrfToken);
+  const { t } = useTranslation();
 
   // DMS env state
   const [dmsEnvSchema, setDmsEnvSchema] = useState<DmsEnvField[]>([]);
@@ -90,7 +92,7 @@ export function SettingsPage() {
       setDmsEnvSaveState('saved');
       setTimeout(() => setDmsEnvSaveState('idle'), 3000);
     } catch (e: any) {
-      setDmsEnvError(e?.response?.data?.detail ?? 'Failed to save');
+      setDmsEnvError(e?.response?.data?.detail ?? t.common.save_failed);
       setDmsEnvSaveState('error');
       setTimeout(() => setDmsEnvSaveState('idle'), 4000);
     }
@@ -109,7 +111,7 @@ export function SettingsPage() {
       setNewPw('');
       setTimeout(() => setPwState('idle'), 3000);
     } catch (e: any) {
-      setPwError(e?.response?.data?.detail ?? 'Failed to change password');
+      setPwError(e?.response?.data?.detail ?? t.settings.failed_change_password);
       setPwState('error');
       setTimeout(() => setPwState('idle'), 4000);
     }
@@ -122,14 +124,14 @@ export function SettingsPage() {
   }, {});
 
   const TABS: { key: SettingsTab; label: string }[] = [
-    { key: 'app', label: '⚙️ Application Settings' },
-    { key: 'email', label: '📧 Email Settings' },
-    { key: 'password', label: '🔐 Change Password' },
+    { key: 'app', label: t.settings.app_tab },
+    { key: 'email', label: t.settings.email_tab },
+    { key: 'password', label: t.settings.password_tab },
   ];
 
   return (
     <div className="panel">
-      <h1>⚙️ Settings</h1>
+      <h1>{t.settings.title}</h1>
 
       {/* Tab navigation */}
       <div className="domain-tabs" style={{ marginTop: '.75rem' }}>
@@ -147,11 +149,7 @@ export function SettingsPage() {
       {/* ── Application Settings ─────────────────────────────────────────── */}
       {activeTab === 'app' && (
         <>
-          <p>
-            On first start the values below are seeded from environment variables.
-            Changes made here are persisted in the database and take effect immediately
-            (container names and paths apply on next request).
-          </p>
+          <p>{t.settings.app_desc}</p>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
               {Object.entries(LABELS).map(([key, label]) => (
@@ -186,10 +184,10 @@ export function SettingsPage() {
           </table>
           <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <button onClick={save} disabled={saveState === 'saving'}>
-              {saveState === 'saving' ? '…Saving' : '💾 Save Settings'}
+              {saveState === 'saving' ? t.settings.saving : t.settings.save_settings}
             </button>
-            {saveState === 'saved' && <span style={{ color: 'var(--color-ok, #22c55e)' }}>✔ Settings saved</span>}
-            {saveState === 'error' && <span style={{ color: 'var(--color-warn, #f59e0b)' }}>✘ Save failed</span>}
+            {saveState === 'saved' && <span style={{ color: 'var(--color-ok, #22c55e)' }}>{t.settings.settings_saved}</span>}
+            {saveState === 'error' && <span style={{ color: 'var(--color-warn, #f59e0b)' }}>{t.settings.save_failed}</span>}
           </div>
         </>
       )}
@@ -197,11 +195,7 @@ export function SettingsPage() {
       {/* ── Email Settings (DMS mailserver.env) ─────────────────────────── */}
       {activeTab === 'email' && (
         <>
-          <p style={{ fontSize: '.9rem', opacity: .8 }}>
-            These settings are written to <code>{dmsEnvPath || 'mailserver.env'}</code> on the host.
-            A DMS container restart is required for changes to take effect.
-            Make sure the file is mounted into this container (see <em>mailserver_env_path</em> in Application Settings).
-          </p>
+          <p style={{ fontSize: '.9rem', opacity: .8 }}>{t.settings.email_desc(dmsEnvPath || 'mailserver.env')}</p>
           {dmsEnvError && (
             <p style={{ color: 'var(--color-warn, #f59e0b)', fontSize: '.9rem' }}>⚠ {dmsEnvError}</p>
           )}
@@ -260,10 +254,10 @@ export function SettingsPage() {
 
           <div style={{ marginTop: '.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <button onClick={saveDmsEnv} disabled={dmsEnvSaveState === 'saving'}>
-              {dmsEnvSaveState === 'saving' ? '…Saving' : '💾 Save Mail Server Config'}
+              {dmsEnvSaveState === 'saving' ? t.settings.saving : t.settings.save_mail_config}
             </button>
-            {dmsEnvSaveState === 'saved' && <span style={{ color: 'var(--color-ok, #22c55e)' }}>✔ Saved — restart DMS to apply</span>}
-            {dmsEnvSaveState === 'error' && <span style={{ color: 'var(--color-warn, #f59e0b)' }}>✘ Save failed</span>}
+            {dmsEnvSaveState === 'saved' && <span style={{ color: 'var(--color-ok, #22c55e)' }}>{t.settings.mail_config_saved}</span>}
+            {dmsEnvSaveState === 'error' && <span style={{ color: 'var(--color-warn, #f59e0b)' }}>{t.settings.save_failed}</span>}
           </div>
         </>
       )}
@@ -271,27 +265,27 @@ export function SettingsPage() {
       {/* ── Change Admin Password ────────────────────────────────────────── */}
       {activeTab === 'password' && (
         <>
-          <p style={{ fontSize: '.9rem', opacity: .8 }}>Change the admin password used to log in to this web UI.</p>
+          <p style={{ fontSize: '.9rem', opacity: .8 }}>{t.settings.change_password_desc}</p>
           <div className="row" style={{ flexDirection: 'column', gap: '.5rem', maxWidth: '360px' }}>
             <input
               type="password"
-              placeholder="Current password"
+              placeholder={t.settings.current_password_ph}
               value={currentPw}
               onChange={(e) => setCurrentPw(e.target.value)}
               style={{ width: '100%', boxSizing: 'border-box' }}
             />
             <input
               type="password"
-              placeholder="New password (min. 8 chars)"
+              placeholder={t.settings.new_password_ph}
               value={newPw}
               onChange={(e) => setNewPw(e.target.value)}
               style={{ width: '100%', boxSizing: 'border-box' }}
             />
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <button onClick={changePassword} disabled={pwState === 'saving' || !currentPw || newPw.length < 8}>
-                {pwState === 'saving' ? '…Saving' : '🔑 Change Password'}
+                {pwState === 'saving' ? t.settings.saving : t.settings.change_password}
               </button>
-              {pwState === 'saved' && <span style={{ color: 'var(--color-ok, #22c55e)' }}>✔ Password changed</span>}
+              {pwState === 'saved' && <span style={{ color: 'var(--color-ok, #22c55e)' }}>{t.settings.password_changed}</span>}
               {pwState === 'error' && <span style={{ color: 'var(--color-warn, #f59e0b)' }}>✘ {pwError}</span>}
             </div>
           </div>
