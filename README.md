@@ -14,111 +14,216 @@ Modern, secure, production-oriented WebUI for administrating [Docker Mailserver]
 
 ## Features
 
-### Docker Mailserver Administration
+### Dashboard
 
-- Account lifecycle:
-  - Create: `setup email add`
-  - Delete: `setup email del`
-  - Password update: `setup email update`
-  - List accounts: `setup email list`
-- Alias lifecycle:
-  - Create: `setup alias add`
-  - Delete: `setup alias del`
-  - List aliases: `setup alias list`
-- Multi-domain support through account/domain derivation
+- Summary cards: total domains, accounts, aliases, active sync jobs
+- System health indicator (aggregates mailserver + security stack status)
+- Per-service status cards: docker-mailserver, Rspamd, Redis, ClamAV with restart buttons
+- Last IMAPSync status
+
+### Account Management
+
+- Create, delete, and list mail accounts (`setup email add/del/list`)
+- Change account password (`setup email update`)
+- Set or update per-account quota (`setup email setquota`)
+- **Alias count per account** – each row shows how many aliases point to that account
+- **Notes** – free-text note/comment per account (stored in WebUI database)
+- **Domain tabs** – one tab per domain plus "All"; selecting a domain filters the table and hides the redundant Domain column
+- **Live filter** – text search across email, domain, and note
+- **Sortable columns** – click any header to sort (▲/▼): email, domain, quota %, alias count, note
+
+### Domain Management
+
+- List all domains (auto-detected from accounts + explicitly managed)
+- Add/remove managed domains with optional description
+- Correct **account count** and **alias count** per domain
+- Source label: 🗃 managed vs 📬 auto-detected
+
+### Alias Management
+
+- Create, delete, and list aliases (`setup alias add/del/list`)
+- Correct parsing of the DMS alias file format (`* alias@domain -> destination@domain`)
+- **Notes** – free-text note/comment per alias (stored in WebUI database)
+- **Domain tabs** – same tab-per-domain UX as Accounts
+- **Live filter** – searches across alias address, destination, domain, and note
+- **Sortable columns** – alias, destination, domain, note
+
+### DNS Wizard
+
+- Generate recommended DNS records for any managed domain: MX, A, SPF, DMARC, DKIM
+- Per-domain tabs; copy-ready record values
+
+### Mail Profiles
+
+- IMAP / POP3 / SMTP server settings for end users
+- Autoconfig URL for Thunderbird
+- `.mobileconfig` download for iOS / macOS
+- Manual setup hints for Outlook and Android
+
+### Observability
+
+- **Service status**: real-time status + restart buttons for docker-mailserver, Rspamd, Redis, ClamAV
+- **Mail queue**: live Postfix queue (queue ID, size, date, sender)
+- **Active mail connections**: Dovecot sessions via `doveadm who` (user, service, PID, IP, TLS)
+- **Rspamd statistics**: scanned, spam/ham counts, connections, uptime, version, actions breakdown
+- **Supervisor process status**: name, status (RUNNING/STOPPED), PID, uptime — at the bottom of the page
 
 ### IMAPSync Management
 
-- CRUD IMAPSync jobs
-- WebUI stores and manages IMAPSync job definitions only
-- Execution is done by your external IMAPSync container/automation
-- Enable/disable jobs
-- Sync interval is stored as job metadata for your external runner
+- CRUD IMAPSync job definitions (source/destination host, user, port, SSL, interval)
+- Enable/disable jobs; last status and run time tracked per job
 - Encrypted credentials at rest (Fernet)
+- Execution delegated to an external IMAPSync container/automation
 
-### Security Stack Integration (rspamd / redis / clamav)
+### Log Viewer
 
-- Dashboard includes health summary for rspamd, redis, and clamav
-- Dedicated UI page for service status and basic restart actions
-- Rspamd controller probing (`/stat`) with optional controller password header
-- Redis status via `docker exec ... redis-cli INFO`
-- ClamAV status via `docker exec ... clamdscan --version`
+- Selectable source: mailserver, imapsync, webui
+- Configurable line count (100/200/500/1000)
+- Full-text search/filter; manual refresh
 
-### Dashboard + Logs
+### Settings
 
-- Dashboard cards for domains, accounts, aliases, active sync jobs, last sync status
-- Dashboard system health now also factors in rspamd/redis/clamav status
-- Log viewer for mailserver, imapsync, and webui logs
-- Search/filter and tail support via API parameters
+- **Application Settings**: container names, paths, Rspamd controller, session duration, CORS — changes persisted in DB, applied on next request
+- **Email Settings**: edit `mailserver.env` fields grouped by category (file must be mounted into container)
+- **Change Password**: update the WebUI admin password
 
 ### Security
 
-- Login/session auth
+- Session authentication with secure cookies (`httponly`, `secure`, `samesite=strict`)
 - Argon2 password hashing
 - CSRF protection (double-submit cookie strategy)
-- Secure cookies (`httponly`, `secure`, `samesite=strict`)
 - Strict input validation (Pydantic)
-- Setup command execution with argument-safe subprocess invocation (no shell interpolation)
+- Subprocess invocation with no shell interpolation
 
-## API
+---
 
-Key endpoints:
+## API Reference
 
-- `POST /api/auth/login`
-- `GET /api/dashboard`
-- `GET|POST|DELETE /api/dms/accounts`
-- `GET|POST|DELETE /api/dms/aliases`
-- `GET /api/dms/domains`
-- `GET|POST /api/imapsync`
-- `PUT|DELETE /api/imapsync/{job_id}`
-- `GET /api/integrations/status`
-- `POST /api/integrations/{rspamd|redis|clamav}/restart`
-- `GET /api/logs/{mailserver|imapsync|webui}`
+All endpoints require authentication and are prefixed with `/api`.  
+State-changing endpoints additionally require the CSRF header (`X-CSRF-Token`).
 
-## Quick Start (SQLite in one container)
+### Authentication
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/auth/login` | Login — returns session cookie + CSRF token |
+| `POST` | `/auth/logout` | Logout |
+| `GET`  | `/auth/me` | Get current user |
+| `PUT`  | `/auth/password` | Change admin password |
+
+### Accounts
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET`    | `/dms/accounts` | List accounts + notes |
+| `POST`   | `/dms/accounts` | Create account (email, password, quota) |
+| `DELETE` | `/dms/accounts` | Delete account |
+| `PUT`    | `/dms/accounts/password` | Change account password |
+| `PUT`    | `/dms/accounts/quota` | Set account quota |
+| `PUT`    | `/dms/accounts/notes` | Save/update account note |
+
+### Aliases
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET`    | `/dms/aliases` | List aliases + notes |
+| `POST`   | `/dms/aliases` | Create alias |
+| `DELETE` | `/dms/aliases` | Delete alias |
+| `PUT`    | `/dms/aliases/notes` | Save/update alias note |
+
+### Domains
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET`    | `/dms/domains` | List domains (managed + auto-detected) |
+| `POST`   | `/dms/domains` | Add managed domain |
+| `DELETE` | `/dms/domains` | Remove managed domain |
+
+### IMAPSync
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET`    | `/imapsync` | List sync jobs |
+| `POST`   | `/imapsync` | Create sync job |
+| `PUT`    | `/imapsync/{job_id}` | Update sync job |
+| `DELETE` | `/imapsync/{job_id}` | Delete sync job |
+
+### Observability
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/observability` | Service status + Rspamd stats |
+| `GET` | `/supervisorctl` | Supervisor process list |
+| `GET` | `/mailq` | Postfix mail queue |
+| `GET` | `/doveadm/who` | Active Dovecot connections |
+| `POST` | `/integrations/{service}/restart` | Restart rspamd / redis / clamav |
+
+### Misc
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/dashboard` | Dashboard summary stats |
+| `GET` | `/logs/{mailserver\|imapsync\|webui}` | Log lines (`lines`, `search` params) |
+| `GET` | `/settings/` | Read application settings |
+| `PUT` | `/settings/` | Save application settings |
+| `GET` | `/settings/dms-env` | Read mailserver.env schema + values |
+| `PUT` | `/settings/dms-env` | Write mailserver.env |
+| `GET` | `/dns-wizard` | Generate DNS records |
+| `GET` | `/mail-profile` | Generate mail client profile |
+
+---
+
+## Configuration
+
+Copy `.env.example` to `.env`:
 
 ```bash
 cp .env.example .env
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DATABASE_URL` | `sqlite:///./data/webui.db` | SQLite (default) or PostgreSQL connection string |
+| `SECRET_KEY` | — | **Required.** Long random string for JWT signing |
+| `ENCRYPTION_KEY` | — | Fernet key for IMAPSync credential encryption (auto-generated if blank) |
+| `ADMIN_EMAIL` | `admin@example.com` | Initial admin email |
+| `ADMIN_PASSWORD` | `ChangeMe123!` | Initial admin password — change on first login! |
+| `DMS_CONTAINER_NAME` | `mail-server` | docker-mailserver container name |
+| `CORS_ORIGINS` | `http://localhost:8080` | Allowed CORS origins (comma-separated) |
+| `RSPAMD_CONTAINER_NAME` | `mail-rspamd` | Rspamd container name |
+| `REDIS_CONTAINER_NAME` | `mail-redis` | Redis container name |
+| `CLAMAV_CONTAINER_NAME` | `mail-clamav` | ClamAV container name |
+| `RSPAMD_CONTROLLER_URL` | `http://mail-rspamd:11334/stat` | Rspamd controller URL |
+| `RSPAMD_CONTROLLER_PASSWORD` | — | Optional Rspamd controller password |
+| `RSPAMD_WEB_HOST` | `mail-rspamd:11334` | Rspamd web host (for dashboard link) |
+| `STACK_BASE_PATH` | `/srv/apps/mailserver` | Base path of your mail stack on the host |
+| `MAILSERVER_ENV_PATH` | `${STACK_BASE_PATH}/mailserver.env` | Path to `mailserver.env` (must be mounted into the WebUI container) |
+
+All settings except `SECRET_KEY` and `ENCRYPTION_KEY` can also be changed at runtime via **Settings → Application Settings** without restarting the container.
+
+---
+
+## Quick Start (SQLite, single container)
+
+```bash
+cp .env.example .env
+# Edit .env: set SECRET_KEY, ADMIN_EMAIL, ADMIN_PASSWORD, DMS_CONTAINER_NAME
 docker compose up -d
 ```
 
-Open: `http://localhost:8080`
-Health: `http://localhost:8080/health`
+- UI: `http://localhost:8080`  
+- Health: `http://localhost:8080/health`
 
 ## Optional PostgreSQL Container
 
-To run Postgres as separate service, set `DATABASE_URL` in `.env` and start the postgres profile:
-
 ```bash
-# in .env
-# DATABASE_URL=postgresql+psycopg://dmswebui:dmswebui@db:5432/dmswebui
+# .env
+DATABASE_URL=postgresql+psycopg://dmswebui:dmswebui@db:5432/dmswebui
 
 docker compose --profile postgres up -d
 ```
 
-
-## Build + Publish Image to GHCR (manual workflow)
-
-A GitHub Actions workflow is available at `.github/workflows/publish-ghcr.yml`.
-
-- Trigger: **Actions → Publish Docker image to GHCR → Run workflow**
-- Output image: `ghcr.io/<owner>/<repo>:latest` and `ghcr.io/<owner>/<repo>:sha-...`
-
-To use the published image in Compose, set this in your `.env`:
-
-```env
-WEBUI_IMAGE=ghcr.io/<owner>/<repo>:latest
-```
-
-## Integrating Your Existing Stack (`/srv/apps/mailserver`)
-
-For your setup with container names:
-- `mail-server`
-- `mail-rspamd`
-- `mail-redis`
-- `mail-clamav`
-
-set (or keep defaults):
+## Integrating an Existing Mail Stack
 
 ```env
 DMS_CONTAINER_NAME=mail-server
@@ -129,27 +234,68 @@ RSPAMD_CONTROLLER_URL=http://mail-rspamd:11334/stat
 STACK_BASE_PATH=/srv/apps/mailserver
 ```
 
-If your rspamd controller is password-protected:
+If your Rspamd controller is password-protected:
 
 ```env
 RSPAMD_CONTROLLER_PASSWORD=<your_controller_password>
 ```
 
+If `mailserver.env` is at a non-default path (and mounted into the container):
+
+```env
+MAILSERVER_ENV_PATH=/config/mailserver.env
+```
+
+## Build + Publish Image to GHCR
+
+A GitHub Actions workflow is available at `.github/workflows/publish-ghcr.yml`.
+
+- Trigger: **Actions → Publish Docker image to GHCR → Run workflow**
+- Output: `ghcr.io/<owner>/<repo>:latest` and `ghcr.io/<owner>/<repo>:sha-...`
+
+```env
+WEBUI_IMAGE=ghcr.io/<owner>/<repo>:latest
+```
+
 ## Production Notes
 
-- Use strong `SECRET_KEY` and explicit `ENCRYPTION_KEY`
-- Terminate TLS at reverse proxy/load balancer
+- Use a strong, unique `SECRET_KEY`
+- Change `ADMIN_PASSWORD` immediately after first login
+- Terminate TLS at reverse proxy / load balancer
 - Restrict Docker socket access to least privilege
-- Mount DMS/mail logs if you want in-UI tailing of real runtime logs
-- Add backup strategy for DB volumes
+- Mount `/var/log/mail.log` into the container for live log tailing
+- Back up the DB volume (`webui_data`)
+
+---
 
 ## Screenshots
 
 ### Dashboard
 ![Dashboard](docs/screenshots/dashboard.svg)
 
-### Account Management
+### Accounts
 ![Accounts](docs/screenshots/accounts.svg)
 
-### IMAPSync Management
+### Domains
+![Domains](docs/screenshots/domains.svg)
+
+### Aliases
+![Aliases](docs/screenshots/aliases.svg)
+
+### DNS Wizard
+![DNS Wizard](docs/screenshots/dns-wizard.svg)
+
+### Mail Profiles
+![Mail Profiles](docs/screenshots/mail-profiles.svg)
+
+### Observability
+![Observability](docs/screenshots/observability.svg)
+
+### IMAPSync
 ![IMAPSync](docs/screenshots/imapsync.svg)
+
+### Logs
+![Logs](docs/screenshots/logs.svg)
+
+### Settings
+![Settings](docs/screenshots/settings.svg)

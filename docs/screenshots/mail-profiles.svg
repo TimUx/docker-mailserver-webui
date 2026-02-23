@@ -1,0 +1,75 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='820'>
+<rect width='1600' height='820' fill='#0b1220'/>
+<!-- Sidebar -->
+<rect x='0' y='0' width='220' height='820' fill='#111827'/>
+<text x='16' y='44' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>✉️ DMS WebUI</text>
+<rect x='6' y='54' width='208' height='30' rx='5' fill='#1e293b'/>
+<text x='16' y='74' fill='#94a3b8' font-size='14' font-family='Arial'>🌙 Dark</text>
+<text x='16' y='112' fill='#94a3b8' font-size='15' font-family='Arial'>📊 Dashboard</text>
+<text x='16' y='140' fill='#94a3b8' font-size='15' font-family='Arial'>👤 Accounts</text>
+<text x='16' y='168' fill='#94a3b8' font-size='15' font-family='Arial'>🌐 Domains</text>
+<text x='16' y='196' fill='#94a3b8' font-size='15' font-family='Arial'>🔀 Aliases</text>
+<text x='16' y='224' fill='#94a3b8' font-size='15' font-family='Arial'>🧭 DNS Wizard</text>
+<rect x='6' y='232' width='208' height='28' rx='5' fill='#1e3a5f'/>
+<text x='16' y='251' fill='#60a5fa' font-size='15' font-family='Arial' font-weight='bold'>📱 Mail Profiles</text>
+<text x='16' y='279' fill='#94a3b8' font-size='15' font-family='Arial'>📈 Observability</text>
+<text x='16' y='307' fill='#94a3b8' font-size='15' font-family='Arial'>📬 IMAPSync</text>
+<text x='16' y='335' fill='#94a3b8' font-size='15' font-family='Arial'>🧾 Logs</text>
+<text x='16' y='363' fill='#94a3b8' font-size='15' font-family='Arial'>⚙️ Settings</text>
+<!-- Main content -->
+<rect x='230' y='10' width='1355' height='800' rx='10' fill='#1f2937'/>
+<text x='254' y='52' fill='#e5e7eb' font-size='28' font-family='Arial' font-weight='bold'>📱 Mail Profiles</text>
+<text x='254' y='74' fill='#9ca3af' font-size='14' font-family='Arial'>Generate client configuration profiles for your mail domain.</text>
+<!-- Form -->
+<text x='254' y='106' fill='#9ca3af' font-size='13' font-family='Arial'>Domain</text>
+<rect x='254' y='112' width='480' height='36' rx='6' fill='#111827'/>
+<text x='266' y='135' fill='#e5e7eb' font-size='14' font-family='Arial'>example.com</text>
+<text x='754' y='106' fill='#9ca3af' font-size='13' font-family='Arial'>Mail hostname</text>
+<rect x='754' y='112' width='480' height='36' rx='6' fill='#111827'/>
+<text x='766' y='135' fill='#e5e7eb' font-size='14' font-family='Arial'>mail.example.com</text>
+<rect x='1256' y='112' width='180' height='36' rx='6' fill='#2563eb'/>
+<text x='1298' y='135' fill='white' font-size='14' font-family='Arial'>Generate</text>
+<!-- Server settings -->
+<text x='254' y='180' fill='#e5e7eb' font-size='18' font-family='Arial' font-weight='bold'>Server Settings</text>
+<!-- IMAP card -->
+<rect x='254' y='192' width='380' height='130' rx='8' fill='#111827'/>
+<text x='270' y='216' fill='#e5e7eb' font-size='15' font-family='Arial' font-weight='bold'>IMAP</text>
+<text x='270' y='238' fill='#9ca3af' font-size='13' font-family='Arial'>Host: <tspan fill='#e5e7eb'>mail.example.com</tspan></text>
+<text x='270' y='258' fill='#9ca3af' font-size='13' font-family='Arial'>Port: <tspan fill='#e5e7eb'>993</tspan></text>
+<text x='270' y='278' fill='#9ca3af' font-size='13' font-family='Arial'>Security: <tspan fill='#e5e7eb'>SSL/TLS</tspan></text>
+<text x='270' y='298' fill='#9ca3af' font-size='13' font-family='Arial'>Username: <tspan fill='#e5e7eb'>{email}</tspan></text>
+<!-- SMTP card -->
+<rect x='650' y='192' width='380' height='130' rx='8' fill='#111827'/>
+<text x='666' y='216' fill='#e5e7eb' font-size='15' font-family='Arial' font-weight='bold'>SMTP</text>
+<text x='666' y='238' fill='#9ca3af' font-size='13' font-family='Arial'>Host: <tspan fill='#e5e7eb'>mail.example.com</tspan></text>
+<text x='666' y='258' fill='#9ca3af' font-size='13' font-family='Arial'>Port: <tspan fill='#e5e7eb'>587</tspan></text>
+<text x='666' y='278' fill='#9ca3af' font-size='13' font-family='Arial'>Security: <tspan fill='#e5e7eb'>STARTTLS</tspan></text>
+<text x='666' y='298' fill='#9ca3af' font-size='13' font-family='Arial'>Username: <tspan fill='#e5e7eb'>{email}</tspan></text>
+<!-- POP3 card -->
+<rect x='1046' y='192' width='380' height='130' rx='8' fill='#111827'/>
+<text x='1062' y='216' fill='#e5e7eb' font-size='15' font-family='Arial' font-weight='bold'>POP3</text>
+<text x='1062' y='238' fill='#9ca3af' font-size='13' font-family='Arial'>Host: <tspan fill='#e5e7eb'>mail.example.com</tspan></text>
+<text x='1062' y='258' fill='#9ca3af' font-size='13' font-family='Arial'>Port: <tspan fill='#e5e7eb'>995</tspan></text>
+<text x='1062' y='278' fill='#9ca3af' font-size='13' font-family='Arial'>Security: <tspan fill='#e5e7eb'>SSL/TLS</tspan></text>
+<text x='1062' y='298' fill='#9ca3af' font-size='13' font-family='Arial'>Username: <tspan fill='#e5e7eb'>{email}</tspan></text>
+<!-- Client setup -->
+<text x='254' y='356' fill='#e5e7eb' font-size='18' font-family='Arial' font-weight='bold'>Client Setup Instructions</text>
+<!-- Thunderbird card -->
+<rect x='254' y='368' width='340' height='130' rx='8' fill='#111827'/>
+<text x='270' y='392' fill='#e5e7eb' font-size='15' font-family='Arial'>🦅 Thunderbird</text>
+<text x='270' y='412' fill='#9ca3af' font-size='13' font-family='Arial'>Auto-configure available</text>
+<rect x='270' y='422' width='200' height='28' rx='4' fill='#1e293b'/>
+<text x='278' y='440' fill='#60a5fa' font-size='12' font-family='Arial'>�� Autoconfig URL ↗</text>
+<!-- Outlook card -->
+<rect x='606' y='368' width='340' height='130' rx='8' fill='#111827'/>
+<text x='622' y='392' fill='#e5e7eb' font-size='15' font-family='Arial'>📧 Outlook</text>
+<text x='622' y='412' fill='#9ca3af' font-size='13' font-family='Arial'>Manual setup required</text>
+<text x='622' y='432' fill='#6b7280' font-size='12' font-family='Arial'>IMAP: mail.example.com:993 SSL</text>
+<text x='622' y='450' fill='#6b7280' font-size='12' font-family='Arial'>SMTP: mail.example.com:587 TLS</text>
+<!-- iOS card -->
+<rect x='958' y='368' width='340' height='130' rx='8' fill='#111827'/>
+<text x='974' y='392' fill='#e5e7eb' font-size='15' font-family='Arial'>🍎 iOS / macOS</text>
+<text x='974' y='412' fill='#9ca3af' font-size='13' font-family='Arial'>Config profile available</text>
+<rect x='974' y='422' width='200' height='28' rx='4' fill='#1e293b'/>
+<text x='982' y='440' fill='#60a5fa' font-size='12' font-family='Arial'>📱 .mobileconfig ↗</text>
+</svg>

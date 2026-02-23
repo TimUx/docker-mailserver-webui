@@ -1,0 +1,61 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='720'>
+<rect width='1600' height='720' fill='#0b1220'/>
+<!-- Sidebar -->
+<rect x='0' y='0' width='220' height='720' fill='#111827'/>
+<text x='16' y='44' fill='#e5e7eb' font-size='20' font-family='Arial' font-weight='bold'>✉️ DMS WebUI</text>
+<rect x='6' y='54' width='208' height='30' rx='5' fill='#1e293b'/>
+<text x='16' y='74' fill='#94a3b8' font-size='14' font-family='Arial'>🌙 Dark</text>
+<text x='16' y='112' fill='#94a3b8' font-size='15' font-family='Arial'>📊 Dashboard</text>
+<text x='16' y='140' fill='#94a3b8' font-size='15' font-family='Arial'>👤 Accounts</text>
+<rect x='6' y='148' width='208' height='28' rx='5' fill='#1e3a5f'/>
+<text x='16' y='167' fill='#60a5fa' font-size='15' font-family='Arial' font-weight='bold'>🌐 Domains</text>
+<text x='16' y='195' fill='#94a3b8' font-size='15' font-family='Arial'>🔀 Aliases</text>
+<text x='16' y='223' fill='#94a3b8' font-size='15' font-family='Arial'>🧭 DNS Wizard</text>
+<text x='16' y='251' fill='#94a3b8' font-size='15' font-family='Arial'>📱 Mail Profiles</text>
+<text x='16' y='279' fill='#94a3b8' font-size='15' font-family='Arial'>📈 Observability</text>
+<text x='16' y='307' fill='#94a3b8' font-size='15' font-family='Arial'>📬 IMAPSync</text>
+<text x='16' y='335' fill='#94a3b8' font-size='15' font-family='Arial'>🧾 Logs</text>
+<text x='16' y='363' fill='#94a3b8' font-size='15' font-family='Arial'>⚙️ Settings</text>
+<!-- Main content -->
+<rect x='230' y='10' width='1355' height='700' rx='10' fill='#1f2937'/>
+<text x='254' y='52' fill='#e5e7eb' font-size='28' font-family='Arial' font-weight='bold'>🌐 Domains</text>
+<!-- Add row -->
+<rect x='254' y='66' width='580' height='36' rx='6' fill='#111827'/>
+<text x='266' y='89' fill='#6b7280' font-size='14' font-family='Arial'>domain (e.g. example.com)</text>
+<rect x='844' y='66' width='480' height='36' rx='6' fill='#111827'/>
+<text x='856' y='89' fill='#6b7280' font-size='14' font-family='Arial'>description (optional)</text>
+<rect x='1334' y='66' width='200' height='36' rx='6' fill='#2563eb'/>
+<text x='1392' y='89' fill='white' font-size='15' font-family='Arial'>➕ Add</text>
+<!-- Table header -->
+<line x1='254' y1='116' x2='1565' y2='116' stroke='#374151' stroke-width='1'/>
+<text x='260' y='134' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Domain</text>
+<text x='500' y='134' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Description</text>
+<text x='820' y='134' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Source</text>
+<text x='1060' y='134' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Accounts</text>
+<text x='1180' y='134' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Aliases</text>
+<text x='1480' y='134' fill='#9ca3af' font-size='13' font-family='Arial' font-weight='bold'>Actions</text>
+<line x1='254' y1='142' x2='1565' y2='142' stroke='#374151' stroke-width='1'/>
+<!-- Row 1 -->
+<text x='260' y='166' fill='#e5e7eb' font-size='14' font-family='Arial' font-weight='500'>example.com</text>
+<text x='500' y='166' fill='#9ca3af' font-size='13' font-family='Arial'>Main company domain</text>
+<text x='820' y='166' fill='#9ca3af' font-size='12' font-family='Arial'>🗃 managed</text>
+<text x='1085' y='166' fill='#e5e7eb' font-size='13' font-family='Arial'>8</text>
+<text x='1200' y='166' fill='#e5e7eb' font-size='13' font-family='Arial'>12</text>
+<text x='1520' y='166' fill='#ef4444' font-size='18' font-family='Arial'>🗑</text>
+<line x1='254' y1='180' x2='1565' y2='180' stroke='#374151' stroke-width='1'/>
+<!-- Row 2 -->
+<text x='260' y='204' fill='#e5e7eb' font-size='14' font-family='Arial' font-weight='500'>company.org</text>
+<text x='500' y='204' fill='#9ca3af' font-size='13' font-family='Arial'>Partner organisation</text>
+<text x='820' y='204' fill='#9ca3af' font-size='12' font-family='Arial'>🗃 managed</text>
+<text x='1085' y='204' fill='#e5e7eb' font-size='13' font-family='Arial'>4</text>
+<text x='1200' y='204' fill='#e5e7eb' font-size='13' font-family='Arial'>5</text>
+<text x='1520' y='204' fill='#ef4444' font-size='18' font-family='Arial'>🗑</text>
+<line x1='254' y1='218' x2='1565' y2='218' stroke='#374151' stroke-width='1'/>
+<!-- Row 3 -->
+<text x='260' y='242' fill='#e5e7eb' font-size='14' font-family='Arial' font-weight='500'>dev.example.com</text>
+<text x='500' y='242' fill='#9ca3af' font-size='13' font-family='Arial'/>
+<text x='820' y='242' fill='#9ca3af' font-size='12' font-family='Arial'>📬 auto-detected</text>
+<text x='1085' y='242' fill='#e5e7eb' font-size='13' font-family='Arial'>2</text>
+<text x='1200' y='242' fill='#e5e7eb' font-size='13' font-family='Arial'>0</text>
+<line x1='254' y1='256' x2='1565' y2='256' stroke='#374151' stroke-width='1'/>
+</svg>
