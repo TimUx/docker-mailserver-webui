@@ -16,11 +16,23 @@ _MAX_MESSAGE_LENGTH = 300
 
 def _parse_transferred(output: str) -> str | None:
     """Extract a short transfer-stats summary from imapsync output."""
-    # imapsync prints e.g. "Transferred: 42 messages, 1.23 MB"
+    # Try to build a multi-line summary from the key imapsync stats lines.
+    stat_patterns = (
+        r"Folders synced\s*:[^\n]*",
+        r"Messages transferred\s*:[^\n]*",
+        r"Total bytes transferred\s*:[^\n]*",
+    )
+    stats = []
+    for pattern in stat_patterns:
+        m = re.search(pattern, output, re.IGNORECASE)
+        if m:
+            stats.append(m.group(0).strip())
+    if stats:
+        return "\n".join(stats)
+
+    # Fallback: single-line summary patterns
     for pattern in (
-        r"Transferred:\s*\d+[^\n]*",
-        r"Transfer started[^\n]*",
-        r"Messages transferred[^\n]*",
+        r"Transferred:[^\n]*",
         r"Exiting with return value \d+",
     ):
         m = re.search(pattern, output, re.IGNORECASE)
