@@ -116,9 +116,7 @@ export function ObservabilityPage() {
                   </small>
                 )}
                 <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginTop: '.4rem' }}>
-                  {name !== 'mailserver' && (
-                    <button onClick={() => restart(name)}>{t.observability.restart}</button>
-                  )}
+                  <button onClick={() => restart(name)}>{t.observability.restart}</button>
                   {svc.dashboard_url && (
                     <a href={svc.dashboard_url} target="_blank" rel="noreferrer" className="button-link">
                       {t.observability.open_dashboard}

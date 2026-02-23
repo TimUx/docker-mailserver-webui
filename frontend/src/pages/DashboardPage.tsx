@@ -65,7 +65,12 @@ export function DashboardPage() {
             </strong>
           </div>
           {stats !== null && mailserver.message && (
-            <small style={{ display: 'block', opacity: 0.8 }}>{mailserver.message}</small>
+            <small style={{ display: 'block', opacity: 0.8, marginBottom: '.5rem' }}>{mailserver.message}</small>
+          )}
+          {stats !== null && (
+            <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginTop: '.5rem' }}>
+              <button onClick={() => restart('mailserver')}>{t.dashboard.restart}</button>
+            </div>
           )}
         </div>
 

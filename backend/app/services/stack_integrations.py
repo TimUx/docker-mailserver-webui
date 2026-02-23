@@ -93,6 +93,7 @@ class StackIntegrationService:
             "rspamd": settings.rspamd_container_name,
             "redis": settings.redis_container_name,
             "clamav": settings.clamav_container_name,
+            "mailserver": settings.dms_container_name,
         }
         if service not in mapping:
             return {"ok": False, "message": "Unknown service"}
