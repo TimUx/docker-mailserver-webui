@@ -79,8 +79,7 @@ class ImapSyncService:
             log_file = log_dir / f"job-{job_id}.log"
 
             cmd = [
-                "docker", "run", "--rm",
-                settings.imapsync_image,
+                "docker", "exec", settings.imapsync_container_name, "imapsync",
                 "--host1", job.source_host,
                 "--user1", job.source_user,
                 "--password1", src_pass,
@@ -142,8 +141,8 @@ class ImapSyncService:
             **data.model_dump(exclude={"source_password", "destination_password"}),
             source_password_enc=encrypt_secret(data.source_password),
             destination_password_enc=encrypt_secret(data.destination_password),
-            last_status="managed",
-            last_message="Managed by WebUI. Run this job with your external IMAPSync container.",
+            last_status="pending",
+            last_message="Job created – press ▶ to run a manual sync.",
         )
         db.add(job)
         db.commit()
@@ -158,8 +157,8 @@ class ImapSyncService:
             job.destination_password_enc = encrypt_secret(payload.pop("destination_password"))
         for key, value in payload.items():
             setattr(job, key, value)
-        job.last_status = "managed"
-        job.last_message = "Managed by WebUI. Run this job with your external IMAPSync container."
+        job.last_status = "pending"
+        job.last_message = "Job updated – press ▶ to run a manual sync."
         db.commit()
         db.refresh(job)
         return job
