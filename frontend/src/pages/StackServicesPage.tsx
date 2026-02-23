@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useTranslation } from '../i18n';
+import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type ServiceStatus = Record<
   string,
@@ -22,16 +24,14 @@ const serviceLabels: Record<string, string> = {
 export function StackServicesPage() {
   const [services, setServices] = useState<ServiceStatus>({});
   const csrf = useAuth((s) => s.csrfToken);
+  const { t } = useTranslation();
 
-  const load = () =>
-    api
-      .get('/integrations/status')
-      .then((r) => setServices(r.data))
-      .catch(() => undefined);
-
-  useEffect(() => {
-    void load();
+  const load = useCallback(() => {
+    void api.get('/integrations/status').then((r) => setServices(r.data)).catch(() => undefined);
   }, []);
+
+  useEffect(() => { load(); }, [load]);
+  useRefreshListener(load);
 
   const restart = async (name: string) => {
     await api.post(`/integrations/${name}/restart`, {}, { headers: csrfHeaders(csrf) });
@@ -40,8 +40,8 @@ export function StackServicesPage() {
 
   return (
     <div className="panel">
-      <h1>🛡️ Security Stack</h1>
-      <p>Container status, metrics and administration for your extended mail security stack.</p>
+      <h1>{t.stack_services.title}</h1>
+      <p>{t.stack_services.desc}</p>
       <div className="stats-grid">
         {Object.entries(services).map(([name, value]) => (
           <div key={name} className="stat-card" style={{ textAlign: 'left' }}>
@@ -49,7 +49,7 @@ export function StackServicesPage() {
               {serviceIcons[name] ?? '🔧'} {serviceLabels[name] ?? name}
             </div>
             <div style={{ marginBottom: '.25rem' }}>
-              Status:{' '}
+              {t.common.status}:{' '}
               <strong
                 style={{
                   color:
@@ -65,7 +65,7 @@ export function StackServicesPage() {
               {value.message}
             </small>
             <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginTop: '.5rem' }}>
-              <button onClick={() => restart(name)}>↺ Restart</button>
+              <button onClick={() => restart(name)}>{t.stack_services.restart}</button>
               {value.dashboard_url && (
                 <a
                   href={value.dashboard_url}
@@ -73,7 +73,7 @@ export function StackServicesPage() {
                   rel="noreferrer"
                   className="button-link"
                 >
-                  📊 Open Dashboard ↗
+                  {t.stack_services.open_dashboard}
                 </a>
               )}
             </div>

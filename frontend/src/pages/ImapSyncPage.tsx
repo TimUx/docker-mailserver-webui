@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useTranslation } from '../i18n';
+import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type Job = {
   id: number;
@@ -39,9 +41,13 @@ export function ImapSyncPage() {
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const csrf = useAuth((s) => s.csrfToken);
+  const { t } = useTranslation();
 
-  const load = () => api.get('/imapsync').then((r) => setJobs(r.data)).catch(() => undefined);
-  useEffect(() => { void load(); }, []);
+  const load = useCallback(() => {
+    void api.get('/imapsync').then((r) => setJobs(r.data)).catch(() => undefined);
+  }, []);
+  useEffect(() => { load(); }, [load]);
+  useRefreshListener(load);
 
   const openCreate = () => { setForm(emptyForm); setEditId(null); setShowForm(true); };
   const openEdit = (job: Job) => {
@@ -79,7 +85,7 @@ export function ImapSyncPage() {
   };
 
   const remove = async (id: number) => {
-    if (!confirm('Delete this sync job?')) return;
+    if (!confirm(t.imapsync.delete_confirm)) return;
     await api.delete(`/imapsync/${id}`, { headers: csrfHeaders(csrf) });
     load();
   };
@@ -98,56 +104,56 @@ export function ImapSyncPage() {
 
   return (
     <div className="panel">
-      <h1>📬 IMAPSync</h1>
-      <p>Manage IMAP sync job definitions for your IMAPSync container.</p>
-      <button onClick={openCreate}>+ New Job</button>
+      <h1>{t.imapsync.title}</h1>
+      <p>{t.imapsync.desc}</p>
+      <button onClick={openCreate}>{t.imapsync.new_job}</button>
 
       {showForm && (
         <div style={{ border: '1px solid var(--border)', borderRadius: '.5rem', padding: '1rem', margin: '1rem 0' }}>
-          <h3>{editId !== null ? 'Edit Job' : 'New Job'}</h3>
-          {field('name', 'Name')}
-          {field('source_host', 'Source Host')}
-          {field('source_user', 'Source User')}
-          {field('source_password', editId !== null ? 'Source Password (leave blank to keep unchanged)' : 'Source Password', 'password')}
-          {field('destination_host', 'Destination Host')}
-          {field('destination_user', 'Destination User')}
-          {field('destination_password', editId !== null ? 'Destination Password (leave blank to keep unchanged)' : 'Destination Password', 'password')}
-          {field('port', 'Port', 'number')}
-          {field('interval_minutes', 'Interval (minutes)', 'number')}
+          <h3>{editId !== null ? t.imapsync.edit_job : t.imapsync.new_job}</h3>
+          {field('name', t.imapsync.job_name)}
+          {field('source_host', t.imapsync.source_host)}
+          {field('source_user', t.imapsync.source_user)}
+          {field('source_password', editId !== null ? t.imapsync.source_password_edit : t.imapsync.source_password, 'password')}
+          {field('destination_host', t.imapsync.dest_host)}
+          {field('destination_user', t.imapsync.dest_user)}
+          {field('destination_password', editId !== null ? t.imapsync.dest_password_edit : t.imapsync.dest_password, 'password')}
+          {field('port', t.imapsync.port, 'number')}
+          {field('interval_minutes', t.imapsync.interval, 'number')}
           <label style={{ display: 'block', marginBottom: '.5rem' }}>
             <input type="checkbox" checked={form.ssl_enabled} onChange={(e) => setForm((f) => ({ ...f, ssl_enabled: e.target.checked }))} />
-            {' '}SSL enabled
+            {' '}{t.imapsync.ssl}
           </label>
           <label style={{ display: 'block', marginBottom: '.5rem' }}>
             <input type="checkbox" checked={form.enabled} onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))} />
-            {' '}Job enabled
+            {' '}{t.imapsync.enabled}
           </label>
-          <button onClick={save}>💾 Save</button>
-          <button onClick={() => setShowForm(false)} style={{ marginLeft: '.5rem' }}>Cancel</button>
+          <button onClick={save}>{t.common.save}</button>
+          <button onClick={() => setShowForm(false)} style={{ marginLeft: '.5rem' }}>{t.common.cancel}</button>
         </div>
       )}
 
       {jobs.length === 0 ? (
-        <p>No sync jobs defined.</p>
+        <p>{t.imapsync.no_jobs}</p>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
           <thead>
             <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-              <th style={{ padding: '.4rem' }}>Name</th>
-              <th style={{ padding: '.4rem' }}>Source</th>
-              <th style={{ padding: '.4rem' }}>Destination</th>
-              <th style={{ padding: '.4rem' }}>Interval</th>
-              <th style={{ padding: '.4rem' }}>Status</th>
-              <th style={{ padding: '.4rem' }}>Actions</th>
+              <th style={{ padding: '.4rem' }}>{t.imapsync.name_col}</th>
+              <th style={{ padding: '.4rem' }}>{t.imapsync.source_col}</th>
+              <th style={{ padding: '.4rem' }}>{t.imapsync.dest_col}</th>
+              <th style={{ padding: '.4rem' }}>{t.imapsync.interval_col}</th>
+              <th style={{ padding: '.4rem' }}>{t.imapsync.status_col}</th>
+              <th style={{ padding: '.4rem' }}>{t.imapsync.actions_col}</th>
             </tr>
           </thead>
           <tbody>
             {jobs.map((j) => (
               <tr key={j.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '.4rem' }}>{j.name} {j.enabled ? '' : '(disabled)'}</td>
+                <td style={{ padding: '.4rem' }}>{j.name} {j.enabled ? '' : `(${t.imapsync.disabled})`}</td>
                 <td style={{ padding: '.4rem' }}>{j.source_user}@{j.source_host}</td>
                 <td style={{ padding: '.4rem' }}>{j.destination_user}@{j.destination_host}</td>
-                <td style={{ padding: '.4rem' }}>{j.interval_minutes} min</td>
+                <td style={{ padding: '.4rem' }}>{j.interval_minutes} {t.imapsync.min}</td>
                 <td style={{ padding: '.4rem' }}>{j.last_status ?? '-'}</td>
                 <td style={{ padding: '.4rem' }}>
                   <button onClick={() => openEdit(j)}>✏️</button>

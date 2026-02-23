@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useTranslation } from '../i18n';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type AliasEntry = { alias: string; destination: string; domain: string; raw: string };
@@ -45,6 +46,7 @@ export function AliasesPage() {
   const [editTarget, setEditTarget] = useState<string | null>(null);
   const [editNote, setEditNote] = useState('');
   const csrf = useAuth((s) => s.csrfToken);
+  const { t } = useTranslation();
 
   const load = useCallback(() => {
     api.get('/dms/aliases').then((r) => {
@@ -80,19 +82,19 @@ export function AliasesPage() {
       await api.post('/dms/aliases', { alias, destination }, { headers: csrfHeaders(csrf) });
       setAlias(''); setDestination('');
       void load();
-    } catch (e: any) { setError(e?.response?.data?.detail ?? 'Failed to create alias'); }
+    } catch (e: any) { setError(e?.response?.data?.detail ?? t.aliases.failed_create); }
   };
 
   const remove = async (entry: AliasEntry) => {
     if (!entry.alias || !entry.destination) {
-      setError(`Cannot parse alias entry: "${entry.raw}"`);
+      setError(t.aliases.cannot_parse(entry.raw));
       return;
     }
-    if (!confirm(`Delete alias ${entry.alias} → ${entry.destination}?`)) return;
+    if (!confirm(t.aliases.delete_confirm(entry.alias, entry.destination))) return;
     try {
       await api.delete('/dms/aliases', { data: { alias: entry.alias, destination: entry.destination }, headers: csrfHeaders(csrf) });
       void load();
-    } catch (e: any) { setError(e?.response?.data?.detail ?? 'Failed to delete alias'); }
+    } catch (e: any) { setError(e?.response?.data?.detail ?? t.aliases.failed_delete); }
   };
 
   const startEditNote = (aliasAddr: string) => {
@@ -106,7 +108,7 @@ export function AliasesPage() {
     try {
       await api.put('/dms/aliases/notes', { alias: editTarget, note: editNote }, { headers: csrfHeaders(csrf) });
       cancelEditNote(); void load();
-    } catch (e: any) { setError(e?.response?.data?.detail ?? 'Failed to save note'); }
+    } catch (e: any) { setError(e?.response?.data?.detail ?? t.aliases.failed_save); }
   };
 
   const visible = useMemo(() => {
@@ -140,21 +142,21 @@ export function AliasesPage() {
 
   return (
     <div className="panel">
-      <h1>🔀 Aliases</h1>
+      <h1>{t.aliases.title}</h1>
       <div className="row" style={{ marginBottom: '.5rem' }}>
-        <input placeholder="alias (from)" value={alias} onChange={(e) => setAlias(e.target.value)} style={{ flex: 1 }} />
-        <input placeholder="destination (to)" value={destination} onChange={(e) => setDestination(e.target.value)} style={{ flex: 1 }} />
-        <button onClick={create}>➕ Add</button>
+        <input placeholder={t.aliases.alias_ph} value={alias} onChange={(e) => setAlias(e.target.value)} style={{ flex: 1 }} />
+        <input placeholder={t.aliases.dest_ph} value={destination} onChange={(e) => setDestination(e.target.value)} style={{ flex: 1 }} />
+        <button onClick={create}>{t.common.add}</button>
       </div>
       {error && <p style={{ color: 'var(--color-warn, #f59e0b)' }}>{error}</p>}
 
       {editTarget && (
         <div className="panel" style={{ marginBottom: '1rem' }}>
-          <strong>📝 Edit Note for {editTarget}</strong>
+          <strong>{t.aliases.edit_note_for(editTarget)}</strong>
           <div className="row" style={{ marginTop: '.5rem' }}>
-            <input placeholder="Note / comment" value={editNote} onChange={(e) => setEditNote(e.target.value)} style={{ flex: 1 }} />
-            <button onClick={saveNote}>💾 Save</button>
-            <button onClick={cancelEditNote}>✖ Cancel</button>
+            <input placeholder={t.common.note_ph} value={editNote} onChange={(e) => setEditNote(e.target.value)} style={{ flex: 1 }} />
+            <button onClick={saveNote}>{t.common.save}</button>
+            <button onClick={cancelEditNote}>{t.common.cancel}</button>
           </div>
         </div>
       )}
@@ -162,7 +164,7 @@ export function AliasesPage() {
       {/* Domain tabs */}
       <div style={{ display: 'flex', gap: '.35rem', flexWrap: 'wrap', marginBottom: '.75rem', borderBottom: '1px solid var(--border)', paddingBottom: '.5rem' }}>
         <button style={tabStyle(selectedDomain === null)} onClick={() => selectDomain(null)}>
-          🌐 All <span style={{ opacity: .65, fontSize: '.8rem' }}>({aliases.length})</span>
+          {t.common.all} <span style={{ opacity: .65, fontSize: '.8rem' }}>({aliases.length})</span>
         </button>
         {domains.map((d) => (
           <button key={d} style={tabStyle(selectedDomain === d)} onClick={() => selectDomain(d)}>
@@ -173,22 +175,22 @@ export function AliasesPage() {
 
       <div className="row" style={{ marginBottom: '.5rem' }}>
         <input
-          placeholder="🔍 Filter aliases…"
+          placeholder={t.aliases.filter_ph}
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           style={{ flex: 1 }}
         />
-        {filter && <button onClick={() => setFilter('')}>✖ Clear</button>}
+        {filter && <button onClick={() => setFilter('')}>{t.common.clear}</button>}
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            <th style={thStyle('alias')} onClick={() => toggleSort('alias')}>Alias{sortIcon('alias', sortKey, sortDir)}</th>
-            <th style={thStyle('destination')} onClick={() => toggleSort('destination')}>Destination{sortIcon('destination', sortKey, sortDir)}</th>
-            {showDomainCol && <th style={thStyle('domain')} onClick={() => toggleSort('domain')}>Domain{sortIcon('domain', sortKey, sortDir)}</th>}
-            <th style={thStyle('note')} onClick={() => toggleSort('note')}>Note{sortIcon('note', sortKey, sortDir)}</th>
-            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>Actions</th>
+            <th style={thStyle('alias')} onClick={() => toggleSort('alias')}>{t.aliases.alias_col}{sortIcon('alias', sortKey, sortDir)}</th>
+            <th style={thStyle('destination')} onClick={() => toggleSort('destination')}>{t.aliases.destination_col}{sortIcon('destination', sortKey, sortDir)}</th>
+            {showDomainCol && <th style={thStyle('domain')} onClick={() => toggleSort('domain')}>{t.aliases.domain_col}{sortIcon('domain', sortKey, sortDir)}</th>}
+            <th style={thStyle('note')} onClick={() => toggleSort('note')}>{t.common.note}{sortIcon('note', sortKey, sortDir)}</th>
+            <th style={{ textAlign: 'right', padding: '.4rem .5rem' }}>{t.common.actions}</th>
           </tr>
         </thead>
         <tbody>
@@ -199,14 +201,14 @@ export function AliasesPage() {
               {showDomainCol && <td style={{ padding: '.4rem .5rem', fontSize: '.85rem', opacity: .75 }}>{a.domain}</td>}
               <td style={{ padding: '.4rem .5rem', fontSize: '.85rem', opacity: .75 }}>{notes[a.alias] ?? ''}</td>
               <td style={{ padding: '.4rem .5rem', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                <button onClick={() => startEditNote(a.alias)} title="Edit note">📝</button>
-                <button onClick={() => remove(a)} title="Delete alias" style={{ color: '#ef4444' }}>🗑</button>
+                <button onClick={() => startEditNote(a.alias)} title={t.accounts.edit_note}>📝</button>
+                <button onClick={() => remove(a)} title={t.common.delete} style={{ color: '#ef4444' }}>🗑</button>
               </td>
             </tr>
           ))}
           {visible.length === 0 && (
             <tr><td colSpan={showDomainCol ? 5 : 4} style={{ padding: '.75rem .5rem', opacity: .5 }}>
-              {aliases.length === 0 ? 'No aliases found' : 'No aliases match the filter'}
+              {aliases.length === 0 ? t.aliases.no_aliases : t.aliases.no_match}
             </td></tr>
           )}
         </tbody>

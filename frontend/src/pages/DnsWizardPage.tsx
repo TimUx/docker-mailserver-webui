@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../contexts/auth';
+import { useTranslation } from '../i18n';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
 type DnsRecord = {
@@ -37,6 +38,7 @@ export function DnsWizardPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const _csrf = useAuth((s) => s.csrfToken);
+  const { t } = useTranslation();
 
   const loadDomains = useCallback(() => {
     api.get('/dms/domains').then((r) => setDomains(r.data.domains)).catch(() => undefined);
@@ -47,7 +49,7 @@ export function DnsWizardPage() {
 
   const generate = useCallback(async (domainName: string, hostnameOverride?: string, ip?: string) => {
     setError('');
-    if (!domainName.trim()) { setError('Please enter a domain name'); return; }
+    if (!domainName.trim()) { setError(t.dns_wizard.enter_domain); return; }
     setLoading(true);
     try {
       const params: Record<string, string> = {};
@@ -56,11 +58,11 @@ export function DnsWizardPage() {
       const r = await api.get(`/dns-wizard/${domainName.trim()}`, { params });
       setResult(r.data);
     } catch (e: any) {
-      setError(e?.response?.data?.detail ?? 'Failed to generate DNS records');
+      setError(e?.response?.data?.detail ?? t.dns_wizard.failed_generate);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const handleTabClick = (d: string) => {
     setActiveTab(d);
@@ -85,8 +87,8 @@ export function DnsWizardPage() {
 
   return (
     <div className="panel">
-      <h1>🧭 DNS Setup Wizard</h1>
-      <p>Enter your mail domain to generate the DNS records needed for a working mail server.</p>
+      <h1>{t.dns_wizard.title}</h1>
+      <p>{t.dns_wizard.desc}</p>
 
       {domains.length > 0 && (
         <div className="domain-tabs">
@@ -102,34 +104,34 @@ export function DnsWizardPage() {
           <button
             className={`domain-tab${activeTab === null && !domain ? ' active' : ''}`}
             onClick={() => { setActiveTab(null); setDomain(''); setResult(null); }}
-            title="Enter a custom domain"
+            title={t.dns_wizard.custom}
           >
-            ＋ Custom
+            {t.dns_wizard.custom}
           </button>
         </div>
       )}
 
       <div className="row" style={{ marginBottom: '.5rem', gap: '.5rem' }}>
         <input
-          placeholder="Domain (e.g. example.com)"
+          placeholder={t.dns_wizard.domain_ph}
           value={domain}
           onChange={(e) => { setDomain(e.target.value); setActiveTab(null); }}
           style={{ flex: 2 }}
         />
         <input
-          placeholder="Mail hostname (default: mail.<domain>)"
+          placeholder={t.dns_wizard.hostname_ph}
           value={hostname}
           onChange={(e) => setHostname(e.target.value)}
           style={{ flex: 2 }}
         />
         <input
-          placeholder="Server IP (optional)"
+          placeholder={t.dns_wizard.ip_ph}
           value={serverIp}
           onChange={(e) => setServerIp(e.target.value)}
           style={{ flex: 1 }}
         />
         <button onClick={handleGenerate} disabled={loading}>
-          {loading ? '…' : '⚡ Generate'}
+          {loading ? '…' : t.dns_wizard.generate}
         </button>
       </div>
       {error && <p style={{ color: 'var(--color-warn, #f59e0b)' }}>{error}</p>}
@@ -137,12 +139,12 @@ export function DnsWizardPage() {
       {result && (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-            <h2 style={{ margin: 0 }}>Records for <code>{result.domain}</code></h2>
-            <button onClick={copyAll} title="Copy all records as zone file">📋 Copy all</button>
+            <h2 style={{ margin: 0 }}>{t.dns_wizard.records_for} <code>{result.domain}</code></h2>
+            <button onClick={copyAll}>{t.dns_wizard.copy_all}</button>
           </div>
           <p style={{ opacity: .7, fontSize: '.85rem', marginTop: '.25rem' }}>
-            Mail hostname: <strong>{result.hostname}</strong>
-            {result.server_ip && <> · Server IP: <strong>{result.server_ip}</strong></>}
+            {t.dns_wizard.mail_hostname}: <strong>{result.hostname}</strong>
+            {result.server_ip && <> · {t.dns_wizard.server_ip}: <strong>{result.server_ip}</strong></>}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '.75rem', marginTop: '.75rem' }}>
@@ -180,7 +182,7 @@ export function DnsWizardPage() {
           </div>
 
           <div className="panel" style={{ marginTop: '1rem', padding: '.75rem', background: 'var(--surface-2)' }}>
-            <strong>💡 Setup checklist</strong>
+            <strong>{t.dns_wizard.setup_checklist}</strong>
             <ol style={{ margin: '.5rem 0 0 1rem', lineHeight: 1.8 }}>
               <li>Add the <strong>A</strong> record so <code>{result.hostname}</code> resolves to your server</li>
               <li>Add the <strong>MX</strong> record to route email to <code>{result.hostname}</code></li>
