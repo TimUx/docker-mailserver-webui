@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     mailserver_env_path: str = "/config/mailserver.env"
 
     imapsync_log_path: str = "/var/log/imapsync"
+    imapsync_container_name: str = "mail-imapsync"
     webui_log_path: str = "/var/log/webui"
     mail_log_path: str = "/var/log/mail"
 

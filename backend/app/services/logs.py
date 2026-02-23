@@ -47,8 +47,22 @@ def get_logs(log_type: str, lines: int = 200, search: str | None = None) -> list
         if result:
             return result
         return tail_file(Path(settings.mail_log_path) / "mail.log", lines, search)
+    if log_type == "imapsync":
+        log_dir = Path(settings.imapsync_log_path)
+        if not log_dir.exists():
+            return []
+        log_files = sorted(log_dir.glob("job-*.log"), key=lambda p: p.stat().st_mtime)
+        all_lines: list[str] = []
+        for lf in log_files:
+            header = f"=== {lf.name} ==="
+            file_lines = tail_file(lf, lines, search)
+            if file_lines:
+                all_lines.append(header)
+                all_lines.extend(file_lines)
+        if search:
+            all_lines = [line for line in all_lines if search.lower() in line.lower() or line.startswith("===")]
+        return all_lines[-lines:]
     mapping = {
-        "imapsync": Path(settings.imapsync_log_path) / "job-1.log",
         "webui": Path(settings.webui_log_path) / "app.log",
     }
     if log_type not in mapping:

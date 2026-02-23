@@ -21,6 +21,7 @@ services:
       MAILSERVER_ENV_PATH: ${MAILSERVER_ENV_PATH:-/config/mailserver.env}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+      IMAPSYNC_CONTAINER_NAME: ${IMAPSYNC_CONTAINER_NAME:-mail-imapsync}
     volumes:
       - webui_data:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
