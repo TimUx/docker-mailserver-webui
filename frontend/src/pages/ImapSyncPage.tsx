@@ -106,6 +106,12 @@ export function ImapSyncPage() {
     setShowForm(true);
   };
 
+  const remove = async (id: number) => {
+    if (!confirm(t.imapsync.delete_confirm)) return;
+    await api.delete(`/imapsync/${id}`, { headers: csrfHeaders(csrf) }).catch(() => undefined);
+    load();
+  };
+
   const save = async () => {
     if (editId !== null) {
       const payload: Record<string, unknown> = Object.fromEntries(
