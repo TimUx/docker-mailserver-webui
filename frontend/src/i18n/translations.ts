@@ -135,6 +135,9 @@ export type Translations = {
     dest_user: string;
     dest_password: string;
     dest_password_edit: string;
+    dest_account: string;
+    dest_account_custom: string;
+    dest_account_host_hint: string;
     port: string;
     interval: string;
     ssl: string;

@@ -21,6 +21,10 @@ type Job = {
   last_run_at: string | null;
 };
 
+type LocalAccount = { email: string };
+
+const CUSTOM = '__custom__';
+
 const emptyForm = {
   name: '',
   source_host: '',
@@ -37,7 +41,9 @@ const emptyForm = {
 
 export function ImapSyncPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [localAccounts, setLocalAccounts] = useState<LocalAccount[]>([]);
   const [form, setForm] = useState(emptyForm);
+  const [destAccount, setDestAccount] = useState<string>(CUSTOM);
   const [editId, setEditId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const csrf = useAuth((s) => s.csrfToken);
@@ -46,10 +52,39 @@ export function ImapSyncPage() {
   const load = useCallback(() => {
     void api.get('/imapsync').then((r) => setJobs(r.data)).catch(() => undefined);
   }, []);
-  useEffect(() => { load(); }, [load]);
+
+  const loadAccounts = useCallback(() => {
+    api.get('/dms/accounts')
+      .then((r) => setLocalAccounts((r.data.accounts ?? []) as LocalAccount[]))
+      .catch(() => undefined);
+  }, []);
+
+  useEffect(() => { load(); loadAccounts(); }, [load, loadAccounts]);
   useRefreshListener(load);
 
-  const openCreate = () => { setForm(emptyForm); setEditId(null); setShowForm(true); };
+  const isLocalDest = destAccount !== CUSTOM;
+
+  const selectDestAccount = (email: string) => {
+    setDestAccount(email);
+    if (email === CUSTOM) return;
+    // derive the IMAP host: mail.<domain>, fallback to localhost
+    const atIdx = email.indexOf('@');
+    const domain = atIdx !== -1 ? email.slice(atIdx + 1) : '';
+    const host = domain ? `mail.${domain}` : 'localhost';
+    setForm((f) => ({
+      ...f,
+      destination_user: email,
+      destination_host: host,
+    }));
+  };
+
+  const openCreate = () => {
+    setForm(emptyForm);
+    setDestAccount(CUSTOM);
+    setEditId(null);
+    setShowForm(true);
+  };
+
   const openEdit = (job: Job) => {
     setForm({
       name: job.name,
@@ -64,6 +99,9 @@ export function ImapSyncPage() {
       interval_minutes: job.interval_minutes,
       enabled: job.enabled,
     });
+    // detect if the saved dest_user matches a local account
+    const match = localAccounts.find((a) => a.email === job.destination_user);
+    setDestAccount(match ? match.email : CUSTOM);
     setEditId(job.id);
     setShowForm(true);
   };
@@ -84,20 +122,16 @@ export function ImapSyncPage() {
     load();
   };
 
-  const remove = async (id: number) => {
-    if (!confirm(t.imapsync.delete_confirm)) return;
-    await api.delete(`/imapsync/${id}`, { headers: csrfHeaders(csrf) });
-    load();
-  };
-
-  const field = (key: keyof typeof form, label: string, type = 'text') => (
+  const field = (key: keyof typeof form, label: string, type = 'text', readonly = false) => (
     <label style={{ display: 'block', marginBottom: '.5rem' }}>
       {label}
       <input
         type={type}
         value={String(form[key])}
-        onChange={(e) => setForm((f) => ({ ...f, [key]: type === 'number' ? Number(e.target.value) : e.target.value }))}
-        style={{ display: 'block', width: '100%' }}
+        readOnly={readonly}
+        disabled={readonly}
+        onChange={(e) => !readonly && setForm((f) => ({ ...f, [key]: type === 'number' ? Number(e.target.value) : e.target.value }))}
+        style={{ display: 'block', width: '100%', opacity: readonly ? .6 : 1 }}
       />
     </label>
   );
@@ -111,13 +145,58 @@ export function ImapSyncPage() {
       {showForm && (
         <div style={{ border: '1px solid var(--border)', borderRadius: '.5rem', padding: '1rem', margin: '1rem 0' }}>
           <h3>{editId !== null ? t.imapsync.edit_job : t.imapsync.new_job}</h3>
+
           {field('name', t.imapsync.job_name)}
-          {field('source_host', t.imapsync.source_host)}
-          {field('source_user', t.imapsync.source_user)}
-          {field('source_password', editId !== null ? t.imapsync.source_password_edit : t.imapsync.source_password, 'password')}
-          {field('destination_host', t.imapsync.dest_host)}
-          {field('destination_user', t.imapsync.dest_user)}
-          {field('destination_password', editId !== null ? t.imapsync.dest_password_edit : t.imapsync.dest_password, 'password')}
+
+          {/* ── Source ─────────────────────────────────────────────────────── */}
+          <fieldset style={{ border: '1px solid var(--border)', borderRadius: '.35rem', padding: '.75rem', marginBottom: '.75rem' }}>
+            <legend style={{ padding: '0 .4rem', fontSize: '.85rem', opacity: .75 }}>Source</legend>
+            {field('source_host', t.imapsync.source_host)}
+            {field('source_user', t.imapsync.source_user)}
+            {field('source_password', editId !== null ? t.imapsync.source_password_edit : t.imapsync.source_password, 'password')}
+          </fieldset>
+
+          {/* ── Destination ────────────────────────────────────────────────── */}
+          <fieldset style={{ border: '1px solid var(--border)', borderRadius: '.35rem', padding: '.75rem', marginBottom: '.75rem' }}>
+            <legend style={{ padding: '0 .4rem', fontSize: '.85rem', opacity: .75 }}>Destination</legend>
+
+            {/* Local account selector */}
+            <label style={{ display: 'block', marginBottom: '.75rem' }}>
+              {t.imapsync.dest_account}
+              <select
+                value={destAccount}
+                onChange={(e) => selectDestAccount(e.target.value)}
+                style={{ display: 'block', width: '100%', marginTop: '.2rem' }}
+              >
+                <option value={CUSTOM}>{t.imapsync.dest_account_custom}</option>
+                {localAccounts.map((a) => (
+                  <option key={a.email} value={a.email}>{a.email}</option>
+                ))}
+              </select>
+            </label>
+
+            {/* Host: editable even when a local account is selected so user can override */}
+            <label style={{ display: 'block', marginBottom: '.5rem' }}>
+              {t.imapsync.dest_host}
+              {isLocalDest && (
+                <span style={{ marginLeft: '.5rem', fontSize: '.75rem', opacity: 0.6 }}>({t.imapsync.dest_account_host_hint})</span>
+              )}
+              <input
+                type="text"
+                value={form.destination_host}
+                onChange={(e) => setForm((f) => ({ ...f, destination_host: e.target.value }))}
+                style={{ display: 'block', width: '100%' }}
+              />
+            </label>
+
+            {/* User: read-only when a local account is selected */}
+            {field('destination_user', t.imapsync.dest_user, 'text', isLocalDest)}
+
+            {/* Password: always editable */}
+            {field('destination_password', editId !== null ? t.imapsync.dest_password_edit : t.imapsync.dest_password, 'password')}
+          </fieldset>
+
+          {/* ── Connection options ─────────────────────────────────────────── */}
           {field('port', t.imapsync.port, 'number')}
           {field('interval_minutes', t.imapsync.interval, 'number')}
           <label style={{ display: 'block', marginBottom: '.5rem' }}>
