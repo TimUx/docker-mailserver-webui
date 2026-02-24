@@ -22,7 +22,10 @@ a.button-link { display: inline-block; padding: .4rem .6rem; border-radius: .25r
 .domain-tab:hover { background: var(--surface); }
 .domain-tab.active { background: var(--surface); border-bottom-color: var(--surface); font-weight: 600; color: var(--link); }
 
-/* Login page */
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin 0.7s linear infinite; }
+
+
 .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
 .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: .75rem; box-shadow: 0 8px 32px rgba(0,0,0,.18); padding: 2.5rem 2rem; width: 100%; max-width: 400px; }
 .login-header { text-align: center; margin-bottom: 2rem; }

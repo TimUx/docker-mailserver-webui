@@ -33,22 +33,38 @@ class StackIntegrationService:
         if state["status"] != "running":
             return state
         ok, out = self._run(["docker", "exec", settings.redis_container_name, "redis-cli", "INFO", "server"])
-        return {
+        version = None
+        if ok and out:
+            m = re.search(r"redis_version:(\S+)", out)
+            if m:
+                version = m.group(1)
+        result = {
             **state,
             "status": "running" if ok else "degraded",
             "message": out.splitlines()[0] if out else "redis-cli info executed",
         }
+        if version:
+            result["version"] = version
+        return result
 
     def _clamav_info(self) -> dict:
         state = self._docker_running(settings.clamav_container_name)
         if state["status"] != "running":
             return state
         ok, out = self._run(["docker", "exec", settings.clamav_container_name, "clamdscan", "--version"])
-        return {
+        version = None
+        if ok and out:
+            m = re.search(r"ClamAV\s+([\d.]+)", out, re.IGNORECASE)
+            if m:
+                version = m.group(1)
+        result = {
             **state,
             "status": "running" if ok else "degraded",
             "message": out.splitlines()[0] if out else "clamdscan version fetched",
         }
+        if version:
+            result["version"] = version
+        return result
 
     def _rspamd_info(self) -> dict:
         state = self._docker_running(settings.rspamd_container_name)
@@ -61,12 +77,15 @@ class StackIntegrationService:
             with urllib.request.urlopen(request, timeout=8) as response:
                 data = json.loads(response.read().decode())
             scanned = data.get("scanned", "n/a") if isinstance(data, dict) else "n/a"
-            return {
+            result = {
                 **state,
                 "status": "running",
                 "message": f"rspamd controller reachable, scanned={scanned}",
                 "dashboard_url": "/rspamd-ui/",
             }
+            if isinstance(data, dict) and data.get("version"):
+                result["version"] = str(data["version"])
+            return result
         except (urllib.error.URLError, json.JSONDecodeError, TimeoutError) as exc:
             return {
                 **state,
@@ -76,7 +95,15 @@ class StackIntegrationService:
             }
 
     def _mailserver_info(self) -> dict:
-        return self._docker_running(settings.dms_container_name)
+        state = self._docker_running(settings.dms_container_name)
+        if state["status"] != "running":
+            return state
+        ok, image = self._run(["docker", "inspect", "--format", "{{.Config.Image}}", settings.dms_container_name])
+        if ok and image:
+            # Extract tag from image reference (e.g. "ghcr.io/docker-mailserver/docker-mailserver:14.0")
+            tag = image.rsplit(":", 1)[-1] if ":" in image else image
+            state["version"] = tag
+        return state
 
     def get_status(self) -> dict:
         return {

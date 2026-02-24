@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { api, csrfHeaders } from '../api/client';
 import { useAuth } from '../contexts/auth';
 import { useTranslation, type Locale } from '../i18n';
 
 type Theme = 'dark' | 'light';
+
+const REFRESH_COOLDOWN_MS = 1500;
 
 function getInitialTheme(): Theme {
   const saved = localStorage.getItem('theme');
@@ -18,6 +20,8 @@ function toggleTheme(theme: Theme): Theme {
 export function AppLayout() {
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const csrf = useAuth((s) => s.csrfToken);
   const clear = useAuth((s) => s.clear);
   const { t, locale, setLocale } = useTranslation();
@@ -40,8 +44,13 @@ export function AppLayout() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  useEffect(() => () => { if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current); }, []);
+
   const handleRefresh = () => {
+    if (refreshing) return;
+    setRefreshing(true);
     window.dispatchEvent(new CustomEvent('dms-refresh'));
+    refreshTimerRef.current = setTimeout(() => setRefreshing(false), REFRESH_COOLDOWN_MS);
   };
 
   const handleLogout = async () => {
@@ -71,7 +80,10 @@ export function AppLayout() {
           </Link>
         ))}
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-          <button onClick={handleRefresh} title={t.sidebar.refresh}>{t.sidebar.refresh}</button>
+          <button onClick={handleRefresh} title={t.sidebar.refresh} disabled={refreshing}>
+            <span className={refreshing ? 'spin' : undefined}>🔄</span>
+            {' '}{t.sidebar.refresh_label}
+          </button>
           <button onClick={handleLogout}>{t.sidebar.logout}</button>
         </div>
       </aside>

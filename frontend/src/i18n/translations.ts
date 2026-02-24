@@ -41,6 +41,7 @@ export type Translations = {
     dark: string;
     light: string;
     refresh: string;
+    refresh_label: string;
     logout: string;
     language: string;
   };

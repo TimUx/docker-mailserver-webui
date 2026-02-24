@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/auth';
 import { useTranslation } from '../i18n';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
-type ServiceInfo = { status: string; message: string; container: string; dashboard_url?: string };
+type ServiceInfo = { status: string; message: string; container: string; dashboard_url?: string; version?: string };
 
 const KNOWN_SERVICES: { key: string; icon: string; label: string }[] = [
   { key: 'rspamd', icon: '🛡️', label: 'Rspamd – Spam Filter' },
@@ -67,6 +67,9 @@ export function DashboardPage() {
           {stats !== null && mailserver.message && (
             <small style={{ display: 'block', opacity: 0.8, marginBottom: '.5rem' }}>{mailserver.message}</small>
           )}
+          {stats !== null && mailserver.version && (
+            <small style={{ display: 'block', opacity: 0.75, marginBottom: '.25rem' }}>🔖 {mailserver.version}</small>
+          )}
           {stats !== null && (
             <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginTop: '.5rem' }}>
               <button onClick={() => restart('mailserver')}>{t.dashboard.restart}</button>
@@ -88,6 +91,9 @@ export function DashboardPage() {
               </div>
               {stats !== null && value.message && (
                 <small style={{ display: 'block', opacity: 0.8, marginBottom: '.5rem' }}>{value.message}</small>
+              )}
+              {stats !== null && value.version && (
+                <small style={{ display: 'block', opacity: 0.75, marginBottom: '.25rem' }}>🔖 {value.version}</small>
               )}
               {stats !== null && (
                 <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginTop: '.5rem' }}>
