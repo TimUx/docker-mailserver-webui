@@ -12,6 +12,8 @@ from app.services.security import decrypt_secret, encrypt_secret
 
 logger = logging.getLogger(__name__)
 _MAX_MESSAGE_LENGTH = 300
+_SCHEDULER_POLL_INTERVAL = 60   # seconds between scheduler ticks
+_SCHEDULER_SHUTDOWN_TIMEOUT = 5  # seconds to wait for scheduler thread to stop
 
 
 def _parse_transferred(output: str) -> str | None:
@@ -42,20 +44,78 @@ def _parse_transferred(output: str) -> str | None:
 
 
 class ImapSyncService:
+    def __init__(self) -> None:
+        self._stop_event = threading.Event()
+        self._scheduler_thread: threading.Thread | None = None
+
     def start(self) -> None:
-        return
+        """Start the background scheduler thread (idempotent)."""
+        if self._scheduler_thread and self._scheduler_thread.is_alive():
+            return
+        self._stop_event.clear()
+        self._scheduler_thread = threading.Thread(
+            target=self._scheduler_loop, daemon=True, name="imapsync-scheduler"
+        )
+        self._scheduler_thread.start()
+        logger.info("ImapSync scheduler started")
 
     def stop(self) -> None:
-        return
+        """Signal the scheduler thread to stop and wait for it."""
+        self._stop_event.set()
+        if self._scheduler_thread and self._scheduler_thread.is_alive():
+            self._scheduler_thread.join(timeout=_SCHEDULER_SHUTDOWN_TIMEOUT)
+        logger.info("ImapSync scheduler stopped")
 
     def schedule_job(self, job: ImapSyncJob) -> None:
+        # Polling scheduler picks up changes from DB automatically.
         return
 
     def unschedule_job(self, job_id: int) -> None:
+        # Polling scheduler picks up changes from DB automatically.
         return
 
     def bootstrap(self, db: Session) -> None:
-        return
+        """Called at application startup – kicks off the scheduler."""
+        self.start()
+
+    # ------------------------------------------------------------------
+    # Scheduler internals
+    # ------------------------------------------------------------------
+
+    def _scheduler_loop(self) -> None:
+        """Wake every 60 s and trigger any jobs that are due."""
+        while not self._stop_event.wait(timeout=_SCHEDULER_POLL_INTERVAL):
+            self._tick()
+
+    def _tick(self) -> None:
+        """Check all enabled jobs and run those whose interval has elapsed."""
+        from app.db.session import SessionLocal
+
+        db = SessionLocal()
+        try:
+            now = datetime.now(timezone.utc)
+            jobs = db.query(ImapSyncJob).filter(
+                ImapSyncJob.enabled.is_(True),
+                ImapSyncJob.last_status != "running",
+            ).all()
+            for job in jobs:
+                if job.last_run_at is None:
+                    due = True
+                else:
+                    last = job.last_run_at
+                    if last.tzinfo is None:
+                        last = last.replace(tzinfo=timezone.utc)
+                    due = (now - last).total_seconds() >= job.interval_minutes * 60
+                if due:
+                    logger.info(
+                        "Scheduler: job %d (%s) is due, starting background run",
+                        job.id, job.name,
+                    )
+                    self.run_job_background(job.id)
+        except Exception as exc:
+            logger.error("Error in imapsync scheduler tick: %s", exc)
+        finally:
+            db.close()
 
     # ------------------------------------------------------------------
     # Manual / on-demand sync
