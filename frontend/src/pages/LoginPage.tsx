@@ -5,8 +5,8 @@ import { useAuth } from '../contexts/auth';
 import { useTranslation } from '../i18n';
 
 export function LoginPage() {
-  const [email, setEmail] = useState('admin@example.com');
-  const [password, setPassword] = useState('ChangeMe123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const setAuth = useAuth((s) => s.setAuth);

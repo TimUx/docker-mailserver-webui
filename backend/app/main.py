@@ -11,6 +11,7 @@ from app.db.session import SessionLocal, engine
 from app.models.user import User
 from app.models.alias_note import AliasNote  # noqa: F401 – ensure table is created
 from app.models.managed_domain import ManagedDomain  # noqa: F401 – ensure table is created
+from app.services.runtime import get_imapsync_service
 from app.services.security import hash_password
 from app.services.settings import load_settings_from_db, seed_settings
 
@@ -29,11 +30,13 @@ async def lifespan(_: FastAPI):
         # Seed DB settings from env vars on first run, then load DB values into runtime
         seed_settings(db)
         load_settings_from_db(db)
+        get_imapsync_service().bootstrap(db)
     finally:
         db.close()
     if not settings.cookie_secure:
         logger.warning("COOKIE_SECURE is False – session cookies are not Secure-flagged. Set COOKIE_SECURE=true when serving over HTTPS.")
     yield
+    get_imapsync_service().stop()
 
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
