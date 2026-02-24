@@ -102,7 +102,19 @@ class StackIntegrationService:
         if ok and image:
             # Extract tag from image reference (e.g. "ghcr.io/docker-mailserver/docker-mailserver:14.0")
             tag = image.rsplit(":", 1)[-1] if ":" in image else image
-            state["version"] = tag
+            # If tag is "latest" (or missing), try to resolve the real version from the OCI image label
+            if not tag or tag == "latest":
+                ok_label, label_ver = self._run([
+                    "docker", "inspect", "--format",
+                    '{{index .Config.Labels "org.opencontainers.image.version"}}',
+                    settings.dms_container_name,
+                ])
+                if ok_label and label_ver and label_ver not in ("<no value>", ""):
+                    state["version"] = label_ver
+                else:
+                    state["version"] = tag
+            else:
+                state["version"] = tag
         return state
 
     def get_status(self) -> dict:
