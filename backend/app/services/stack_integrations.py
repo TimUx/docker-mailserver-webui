@@ -8,6 +8,8 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+_DOCKER_NO_LABEL = "<no value>"
+
 
 class StackIntegrationService:
     @staticmethod
@@ -102,7 +104,19 @@ class StackIntegrationService:
         if ok and image:
             # Extract tag from image reference (e.g. "ghcr.io/docker-mailserver/docker-mailserver:14.0")
             tag = image.rsplit(":", 1)[-1] if ":" in image else image
-            state["version"] = tag
+            # If tag is "latest", try to resolve the real version from the OCI image label
+            if tag == "latest":
+                ok_label, label_ver = self._run([
+                    "docker", "inspect", "--format",
+                    '{{index .Config.Labels "org.opencontainers.image.version"}}',
+                    settings.dms_container_name,
+                ])
+                if ok_label and label_ver and label_ver != _DOCKER_NO_LABEL:
+                    state["version"] = label_ver
+                else:
+                    state["version"] = tag
+            else:
+                state["version"] = tag
         return state
 
     def get_status(self) -> dict:
