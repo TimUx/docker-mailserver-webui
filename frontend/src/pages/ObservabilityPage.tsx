@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/auth';
 import { useTranslation } from '../i18n';
 import { useRefreshListener } from '../hooks/useRefreshListener';
 
-type ServiceInfo = { status: string; message: string; container: string; dashboard_url?: string };
+type ServiceInfo = { status: string; message: string; container: string; dashboard_url?: string; version?: string };
 
 type RspamdStat = {
   scanned?: number;
@@ -113,6 +113,11 @@ export function ObservabilityPage() {
                 {svc.message && (
                   <small style={{ display: 'block', opacity: .75, marginBottom: '.4rem' }}>
                     {svc.message}
+                  </small>
+                )}
+                {svc.version && (
+                  <small style={{ display: 'block', opacity: .75, marginBottom: '.4rem' }}>
+                    🔖 {svc.version}
                   </small>
                 )}
                 <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginTop: '.4rem' }}>

@@ -284,7 +284,7 @@ export function ImapSyncPage() {
                   <td style={{ padding: '.4rem' }}>{j.interval_minutes} {t.imapsync.min}</td>
                   <td style={{ padding: '.4rem' }}>{isRunning ? t.imapsync.running : (j.last_status ?? '-')}</td>
                   <td style={{ padding: '.4rem' }}>{formatDate(j.last_run_at, t.imapsync.never)}</td>
-                  <td style={{ padding: '.4rem', maxWidth: '16rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={j.last_message ?? undefined}>
+                  <td style={{ padding: '.4rem', maxWidth: '20rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '.85rem' }}>
                     {j.last_message ?? '-'}
                   </td>
                   <td style={{ padding: '.4rem' }}>
