@@ -43,6 +43,7 @@ export const de: Translations = {
     dark: '🌙 Dunkel',
     light: '☀️ Hell',
     refresh: '🔄 Aktualisieren',
+    refresh_label: 'Aktualisieren',
     logout: '🚪 Abmelden',
     language: 'Sprache',
   },
