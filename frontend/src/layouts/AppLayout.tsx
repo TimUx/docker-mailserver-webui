@@ -31,6 +31,7 @@ export function AppLayout() {
     ['/accounts', '👤', t.nav.accounts],
     ['/domains', '🌐', t.nav.domains],
     ['/aliases', '🔀', t.nav.aliases],
+    ['/dkim', '🔑', t.nav.dkim],
     ['/dns-wizard', '🧭', t.nav.dns_wizard],
     ['/mail-profile', '📱', t.nav.mail_profiles],
     ['/observability', '📈', t.nav.observability],

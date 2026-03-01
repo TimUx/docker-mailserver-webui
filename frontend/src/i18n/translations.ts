@@ -29,6 +29,7 @@ export type Translations = {
     accounts: string;
     domains: string;
     aliases: string;
+    dkim: string;
     dns_wizard: string;
     mail_profiles: string;
     observability: string;
@@ -121,6 +122,23 @@ export type Translations = {
     delete_confirm: (domain: string) => string;
     failed_add: string;
     failed_remove: string;
+  };
+  dkim: {
+    title: string;
+    desc: string;
+    generate: string;
+    regenerate: string;
+    generating: string;
+    selector_ph: string;
+    bits_label: string;
+    dns_record: string;
+    copy_record: string;
+    no_key: string;
+    configured: string;
+    not_configured: string;
+    failed_generate: string;
+    failed_load: string;
+    key_for: (domain: string) => string;
   };
   imapsync: {
     title: string;
