@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     dms_container_name: str = "mail-server"
     dms_setup_path: str = "setup"
     rspamd_container_name: str = "mail-rspamd"
+    rspamd_dkim_path: str = "/var/lib/rspamd/dkim"
     redis_container_name: str = "mail-redis"
     clamav_container_name: str = "mail-clamav"
     rspamd_controller_url: str = "http://mail-rspamd:11334/stat"

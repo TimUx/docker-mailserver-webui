@@ -6,6 +6,7 @@ import { AppLayout } from './layouts/AppLayout';
 import { AccountsPage } from './pages/AccountsPage';
 import { AliasesPage } from './pages/AliasesPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { DkimPage } from './pages/DkimPage';
 import { DnsWizardPage } from './pages/DnsWizardPage';
 import { DomainsPage } from './pages/DomainsPage';
 import { ImapSyncPage } from './pages/ImapSyncPage';
@@ -52,6 +53,7 @@ export function App() {
         <Route path="accounts" element={<AccountsPage />} />
         <Route path="domains" element={<DomainsPage />} />
         <Route path="aliases" element={<AliasesPage />} />
+        <Route path="dkim" element={<DkimPage />} />
         <Route path="imapsync" element={<ImapSyncPage />} />
         <Route path="dns-wizard" element={<DnsWizardPage />} />
         <Route path="mail-profile" element={<MailProfilePage />} />

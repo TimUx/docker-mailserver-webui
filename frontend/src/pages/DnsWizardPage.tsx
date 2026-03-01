@@ -187,8 +187,8 @@ export function DnsWizardPage() {
               <li>Add the <strong>A</strong> record so <code>{result.hostname}</code> resolves to your server</li>
               <li>Add the <strong>MX</strong> record to route email to <code>{result.hostname}</code></li>
               <li>Add the <strong>SPF TXT</strong> record to authorise sending</li>
-              <li>Generate DKIM keys: <code>docker exec mail-server setup config dkim</code></li>
-              <li>Copy the public key from <code>/tmp/docker-mailserver/opendkim/keys/</code> and add the <strong>DKIM TXT</strong> record</li>
+              <li>Generate DKIM keys: use the <strong>DKIM Keys</strong> page or run: <code>docker exec mail-rspamd rspamadm dkim_keygen -d {result.domain} -s dkim -k /var/lib/rspamd/dkim/{result.domain}.dkim.key -b 2048</code></li>
+              <li>Copy the <strong>DKIM TXT</strong> record from the DKIM Keys page and add it to DNS</li>
               <li>Add the <strong>DMARC TXT</strong> record (start with <code>p=none</code>, then tighten once verified)</li>
               <li>Set the <strong>PTR</strong> (rDNS) record with your hosting provider</li>
             </ol>

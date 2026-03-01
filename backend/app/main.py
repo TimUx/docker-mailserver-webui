@@ -4,12 +4,13 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth, dms, dns_wizard, imapsync, integrations, mail_profile, monitoring, settings as settings_router_module
+from app.api import auth, dkim, dms, dns_wizard, imapsync, integrations, mail_profile, monitoring, settings as settings_router_module
 from app.core.config import get_settings
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
 from app.models.user import User
 from app.models.alias_note import AliasNote  # noqa: F401 – ensure table is created
+from app.models.dkim_key import DkimKey  # noqa: F401 – ensure table is created
 from app.models.managed_domain import ManagedDomain  # noqa: F401 – ensure table is created
 from app.services.runtime import get_imapsync_service
 from app.services.security import hash_password
@@ -49,6 +50,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix=settings.api_v1_prefix)
+app.include_router(dkim.router, prefix=settings.api_v1_prefix)
 app.include_router(dms.router, prefix=settings.api_v1_prefix)
 app.include_router(dns_wizard.router, prefix=settings.api_v1_prefix)
 app.include_router(imapsync.router, prefix=settings.api_v1_prefix)
