@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuth } from '../contexts/auth';
 import { useTranslation } from '../i18n';
@@ -10,7 +10,11 @@ export function LoginPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const setAuth = useAuth((s) => s.setAuth);
+  const user = useAuth((s) => s.user);
   const { t } = useTranslation();
+
+  // Already authenticated — go straight to the app.
+  if (user) return <Navigate to="/" />;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();

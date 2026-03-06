@@ -199,13 +199,15 @@ export function AliasesPage() {
 
   const showDomainCol = selectedDomain === null;
 
+  const onCreateKeyDown = (e: React.KeyboardEvent) => { if (e.key === 'Enter') void create(); };
+
   return (
     <div className="panel">
       <h1>{t.aliases.title}</h1>
       <div className="row" style={{ marginBottom: '.5rem' }}>
-        <input placeholder={t.aliases.alias_ph} value={alias} onChange={(e) => setAlias(e.target.value)} style={{ flex: 1 }} />
-        <input placeholder={t.aliases.dest_ph} value={destination} onChange={(e) => setDestination(e.target.value)} style={{ flex: 1 }} />
-        <button onClick={create}>{t.common.add}</button>
+        <input placeholder={t.aliases.alias_ph} value={alias} onChange={(e) => setAlias(e.target.value)} style={{ flex: 1 }} onKeyDown={onCreateKeyDown} />
+        <input placeholder={t.aliases.dest_ph} value={destination} onChange={(e) => setDestination(e.target.value)} style={{ flex: 1 }} onKeyDown={onCreateKeyDown} />
+        <button type="button" onClick={() => void create()}>{t.common.add}</button>
       </div>
       {error && <p style={{ color: 'var(--color-warn, #f59e0b)' }}>{error}</p>}
 
@@ -215,8 +217,8 @@ export function AliasesPage() {
           <strong>{t.aliases.edit_note_for(editTarget)}</strong>
           <div className="row" style={{ marginTop: '.5rem' }}>
             <input placeholder={t.common.note_ph} value={editNote} onChange={(e) => setEditNote(e.target.value)} style={{ flex: 1 }} />
-            <button onClick={saveNote}>{t.common.save}</button>
-            <button onClick={cancelEditNote}>{t.common.cancel}</button>
+            <button type="button" onClick={saveNote}>{t.common.save}</button>
+            <button type="button" onClick={cancelEditNote}>{t.common.cancel}</button>
           </div>
         </div>
       )}
@@ -226,7 +228,7 @@ export function AliasesPage() {
         <div className="panel" style={{ marginBottom: '1rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <strong>{t.aliases.edit_destinations_for(editingGroup.alias)}</strong>
-            <button onClick={cancelEditDestinations}>{t.common.cancel}</button>
+            <button type="button" onClick={cancelEditDestinations}>{t.common.cancel}</button>
           </div>
           <div style={{ marginTop: '.5rem' }}>
             {editingGroup.destinations.length === 0 && (
@@ -236,7 +238,8 @@ export function AliasesPage() {
               <div key={dest} className="row" style={{ marginBottom: '.25rem' }}>
                 <span style={{ flex: 1, fontFamily: 'monospace', fontSize: '.9rem', padding: '.3rem .5rem' }}>{dest}</span>
                 <button
-                  onClick={() => removeDestination(editingGroup.alias, dest)}
+                  type="button"
+                  onClick={() => void removeDestination(editingGroup.alias, dest)}
                   title={t.common.delete}
                   style={{ color: '#ef4444' }}
                 >🗑</button>
@@ -251,18 +254,18 @@ export function AliasesPage() {
               style={{ flex: 1 }}
               onKeyDown={(e) => { if (e.key === 'Enter') void addDestination(); }}
             />
-            <button onClick={() => void addDestination()} disabled={!newDest}>{t.common.add}</button>
+            <button type="button" onClick={() => void addDestination()} disabled={!newDest}>{t.common.add}</button>
           </div>
         </div>
       )}
 
       {/* Domain tabs */}
       <div style={{ display: 'flex', gap: '.35rem', flexWrap: 'wrap', marginBottom: '.75rem', borderBottom: '1px solid var(--border)', paddingBottom: '.5rem' }}>
-        <button style={tabStyle(selectedDomain === null)} onClick={() => selectDomain(null)}>
+        <button type="button" style={tabStyle(selectedDomain === null)} onClick={() => selectDomain(null)}>
           {t.common.all} <span style={{ opacity: .65, fontSize: '.8rem' }}>({groups.length})</span>
         </button>
         {domains.map((d) => (
-          <button key={d} style={tabStyle(selectedDomain === d)} onClick={() => selectDomain(d)}>
+          <button type="button" key={d} style={tabStyle(selectedDomain === d)} onClick={() => selectDomain(d)}>
             {d} <span style={{ opacity: .65, fontSize: '.8rem' }}>({domainCounts[d] ?? 0})</span>
           </button>
         ))}
@@ -275,7 +278,7 @@ export function AliasesPage() {
           onChange={(e) => setFilter(e.target.value)}
           style={{ flex: 1 }}
         />
-        {filter && <button onClick={() => setFilter('')}>{t.common.clear}</button>}
+        {filter && <button type="button" onClick={() => setFilter('')}>{t.common.clear}</button>}
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -306,9 +309,9 @@ export function AliasesPage() {
               {showDomainCol && <td style={{ padding: '.4rem .5rem', fontSize: '.85rem', opacity: .75 }}>{g.domain}</td>}
               <td style={{ padding: '.4rem .5rem', fontSize: '.85rem', opacity: .75 }}>{notes[g.alias] ?? ''}</td>
               <td style={{ padding: '.4rem .5rem', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                <button onClick={() => startEditDestinations(g.alias)} title={t.aliases.edit_destinations}>✏️</button>
-                <button onClick={() => startEditNote(g.alias)} title={t.accounts.edit_note}>📝</button>
-                <button onClick={() => void removeAlias(g)} title={t.common.delete} style={{ color: '#ef4444' }}>🗑</button>
+                <button type="button" onClick={() => startEditDestinations(g.alias)} title={t.aliases.edit_destinations}>✏️</button>
+                <button type="button" onClick={() => startEditNote(g.alias)} title={t.accounts.edit_note}>📝</button>
+                <button type="button" onClick={() => void removeAlias(g)} title={t.common.delete} style={{ color: '#ef4444' }}>🗑</button>
               </td>
             </tr>
           ))}
