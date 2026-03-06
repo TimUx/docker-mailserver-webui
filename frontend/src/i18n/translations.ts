@@ -98,6 +98,12 @@ export type Translations = {
     no_match: string;
     filter_ph: string;
     edit_note_for: (target: string) => string;
+    edit_destinations_for: (target: string) => string;
+    edit_destinations: string;
+    add_dest_ph: string;
+    no_destinations: string;
+    failed_add_destination: string;
+    delete_alias_confirm: (alias: string) => string;
     alias_col: string;
     destination_col: string;
     domain_col: string;
