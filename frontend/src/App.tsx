@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { api } from './api/client';
 import { useAuth } from './contexts/auth';
@@ -23,32 +23,34 @@ function getCsrfCookie(name: string): string | undefined {
   return undefined;
 }
 
-function Protected() {
+function Protected({ initializing }: { initializing: boolean }) {
   const user = useAuth((s) => s.user);
+  if (initializing) return null;
   return user ? <AppLayout /> : <Navigate to="/login" />;
 }
 
 export function App() {
-  const user = useAuth((s) => s.user);
   const setAuth = useAuth((s) => s.setAuth);
-
-  const tryRestoreSession = useCallback(() => {
-    if (!user) {
-      const csrf = getCsrfCookie('dms_csrf');
-      if (csrf) {
-        api.get('/auth/me').then((r) => setAuth(r.data, csrf)).catch(() => undefined);
-      }
-    }
-  }, [user, setAuth]);
+  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    tryRestoreSession();
-  }, [tryRestoreSession]);
+    const csrf = getCsrfCookie('dms_csrf');
+    if (csrf) {
+      api.get('/auth/me')
+        .then((r) => setAuth(r.data, csrf))
+        .catch(() => undefined)
+        .finally(() => setInitializing(false));
+    } else {
+      setInitializing(false);
+    }
+  // setAuth is a stable Zustand action — safe to omit from deps.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/" element={<Protected />}>
+      <Route path="/" element={<Protected initializing={initializing} />}>
         <Route index element={<DashboardPage />} />
         <Route path="accounts" element={<AccountsPage />} />
         <Route path="domains" element={<DomainsPage />} />
