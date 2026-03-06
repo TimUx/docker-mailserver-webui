@@ -65,6 +65,7 @@ export function AliasesPage() {
   // Destination editing
   const [editAliasTarget, setEditAliasTarget] = useState<string | null>(null);
   const [newDest, setNewDest] = useState('');
+  const [mailboxes, setMailboxes] = useState<string[]>([]);
   const csrf = useAuth((s) => s.csrfToken);
   const { t } = useTranslation();
 
@@ -72,6 +73,9 @@ export function AliasesPage() {
     api.get('/dms/aliases').then((r) => {
       setAliasEntries((r.data.aliases as string[]).map(parseAlias));
       setNotes(r.data.notes ?? {});
+    }).catch(() => undefined);
+    api.get('/dms/accounts').then((r) => {
+      setMailboxes((r.data.accounts as Array<{ email: string }>).map((a) => a.email));
     }).catch(() => undefined);
   }, []);
 
@@ -204,9 +208,12 @@ export function AliasesPage() {
   return (
     <div className="panel">
       <h1>{t.aliases.title}</h1>
+      <datalist id="alias-mailbox-list">
+        {mailboxes.map((m) => <option key={m} value={m} />)}
+      </datalist>
       <div className="row" style={{ marginBottom: '.5rem' }}>
         <input placeholder={t.aliases.alias_ph} value={alias} onChange={(e) => setAlias(e.target.value)} style={{ flex: 1 }} onKeyDown={onCreateKeyDown} />
-        <input placeholder={t.aliases.dest_ph} value={destination} onChange={(e) => setDestination(e.target.value)} style={{ flex: 1 }} onKeyDown={onCreateKeyDown} />
+        <input list="alias-mailbox-list" placeholder={t.aliases.dest_ph} value={destination} onChange={(e) => setDestination(e.target.value)} style={{ flex: 1 }} onKeyDown={onCreateKeyDown} />
         <button type="button" onClick={() => void create()}>{t.common.add}</button>
       </div>
       {error && <p style={{ color: 'var(--color-warn, #f59e0b)' }}>{error}</p>}
@@ -230,24 +237,38 @@ export function AliasesPage() {
             <strong>{t.aliases.edit_destinations_for(editingGroup.alias)}</strong>
             <button type="button" onClick={cancelEditDestinations}>{t.common.cancel}</button>
           </div>
-          <div style={{ marginTop: '.5rem' }}>
+          <div style={{ marginTop: '.5rem', display: 'flex', flexWrap: 'wrap', gap: '.35rem' }}>
             {editingGroup.destinations.length === 0 && (
               <p style={{ opacity: .5, fontSize: '.85rem', margin: '.25rem 0' }}>{t.aliases.no_destinations}</p>
             )}
             {editingGroup.destinations.map((dest) => (
-              <div key={dest} className="row" style={{ marginBottom: '.25rem' }}>
-                <span style={{ flex: 1, fontFamily: 'monospace', fontSize: '.9rem', padding: '.3rem .5rem' }}>{dest}</span>
+              <span
+                key={dest}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '.3rem',
+                  background: 'var(--tag-bg, rgba(99,102,241,.12))',
+                  border: '1px solid var(--border)',
+                  borderRadius: '.3rem', padding: '.2rem .5rem',
+                  fontSize: '.85rem', fontFamily: 'monospace',
+                }}
+              >
+                {dest}
                 <button
                   type="button"
                   onClick={() => void removeDestination(editingGroup.alias, dest)}
                   title={t.common.delete}
-                  style={{ color: '#ef4444' }}
-                >🗑</button>
-              </div>
+                  style={{
+                    padding: '.1rem .25rem', lineHeight: 1,
+                    color: '#ef4444', background: 'none',
+                    border: 'none', cursor: 'pointer', fontSize: '1rem',
+                  }}
+                >×</button>
+              </span>
             ))}
           </div>
           <div className="row" style={{ marginTop: '.75rem' }}>
             <input
+              list="alias-mailbox-list"
               placeholder={t.aliases.add_dest_ph}
               value={newDest}
               onChange={(e) => setNewDest(e.target.value)}
