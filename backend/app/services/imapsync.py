@@ -165,6 +165,22 @@ class ImapSyncService:
                 cmd += ["--ssl1", "--ssl2"]
             if not job.verify_cert:
                 cmd += ["--tls1", "--tls2"]
+            if job.mirror:
+                # Mirror mode: keep destination in sync with source, including
+                # flags, internal dates and deletions (--delete2, --expunge2,
+                # --uidexpunge2 are destructive – they remove messages from the
+                # destination that no longer exist on the source).
+                cmd += [
+                    "--syncinternaldates",
+                    "--syncflags",
+                    "--delete2",
+                    "--expunge2",
+                    "--uidexpunge2",
+                    "--useuid",
+                    "--automap",
+                    "--subscribe",
+                    "--nofoldersizes",
+                ]
 
             logger.info("Running imapsync for job %d: %s → %s", job_id, job.source_user, job.destination_user)
             try:

@@ -168,6 +168,7 @@ export const de: Translations = {
     port: 'Port',
     interval: 'Intervall (Minuten)',
     ssl: 'SSL aktiviert',
+    mirror: 'Spiegeln',
     enabled: 'Job aktiviert',
     no_jobs: 'Keine Sync-Jobs definiert.',
     interval_col: 'Intervall',

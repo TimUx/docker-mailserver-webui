@@ -13,6 +13,7 @@ class ImapSyncJobBase(BaseModel):
     ssl_enabled: bool = True
     verify_cert: bool = True
     interval_minutes: int = Field(default=60, ge=5, le=1440)
+    mirror: bool = False
     enabled: bool = True
 
 
@@ -33,6 +34,7 @@ class ImapSyncJobUpdate(BaseModel):
     ssl_enabled: bool | None = None
     verify_cert: bool | None = None
     interval_minutes: int | None = Field(default=None, ge=5, le=1440)
+    mirror: bool | None = None
     enabled: bool | None = None
 
 

@@ -15,6 +15,7 @@ type Job = {
   ssl_enabled: boolean;
   verify_cert: boolean;
   interval_minutes: number;
+  mirror: boolean;
   enabled: boolean;
   last_status: string | null;
   last_message: string | null;
@@ -36,6 +37,7 @@ const emptyForm = {
   port: 993,
   ssl_enabled: true,
   interval_minutes: 60,
+  mirror: false,
   enabled: true,
 };
 
@@ -117,6 +119,7 @@ export function ImapSyncPage() {
       port: job.port,
       ssl_enabled: job.ssl_enabled,
       interval_minutes: job.interval_minutes,
+      mirror: job.mirror,
       enabled: job.enabled,
     });
     // detect if the saved dest_user matches a local account
@@ -246,6 +249,10 @@ export function ImapSyncPage() {
           <label style={{ display: 'block', marginBottom: '.5rem' }}>
             <input type="checkbox" checked={form.ssl_enabled} onChange={(e) => setForm((f) => ({ ...f, ssl_enabled: e.target.checked }))} />
             {' '}{t.imapsync.ssl}
+          </label>
+          <label style={{ display: 'block', marginBottom: '.5rem' }}>
+            <input type="checkbox" checked={form.mirror} onChange={(e) => setForm((f) => ({ ...f, mirror: e.target.checked }))} />
+            {' '}{t.imapsync.mirror}
           </label>
           <label style={{ display: 'block', marginBottom: '.5rem' }}>
             <input type="checkbox" checked={form.enabled} onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))} />
