@@ -27,9 +27,11 @@ function groupAliases(entries: AliasEntry[]): AliasGroup[] {
       map.set(entry.alias, { alias: entry.alias, destinations: [], domain: entry.domain, destSet: new Set() });
     }
     const group = map.get(entry.alias)!;
-    if (entry.destination && !group.destSet.has(entry.destination)) {
-      group.destSet.add(entry.destination);
-      group.destinations.push(entry.destination);
+    for (const dest of (entry.destination ?? '').split(',').map((d) => d.trim()).filter(Boolean)) {
+      if (!group.destSet.has(dest)) {
+        group.destSet.add(dest);
+        group.destinations.push(dest);
+      }
     }
   }
   return [...map.values()].map(({ destSet: _destSet, ...g }) => g);
