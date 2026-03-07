@@ -3,6 +3,7 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import inspect, text
 
 from app.api import auth, dkim, dms, dns_wizard, imapsync, integrations, mail_profile, monitoring, settings as settings_router_module
 from app.core.config import get_settings
@@ -11,6 +12,7 @@ from app.db.session import SessionLocal, engine
 from app.models.user import User
 from app.models.alias_note import AliasNote  # noqa: F401 – ensure table is created
 from app.models.dkim_key import DkimKey  # noqa: F401 – ensure table is created
+from app.models.imapsync_job import ImapSyncJob  # noqa: F401 – ensure table is created
 from app.models.managed_domain import ManagedDomain  # noqa: F401 – ensure table is created
 from app.services.runtime import get_imapsync_service
 from app.services.security import hash_password
@@ -20,9 +22,27 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
+def _run_migrations() -> None:
+    """Apply any schema changes that create_all() cannot handle (existing tables).
+
+    Add new entries here whenever a column is added to an existing model so that
+    deployments upgrading from an older version get the column automatically.
+    """
+    inspector = inspect(engine)
+    if "imapsync_jobs" in inspector.get_table_names():
+        existing_columns = {col["name"] for col in inspector.get_columns("imapsync_jobs")}
+        if "mirror" not in existing_columns:
+            # Default 0 (False): existing jobs were created without mirror mode, so
+            # treating them as non-mirror preserves their original behaviour.
+            with engine.connect() as conn:
+                conn.execute(text("ALTER TABLE imapsync_jobs ADD COLUMN mirror BOOLEAN NOT NULL DEFAULT 0"))
+                conn.commit()
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
+    _run_migrations()
     db = SessionLocal()
     try:
         if not db.query(User).filter(User.email == settings.admin_email).first():
