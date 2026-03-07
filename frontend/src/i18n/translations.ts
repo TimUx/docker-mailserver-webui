@@ -166,6 +166,7 @@ export type Translations = {
     port: string;
     interval: string;
     ssl: string;
+    mirror: string;
     enabled: string;
     no_jobs: string;
     interval_col: string;

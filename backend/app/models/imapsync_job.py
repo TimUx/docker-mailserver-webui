@@ -21,6 +21,7 @@ class ImapSyncJob(Base):
     ssl_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     verify_cert: Mapped[bool] = mapped_column(Boolean, default=True)
     interval_minutes: Mapped[int] = mapped_column(Integer, default=60)
+    mirror: Mapped[bool] = mapped_column(Boolean, default=False)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     last_status: Mapped[str | None] = mapped_column(String(64), nullable=True)
     last_message: Mapped[str | None] = mapped_column(Text, nullable=True)
