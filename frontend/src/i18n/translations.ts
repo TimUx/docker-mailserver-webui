@@ -52,7 +52,10 @@ export type Translations = {
     email_ph: string;
     password_ph: string;
     sign_in: string;
+    signing_in: string;
     login_failed: string;
+    network_error: string;
+    server_error: string;
   };
   dashboard: {
     title: string;

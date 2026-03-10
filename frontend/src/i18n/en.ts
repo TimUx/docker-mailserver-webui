@@ -54,7 +54,10 @@ export const en: Translations = {
     email_ph: 'Email address',
     password_ph: 'Password',
     sign_in: 'Sign in',
-    login_failed: 'Login failed. Please check your credentials.',
+    signing_in: 'Signing in…',
+    login_failed: 'Invalid email or password.',
+    network_error: 'Cannot reach the server. Please check your connection or whether the service is running.',
+    server_error: 'A server error occurred. Please try again or check the container logs.',
   },
   dashboard: {
     title: '📊 Dashboard',
