@@ -15,7 +15,7 @@ from app.models.dkim_key import DkimKey  # noqa: F401 – ensure table is create
 from app.models.imapsync_job import ImapSyncJob  # noqa: F401 – ensure table is created
 from app.models.managed_domain import ManagedDomain  # noqa: F401 – ensure table is created
 from app.services.runtime import get_imapsync_service
-from app.services.security import hash_password
+from app.services.security import hash_password, verify_password
 from app.services.settings import load_settings_from_db, seed_settings
 
 logger = logging.getLogger(__name__)
@@ -45,9 +45,30 @@ async def lifespan(_: FastAPI):
     _run_migrations()
     db = SessionLocal()
     try:
-        if not db.query(User).filter(User.email == settings.admin_email).first():
-            db.add(User(email=settings.admin_email, hashed_password=hash_password(settings.admin_password), is_admin=True))
-            db.commit()
+        admin_user = db.query(User).filter(User.email == settings.admin_email).first()
+        if admin_user is None:
+            # If exactly one admin exists with a different email this is an
+            # email-change scenario – migrate that user instead of creating a
+            # duplicate so the operator's existing sessions/data are preserved.
+            existing_admin_count = db.query(User).filter(User.is_admin.is_(True)).count()
+            if existing_admin_count == 1:
+                admin_user = db.query(User).filter(User.is_admin.is_(True)).first()
+                admin_user.email = settings.admin_email
+                admin_user.hashed_password = hash_password(settings.admin_password)
+                db.commit()
+                logger.info("Migrated admin user email to %s", settings.admin_email)
+            else:
+                db.add(User(email=settings.admin_email, hashed_password=hash_password(settings.admin_password), is_admin=True))
+                db.commit()
+                logger.info("Created admin user %s", settings.admin_email)
+        else:
+            # Admin email already matches; sync the password if it changed in
+            # the environment so that updating ADMIN_PASSWORD takes effect on
+            # the next container restart without requiring a DB wipe.
+            if not verify_password(settings.admin_password, admin_user.hashed_password):
+                admin_user.hashed_password = hash_password(settings.admin_password)
+                db.commit()
+                logger.info("Updated admin password for %s", settings.admin_email)
         # Seed DB settings from env vars on first run, then load DB values into runtime
         seed_settings(db)
         load_settings_from_db(db)

@@ -54,7 +54,10 @@ export const de: Translations = {
     email_ph: 'E-Mail-Adresse',
     password_ph: 'Passwort',
     sign_in: 'Anmelden',
-    login_failed: 'Anmeldung fehlgeschlagen. Bitte Zugangsdaten prüfen.',
+    signing_in: 'Anmeldung läuft…',
+    login_failed: 'E-Mail oder Passwort ist falsch.',
+    network_error: 'Der Server ist nicht erreichbar. Bitte prüfen Sie Ihre Verbindung oder ob der Dienst läuft.',
+    server_error: 'Ein Serverfehler ist aufgetreten. Bitte erneut versuchen oder die Container-Logs prüfen.',
   },
   dashboard: {
     title: '📊 Dashboard',

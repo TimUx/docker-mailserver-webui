@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { api } from '../api/client';
 import { useAuth } from '../contexts/auth';
 import { useTranslation } from '../i18n';
@@ -8,6 +9,7 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const setAuth = useAuth((s) => s.setAuth);
   const user = useAuth((s) => s.user);
@@ -19,17 +21,33 @@ export function LoginPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
     try {
       const { data } = await api.post('/auth/login', { email, password });
       setAuth(data.user, data.csrf_token);
       navigate('/');
-    } catch {
+    } catch (err) {
       if (import.meta.env.DEV) {
         setAuth({ id: 1, email: 'demo@example.com', is_admin: true }, 'demo-csrf');
         navigate('/');
         return;
       }
-      setError(t.login.login_failed);
+      if (axios.isAxiosError(err)) {
+        if (!err.response) {
+          // Network-level failure: nginx/server not reachable at all.
+          setError(t.login.network_error);
+        } else if (err.response.status === 401) {
+          // Wrong email or password.
+          setError(t.login.login_failed);
+        } else {
+          // Unexpected server-side error (5xx, etc.).
+          setError(t.login.server_error);
+        }
+      } else {
+        setError(t.login.login_failed);
+      }
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -65,7 +83,9 @@ export function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button type="submit" className="login-btn">{t.login.sign_in}</button>
+          <button type="submit" className="login-btn" disabled={submitting}>
+            {submitting ? t.login.signing_in : t.login.sign_in}
+          </button>
         </form>
       </div>
     </div>
