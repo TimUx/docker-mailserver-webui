@@ -20,7 +20,13 @@ server {
   }
 
   location /rspamd-ui/ {
-    proxy_pass http://${RSPAMD_WEB_HOST}/;
+    # Use a runtime variable so nginx resolves the hostname at request time
+    # instead of at startup. This prevents nginx from failing to start when
+    # the rspamd container is not available.
+    resolver 127.0.0.11 valid=30s ipv6=off;
+    set $rspamd_upstream "${RSPAMD_WEB_HOST}";
+    rewrite ^/rspamd-ui/(.*) /$1 break;
+    proxy_pass http://$rspamd_upstream;
     proxy_http_version 1.1;
     proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
