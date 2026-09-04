@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
-    directory: "/frontend"
+    directory: "/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
@@ -9,7 +9,7 @@ updates:
       separator: "/"
 
   - package-ecosystem: "pip"
-    directory: "/backend"
+    directory: "/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
@@ -17,15 +17,15 @@ updates:
       separator: "/"
 
   - package-ecosystem: "docker"
-    directory: "/backend"
+    directory: "/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
     pull-request-branch-name:
       separator: "/"
 
-  - package-ecosystem: "docker"
-    directory: "/frontend"
+  - package-ecosystem: "composer"
+    directory: "/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
