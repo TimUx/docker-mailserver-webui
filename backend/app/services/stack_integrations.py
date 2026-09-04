@@ -53,7 +53,10 @@ class StackIntegrationService:
         state = self._docker_running(settings.clamav_container_name)
         if state["status"] != "running":
             return state
+        # DMS containers ship only clamscan, not clamdscan — fall back if needed.
         ok, out = self._run(["docker", "exec", settings.clamav_container_name, "clamdscan", "--version"])
+        if not ok:
+            ok, out = self._run(["docker", "exec", settings.clamav_container_name, "clamscan", "--version"])
         version = None
         if ok and out:
             m = re.search(r"ClamAV\s+([\d.]+)", out, re.IGNORECASE)
@@ -62,7 +65,7 @@ class StackIntegrationService:
         result = {
             **state,
             "status": "running" if ok else "degraded",
-            "message": out.splitlines()[0] if out else "clamdscan version fetched",
+            "message": out.splitlines()[0] if out else "clamav version fetched",
         }
         if version:
             result["version"] = version
