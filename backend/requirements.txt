@@ -9,4 +9,4 @@ passlib[argon2]==1.7.4
 cryptography==50.0.1
 python-multipart==0.0.32
 httpx==0.28.1
-email-validator==2.2.0
+email-validator==2.3.0
