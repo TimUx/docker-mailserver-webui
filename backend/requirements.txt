@@ -7,6 +7,6 @@ pydantic-settings==2.5.2
 python-jose[cryptography]==3.5.0
 passlib[argon2]==1.7.4
 cryptography==50.0.1
-python-multipart==0.0.10
+python-multipart==0.0.32
 httpx==0.28.1
 email-validator==2.2.0
